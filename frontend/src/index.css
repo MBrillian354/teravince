@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@400;700&family=Public+Sans:wght@400;700&display=swap');
+@import "tailwindcss";
+
+
+/* Tailwind v4 Configuration */
+@theme {
+  /* Custom colors */
+  --color-background: #EEEBDD;
+  --color-primary: #CE1212;
+  --color-danger: #810000;
+  --color-secondary: #1B1717;
+
+
+  /* Custom fonts */
+  --font-display: "Inter", "sans-serif";
+  --font-inter: "Inter", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-public-sans: "Public Sans", sans-serif;
+
+  /* Custom animations */
+  --animate-fade-in: fade-in 0.5s ease-in-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+}
+
+/* Base styles for better defaults */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+#root {
+  height: 100%;
+}

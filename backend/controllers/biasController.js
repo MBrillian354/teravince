@@ -26,11 +26,11 @@ You are an AI system that detects bias in supervisor reviews of employee task su
 
 Analyze the following task data and supervisor review. Determine whether the review contains any bias based on gender, race, religion, age, personal preference, or unjustified judgment unrelated to the task itself.
 
-Return:
+Return: {
 - is_bias: true or false
 - bias_label: short label (e.g., gender bias, personal bias, racial bias, etc.)
 - bias_reason: explanation about which part of the review is biased and why
-
+                            }
 Employee Task Submission:
 - Description: ${task.description}
 - Submission Timestamp: ${task.submitted_at}

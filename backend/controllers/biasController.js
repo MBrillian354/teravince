@@ -1,9 +1,12 @@
+require('dotenv').config();
 const Task = require('../models/Task');
 const axios = require('axios');
 
 exports.checkBias = async (req, res) => {
     const { taskId } = req.params;
     const { review } = req.body;
+    
+    console.log(process.env.ELICE_API_KEY)
 
     try {
         const task = await Task.findById(taskId);
@@ -59,7 +62,7 @@ Supervisor Review:
 
         res.json(result);
     } catch (err) {
-        console.error('Bias check error:', err.message);
+        console.error('Bias check error:', err);
         res.status(500).json({ error: 'Bias check failed' });
     }
 };

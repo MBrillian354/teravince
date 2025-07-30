@@ -1,20 +1,19 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Dashboard from './pages/Dashboard'
-import StaffView from './pages/StaffView'
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Dashboard from './components/spvDashboard';
+import Footer from './components/Footer';
 
-function App() {
+export default function App() {
   return (
-    <Router>
-      <div>
-        <Navbar />
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      <Navbar />
+      <main className="flex-1 p-4">
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/staff" element={<StaffView />} />
         </Routes>
-      </div>
-    </Router>
-  )
+      </main>
+      <Footer />
+    </div>
+  );
 }
-
-export default App

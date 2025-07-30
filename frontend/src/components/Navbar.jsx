@@ -1,18 +1,18 @@
-import { Link } from 'react-router-dom'
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 
-function Navbar() {
-    return (
-        <nav className="bg-background p-6 text-black ">
-            <ul className="flex gap-2">
-                <li className='p-2 border'>
-                    <Link to="/">Dashboard</Link>
-                </li>
-                <li className='p-2 border'> 
-                    <Link to="/staff">Staffs</Link>
-                </li>
-            </ul>
+export default function Navbar() {
+  return (
+    <header className="bg-white shadow">
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <h1 className="text-xl font-bold text-indigo-700">TeraVince</h1>
+        <nav className="space-x-3 text-sm">
+          <NavLink to="/" className="hover:text-indigo-500">Dashboard</NavLink>
+          <NavLink to="/profile" className="hover:text-indigo-500">My Profile</NavLink>
+          <NavLink to="/tasks" className="hover:text-indigo-500">Tasks & Reports</NavLink>
         </nav>
-    )
+        <button className="text-gray-600 hover:text-gray-800 text-sm">Log Out</button>
+      </div>
+    </header>
+  );
 }
-
-export default Navbar

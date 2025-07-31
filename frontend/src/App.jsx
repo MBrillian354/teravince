@@ -1,12 +1,12 @@
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Dashboard from './components/spvDashboard';
-import MyProfile from './components/myProfile.jsx';
-import MyStaffs from './components/myStaffs';
-import Footer from './components/Footer';
-import PrivacyPolicy from './components/privacyPolicy.jsx';
-import TermsAndConditions from './components/termsAndConditions.jsx';
-import CookiePolicy from './components/cookiePolicy.jsx';
+import Dashboard from './pages/SPVDashboard.jsx';
+import MyProfile from './pages/MyProfile.jsx';
+import MyStaffs from './pages/MyStaffs.jsx';
+import Footer from './components/Footer.jsx';
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
+import TermsAndConditions from './pages/TermsAndConditions.jsx';
+import CookiePolicy from './pages/CookiePolicy.jsx';
 
 export default function App() {
   return (

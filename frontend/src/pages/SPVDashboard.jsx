@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink }       from 'react-router-dom';
-import TaskStatusChart   from './taskStatusChart';
-import StatsCard         from './statsCard';
+import TaskStatusChart   from '../components/TaskStatusChart';
+import StatsCard         from '../components/StatsCard';
 
 export default function Dashboard() {
   // state for the month picker
@@ -52,20 +52,33 @@ export default function Dashboard() {
         </NavLink>
       </nav>
 
-      {/* Task Overview + Month Picker (sleek, no shadows) */}
-      <div className="flex justify-between items-center mb-4">
-        {/* Left-aligned label */}
-        <div className="text-lg font-medium text-gray-700">
-          Task Overview
-        </div>
-        {/* Right-aligned month selector */}
-        <input
-          type="month"
-          value={selectedMonth}
-          onChange={e => setSelectedMonth(e.target.value)}
-          className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-        />
-      </div>
+      {/* Task Overview + Month Picker (with label above input) */}
+<div className="flex justify-between items-end mb-4">
+  {/* Left label */}
+  <div className="text-lg font-medium text-gray-700">
+    Task Overview
+  </div>
+
+  {/* Right: explanatory text + month input with its own label */}
+  <div className="flex items-center space-x-3">
+    <div className="flex flex-col">
+      <label
+        htmlFor="month-selector"
+        className="text-sm text-gray-600 mb-1"
+      >
+        Filter by Month
+      </label>
+      <input
+        id="month-selector"
+        type="month"
+        value={selectedMonth}
+        onChange={e => setSelectedMonth(e.target.value)}
+        className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      />
+    </div>
+  </div>
+</div>
+
 
       {/* Centered Donut + Legend Card */}
       <div className="bg-white rounded shadow p-4 mb-6 flex flex-col items-center justify-center md: flex-row md:items-center space-y-4 md: space-y-0 md:space-x-8">

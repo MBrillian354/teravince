@@ -49,7 +49,7 @@ return (
       <h1 className="text-3xl font-bold mb-6">
         Welcome back, <span className="underline">Supervisor</span>.
       </h1>
-
+      
       {/* 1. Underline-only tab bar */}
       <nav className="flex space-x-6 border-b border-gray-200 mb-4">
         <NavLink
@@ -80,30 +80,45 @@ return (
       </nav>
 
       {/* 2–4. Sleek date‐range row (no shadows, white inputs, gray borders, right-aligned) */}
-      <div className="flex justify-between items-center mb-4">
+      {/* My Staff’s Profile + Labeled Date Range */}
+<div className="flex justify-between items-start mb-4">
   {/* Left label */}
   <div className="text-lg font-medium text-gray-700">
     My Staff’s Profile
   </div>
 
-  {/* Date inputs (right-aligned) */}
-  <div className="flex items-center space-x-3">
-    <input
-      type="date"
-      value={startDate}
-      onChange={e => setStartDate(e.target.value)}
-      className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-    />
-    <span className="text-gray-500">—</span>
-    <input
-      type="date"
-      value={endDate}
-      onChange={e => setEndDate(e.target.value)}
-      max={today}
-      className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-    />
+  {/* Right: two date inputs, each with its own label */}
+  <div className="flex space-x-6">
+    {/* Start Date */}
+    <div className="flex flex-col">
+      <label htmlFor="start-date" className="text-sm text-gray-600 mb-1">
+        Start Date
+      </label>
+      <input
+        id="start-date"
+        type="date"
+        value={startDate}
+        onChange={e => setStartDate(e.target.value)}
+        className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      />
+    </div>
+    {/* End Date */}
+    <div className="flex flex-col">
+      <label htmlFor="end-date" className="text-sm text-gray-600 mb-1">
+        End Date
+      </label>
+      <input
+        id="end-date"
+        type="date"
+        value={endDate}
+        onChange={e => setEndDate(e.target.value)}
+        max={today}
+        className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      />
+    </div>
   </div>
 </div>
+
 
    {/* Staff Table */}
    <div className="bg-white rounded shadow overflow-x-auto mb-6">

@@ -80,22 +80,30 @@ return (
       </nav>
 
       {/* 2–4. Sleek date‐range row (no shadows, white inputs, gray borders, right-aligned) */}
-      <div className="flex justify-end items-center mb-4 space-x-3">
-        <input
-          type="date"
-          value={startDate}
-          onChange={e => setStartDate(e.target.value)}
-          className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-        />
-        <span className="text-gray-500">—</span>
-        <input
-          type="date"
-          value={endDate}
-          onChange={e => setEndDate(e.target.value)}
-          max={today}
-          className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-        />
-      </div>
+      <div className="flex justify-between items-center mb-4">
+  {/* Left label */}
+  <div className="text-lg font-medium text-gray-700">
+    My Staff’s Profile
+  </div>
+
+  {/* Date inputs (right-aligned) */}
+  <div className="flex items-center space-x-3">
+    <input
+      type="date"
+      value={startDate}
+      onChange={e => setStartDate(e.target.value)}
+      className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+    />
+    <span className="text-gray-500">—</span>
+    <input
+      type="date"
+      value={endDate}
+      onChange={e => setEndDate(e.target.value)}
+      max={today}
+      className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+    />
+  </div>
+</div>
 
    {/* Staff Table */}
    <div className="bg-white rounded shadow overflow-x-auto mb-6">

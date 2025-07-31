@@ -68,7 +68,7 @@ export default function Dashboard() {
       </div>
 
       {/* Centered Donut + Legend Card */}
-      <div className="bg-white rounded shadow p-4 mb-6 flex justify-center items-center h-80">
+      <div className="bg-white rounded shadow p-4 mb-6 flex flex-col items-center justify-center md: flex-row md:items-center space-y-4 md: space-y-0 md:space-x-8">
         <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-8">
           <TaskStatusChart />
           <ul className="space-y-2">

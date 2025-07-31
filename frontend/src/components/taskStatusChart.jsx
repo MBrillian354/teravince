@@ -10,7 +10,7 @@ const dataColors = ['#374151', '#6B7280', '#9CA3AF', '#D1D5DB'];
 export default function TaskStatusChart() {
   return (
     // Bigger donut
-    <div className="h-56 w-56">
+    <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56">
       <Doughnut
         data={{
           datasets: [{ data: dataValues, backgroundColor: dataColors }]

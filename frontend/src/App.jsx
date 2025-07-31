@@ -6,8 +6,8 @@ import StaffView from './pages/StaffView'
 function App() {
   return (
     <Router>
-      <div>
-        <Navbar />
+      <Navbar />
+      <div className='min-h-screen bg-background text-gray-900 font-inter max-w-6xl mx-auto'>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/staff" element={<StaffView />} />

@@ -1,72 +1,82 @@
 import React, { useState } from 'react';
-import TaskStatusChart from './taskStatusChart';
-import StatsCard from './statsCard';
-
-const statusData = [
-  { label: 'Achieved',        value: 21, color: '#374151' },
-  { label: 'On Process',      value: 42, color: '#6B7280' },
-  { label: 'Awaiting Review', value: 19, color: '#9CA3AF' },
-  { label: 'Not Yet Started', value:  3, color: '#D1D5DB' },
-];
+import { NavLink }       from 'react-router-dom';
+import TaskStatusChart   from './taskStatusChart';
+import StatsCard         from './statsCard';
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('overview');
-  const today = new Date().toISOString().slice(0, 10);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  // Generate last 12 months for the dropdown
+  const [selectedMonth, setSelectedMonth] = useState(
+    new Date().toISOString().slice(0, 7)
+  );
+  const monthOptions = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    return {
+      value: d.toISOString().slice(0, 7),
+      label: d.toLocaleString('default', {
+        month: 'long',
+        year: 'numeric',
+      }),
+    };
+  });
 
-  // Display labels when inputs are empty
-  const displayStart = startDate || 'Earliest';
-  const displayEnd   = endDate   || today;
+  const statusData = [
+    { label: 'Achieved',        value: 21, color: '#374151' },
+    { label: 'On Process',      value: 42, color: '#6B7280' },
+    { label: 'Awaiting Review', value: 19, color: '#9CA3AF' },
+    { label: 'Not Yet Started', value:  3, color: '#D1D5DB' },
+  ];
 
   return (
     <div className="container mx-auto px-4">
-      <h1 className="text-lg font-semibold mb-4">
+      {/* Big welcome banner */}
+      <h1 className="text-3xl font-bold mb-6">
         Welcome back, <span className="underline">Supervisor</span>.
       </h1>
 
-      {/* Tab + Date‐picker Bar */}
-      <div className="bg-white rounded shadow px-4 py-2 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between">
-        {/* Tabs */}
-        <nav className="flex space-x-4 mb-2 md:mb-0">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`pb-1 ${activeTab==='overview'? 'border-b-2 border-indigo-600 text-indigo-600':'text-gray-600'}`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab('staffs')}
-            className={`pb-1 ${activeTab==='staffs'?   'border-b-2 border-indigo-600 text-indigo-600':'text-gray-600'}`}
-          >
-            My Staffs
-          </button>
-        </nav>
+      {/* Tabs with bottom‐border style */}
+<nav className="flex space-x-6 border-b border-gray-200 mb-4">
+  <NavLink
+    to="/"
+    end
+    className={({ isActive }) =>
+      `pb-2 ${
+        isActive
+          ? 'text-indigo-600 border-b-2 border-indigo-600'
+          : 'text-gray-600 hover:text-gray-800'
+      }`
+    }
+  >
+    Overview
+  </NavLink>
+  <NavLink
+    to="/staffs"
+    className={({ isActive }) =>
+      `pb-2 ${
+        isActive
+          ? 'text-indigo-600 border-b-2 border-indigo-600'
+          : 'text-gray-600 hover:text-gray-800'
+      }`
+    }
+  >
+    My Staffs
+  </NavLink>
+</nav>
 
-        {/* Date range picker */}
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center bg-gray-50 rounded p-2 shadow-inner">
-            <input
-              type="date"
-              value={startDate}
-              onChange={e => setStartDate(e.target.value)}
-              className="bg-transparent text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
-              placeholder="Start date"
-            />
-          </div>
-          <span className="text-gray-500">→</span>
-          <div className="flex items-center bg-gray-50 rounded p-2 shadow-inner">
-            <input
-              type="date"
-              value={endDate}
-              onChange={e => setEndDate(e.target.value)}
-              className="bg-transparent text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
-              placeholder="End date"
-              max={today}
-            />
-          </div>
-        </div>
-      </div>
+    {/* Month-selector, no shadow */}
+    <div className="rounded px-4 py-3 mb-6 flex justify-end">
+     <select
+       value={selectedMonth}
+       onChange={(e) => setSelectedMonth(e.target.value)}
+       className="border border-gray-500 bg-white p-2 text-sm rounded"
+     >
+       {monthOptions.map((m) => (
+         <option key={m.value} value={m.value}>
+           {m.label}
+         </option>
+       ))}
+     </select>
+  </div>
 
       {/* Centered Donut + Legend Card */}
       <div className="bg-white rounded shadow p-4 mb-6 flex justify-center items-center h-80">

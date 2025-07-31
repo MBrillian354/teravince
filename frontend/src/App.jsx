@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Dashboard from './components/spvDashboard';
+import MyStaffs from './components/myStaffs';
 import Footer from './components/Footer';
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
       <main className="flex-1 p-4">
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/staffs" element={<MyStaffs />} />
         </Routes>
       </main>
       <Footer />

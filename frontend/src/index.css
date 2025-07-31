@@ -36,3 +36,134 @@ body {
 #root {
   height: 100%;
 }
+/* SIGN IN */
+/* Color Variables */
+:root {
+  --light-cream: #EEEBDD;
+  --bright-red: #CE1212;
+  --dark-red: #810000;
+  --black: #1B1717;
+}
+
+/* Base Styles */
+.sign-in-page {
+  background-color: var(--light-cream);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.sign-in-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Form Styles */
+.sign-in-form {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sign-in-title {
+  color: var(--dark-red);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.sign-in-subtitle {
+  color: var(--black);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-label {
+  display: block;
+  color: var(--black);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-hint {
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.remember-me {
+  color: var(--black);
+}
+
+.forgot-password {
+  color: var(--bright-red);
+  text-decoration: none;
+}
+
+/* Button Styles */
+.sign-in-button {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: var(--dark-red);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 0.8rem;
+}
+
+.sign-in-button:hover {
+  background-color: var(--bright-red);
+}
+
+.google-sign-in-button {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: white;
+  color: var(--black);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Footer Styles */
+.sign-in-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--black);
+}
+
+.sign-in-link {
+  color: var(--bright-red);
+  text-decoration: none;
+  font-weight: 500;
+}

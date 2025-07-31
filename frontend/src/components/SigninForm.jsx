@@ -1,11 +1,25 @@
 import React, { useState } from 'react';
-import googleLogo from '../assets/google.png';
-import staffData from '../data/data.json';
+import googleLogo from '../assets/logos/google.png';
 import { useNavigate } from 'react-router-dom';
 
 function SigninForm() {
   const [error, setError] = useState('');
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
+  // Dummy staff data
+  const staffData = {
+    staff: [
+      {
+        id: 1,
+        name: "John Doe",
+        email: "john.doe@teravince.com",
+        password: "password123!",
+        role: "Admin",
+        department: "IT",
+        position: "Senior Developer"
+      }
+    ]
+  }; 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +36,7 @@ function SigninForm() {
 
       if (user) {
         alert(`Login successful! Welcome, ${user.name}`);
-        navigate('/Dashboard'); // Corrected
+        navigate('/admin-dashboard'); 
       } else {
         setError('Invalid email or password.');
       }

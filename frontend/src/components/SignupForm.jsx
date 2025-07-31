@@ -1,6 +1,6 @@
 // src/components/SignupForm.jsx
 import React, { useState } from 'react';
-import googleLogo from '../assets/google.png';
+import googleLogo from '../assets/logos/google.png';
 import { useNavigate } from 'react-router-dom';
 
 function SignupForm() {

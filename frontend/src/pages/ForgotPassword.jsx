@@ -12,7 +12,7 @@ function ForgotPassword() {
   };
 
   const handleBackToSignin = () => {
-    navigate('/signin'); // or '/login' based on your route
+    navigate('/'); // Navigate to the sign-in page
   };
 
   return (

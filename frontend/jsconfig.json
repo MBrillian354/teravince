@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"]
+    },
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

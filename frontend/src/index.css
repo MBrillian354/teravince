@@ -1,28 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@400;700&family=Public+Sans:wght@400;700&display=swap');
 @import "tailwindcss";
 
-
 /* Tailwind v4 Configuration */
 @theme {
-  /* Custom colors */
   --color-background: #EEEBDD;
   --color-primary: #CE1212;
   --color-danger: #810000;
   --color-secondary: #1B1717;
 
-
-  /* Custom fonts */
   --font-display: "Inter", "sans-serif";
   --font-inter: "Inter", sans-serif;
   --font-montserrat: "Montserrat", sans-serif;
   --font-public-sans: "Public Sans", sans-serif;
 
-  /* Custom animations */
   --animate-fade-in: fade-in 0.5s ease-in-out;
   --animate-slide-up: slide-up 0.3s ease-out;
 }
 
-/* Base styles for better defaults */
+/* Tailwind base directives (used once) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
 * {
   box-sizing: border-box;
 }
@@ -36,8 +36,7 @@ body {
 #root {
   height: 100%;
 }
-/* SIGN IN */
-/* Color Variables */
+
 :root {
   --light-cream: #EEEBDD;
   --bright-red: #CE1212;
@@ -45,125 +44,157 @@ body {
   --black: #1B1717;
 }
 
-/* Base Styles */
+/* SIGN IN */
 .sign-in-page {
-  background-color: var(--light-cream);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
 }
 
 .sign-in-container {
-  width: 100%;
-  max-width: 400px;
+  @apply w-full max-w-lg;
 }
 
-/* Form Styles */
 .sign-in-form {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  @apply bg-white p-8 rounded-lg shadow-md;
 }
 
 .sign-in-title {
-  color: var(--dark-red);
-  text-align: center;
-  margin-bottom: 0.5rem;
+  @apply text-[var(--dark-red)] text-4xl font-bold text-center mb-3;
 }
 
 .sign-in-subtitle {
-  color: var(--black);
-  text-align: center;
-  margin-bottom: 1.5rem;
+  @apply text-[var(--black)] text-center mb-6;
 }
 
 .form-group {
-  margin-bottom: 1.2rem;
+  @apply mb-5;
 }
 
 .form-label {
-  display: block;
-  color: var(--black);
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+  @apply block text-[var(--black)] mb-2 font-medium;
 }
 
 .form-input {
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
+  @apply w-full p-3 border border-gray-300 rounded text-base;
 }
 
 .form-hint {
-  color: #666;
-  font-size: 0.8rem;
-  margin-top: 0.3rem;
+  @apply text-gray-600 text-sm mt-1;
 }
 
 .form-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 1rem 0;
+  @apply flex justify-between items-center my-4;
 }
 
 .remember-me {
-  color: var(--black);
+  @apply text-[var(--black)] flex items-center gap-2;
 }
 
 .forgot-password {
-  color: var(--bright-red);
-  text-decoration: none;
+  @apply text-[var(--bright-red)] no-underline;
 }
 
-/* Button Styles */
 .sign-in-button {
-  width: 100%;
-  padding: 0.8rem;
-  background-color: var(--dark-red);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  margin-bottom: 0.8rem;
-}
-
-.sign-in-button:hover {
-  background-color: var(--bright-red);
+  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
 }
 
 .google-sign-in-button {
-  width: 100%;
-  padding: 0.8rem;
-  background-color: white;
-  color: var(--black);
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  @apply w-full p-3 text-black border-2 border-[var(--bright-red)] rounded text-base font-medium cursor-pointer flex items-center justify-center gap-2 hover:bg-[var(--bright-red)] hover:text-white;
 }
 
-/* Footer Styles */
-.sign-in-footer {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: var(--black);
+.google-logo {
+  @apply w-5 h-5 mr-2;
 }
 
 .sign-in-link {
-  color: var(--bright-red);
-  text-decoration: none;
-  font-weight: 500;
+  @apply text-[var(--bright-red)] no-underline font-medium;
+}
+
+/* SIGN UP */
+.sign-up-page {
+  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
+}
+
+.sign-up-container {
+  @apply w-full max-w-lg;
+}
+
+.sign-up-form {
+  @apply bg-white p-8 rounded-lg shadow-md;
+}
+
+.sign-up-title {
+  @apply text-[var(--dark-red)] text-4xl font-bold text-center mb-3;
+}
+
+.sign-up-subtitle {
+  @apply text-[var(--black)] text-center mb-6;
+}
+
+.signup-button {
+  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
+}
+
+.google-signup-button {
+  @apply w-full p-3 text-black border-2 border-[var(--bright-red)] rounded text-base font-medium cursor-pointer flex items-center justify-center gap-2 hover:bg-[var(--bright-red)] hover:text-white;
+}
+
+.sign-up-footer {
+  @apply mt-6 text-center text-sm text-gray-600;
+}
+
+.sign-up-link {
+  @apply text-[var(--bright-red)] no-underline font-medium;
+}
+/* FORGOT PASSWORD */
+.forgot-password-page {
+  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
+}
+
+.forgot-password-container {
+  @apply w-full max-w-lg;
+}
+
+.forgot-password-form {
+  @apply bg-white p-8 rounded-lg shadow-md;
+}
+
+.forgot-password-title {
+  @apply text-[var(--dark-red)] text-3xl font-bold text-center mb-3 font-montserrat;
+}
+
+.forgot-password-subtitle {
+  @apply text-[var(--black)] text-center mb-6 font-public-sans text-base;
+}
+
+.forgot-password-group {
+  @apply mb-5;
+}
+
+.forgot-password-label {
+  @apply block text-[var(--black)] mb-2 font-medium;
+}
+
+.forgot-password-input {
+  @apply w-full p-3 border border-gray-300 rounded text-base;
+}
+
+.forgot-password-button {
+  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
+}
+
+/* RESET SUCCESS MESSAGE */
+.reset-success-message {
+  @apply bg-white p-8 rounded-lg shadow-md text-center;
+}
+
+.reset-success-message h2 {
+  @apply text-[var(--dark-red)] text-2xl font-bold mb-4;
+}
+
+.reset-success-message p {
+  @apply text-[var(--black)] text-base mb-3 font-public-sans;
+}
+
+.back-to-login-link {
+  @apply mt-6 text-center block text-sm text-[var(--bright-red)] font-medium;
 }

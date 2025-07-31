@@ -4,21 +4,10 @@ import TaskStatusChart   from './taskStatusChart';
 import StatsCard         from './statsCard';
 
 export default function Dashboard() {
-  // Generate last 12 months for the dropdown
+  // state for the month picker
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7)
   );
-  const monthOptions = Array.from({ length: 12 }, (_, i) => {
-    const d = new Date();
-    d.setMonth(d.getMonth() - i);
-    return {
-      value: d.toISOString().slice(0, 7),
-      label: d.toLocaleString('default', {
-        month: 'long',
-        year: 'numeric',
-      }),
-    };
-  });
 
   const statusData = [
     { label: 'Achieved',        value: 21, color: '#374151' },
@@ -29,54 +18,54 @@ export default function Dashboard() {
 
   return (
     <div className="container mx-auto px-4">
-      {/* Big welcome banner */}
+      {/* Big header */}
       <h1 className="text-3xl font-bold mb-6">
         Welcome back, <span className="underline">Supervisor</span>.
       </h1>
 
-      {/* Tabs with bottom‐border style */}
-<nav className="flex space-x-6 border-b border-gray-200 mb-4">
-  <NavLink
-    to="/"
-    end
-    className={({ isActive }) =>
-      `pb-2 ${
-        isActive
-          ? 'text-indigo-600 border-b-2 border-indigo-600'
-          : 'text-gray-600 hover:text-gray-800'
-      }`
-    }
-  >
-    Overview
-  </NavLink>
-  <NavLink
-    to="/staffs"
-    className={({ isActive }) =>
-      `pb-2 ${
-        isActive
-          ? 'text-indigo-600 border-b-2 border-indigo-600'
-          : 'text-gray-600 hover:text-gray-800'
-      }`
-    }
-  >
-    My Staffs
-  </NavLink>
-</nav>
+      {/* Underline-only tab bar */}
+      <nav className="flex space-x-6 border-b border-gray-200 mb-4">
+        <NavLink
+          to="/"
+          end
+          className={({ isActive }) =>
+            `pb-2 ${
+              isActive
+                ? 'text-indigo-600 border-b-2 border-indigo-600'
+                : 'text-gray-600 hover:text-gray-800'
+            }`
+          }
+        >
+          Overview
+        </NavLink>
+        <NavLink
+          to="/staffs"
+          className={({ isActive }) =>
+            `pb-2 ${
+              isActive
+                ? 'text-indigo-600 border-b-2 border-indigo-600'
+                : 'text-gray-600 hover:text-gray-800'
+            }`
+          }
+        >
+          My Staffs
+        </NavLink>
+      </nav>
 
-    {/* Month-selector, no shadow */}
-    <div className="rounded px-4 py-3 mb-6 flex justify-end">
-     <select
-       value={selectedMonth}
-       onChange={(e) => setSelectedMonth(e.target.value)}
-       className="border border-gray-500 bg-white p-2 text-sm rounded"
-     >
-       {monthOptions.map((m) => (
-         <option key={m.value} value={m.value}>
-           {m.label}
-         </option>
-       ))}
-     </select>
-  </div>
+      {/* Task Overview + Month Picker (sleek, no shadows) */}
+      <div className="flex justify-between items-center mb-4">
+        {/* Left-aligned label */}
+        <div className="text-lg font-medium text-gray-700">
+          Task Overview
+        </div>
+        {/* Right-aligned month selector */}
+        <input
+          type="month"
+          value={selectedMonth}
+          onChange={e => setSelectedMonth(e.target.value)}
+          className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
 
       {/* Centered Donut + Legend Card */}
       <div className="bg-white rounded shadow p-4 mb-6 flex justify-center items-center h-80">

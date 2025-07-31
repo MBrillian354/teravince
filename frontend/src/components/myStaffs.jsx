@@ -44,12 +44,13 @@ const [selectedId, setSelectedId] = useState(staffList[0].id);
 const selected = staffList.find((s) => s.id === selectedId);
 
 return (
- <div className="container mx-auto px-4">
-   <h2 className="text-3xl font-bold mb-6">
-     Welcome back, <span className="underline">Supervisor</span>.
-   </h2>
+    <div className="container mx-auto px-4">
+      {/* Big header */}
+      <h1 className="text-3xl font-bold mb-6">
+        Welcome back, <span className="underline">Supervisor</span>.
+      </h1>
 
-   {/* Tabs with underline only */}
+      {/* 1. Underline-only tab bar */}
       <nav className="flex space-x-6 border-b border-gray-200 mb-4">
         <NavLink
           to="/"
@@ -78,30 +79,23 @@ return (
         </NavLink>
       </nav>
 
-
-     {/* Separate Date‐picker, no colored card, white inputs */}
-    <div className="rounded shadow px-4 py-3 mb-6 flex justify-end items-center space-x-3">
-        <div className="rounded p-2 shadow-inner">
-         <input
-           type="date"
-           value={startDate}
-           onChange={e=>setStartDate(e.target.value)}
-           className="bg-white text-sm focus:outline-none rounded"
-           placeholder="Start date"
-         />
-       </div>
-       <span className="text-gray-500">→</span>
-       <div className="flex items-center bg-gray-50 rounded p-2">
-         <input
-           type="date"
-           value={endDate}
-           onChange={e=>setEndDate(e.target.value)}
-           className="bg-white text-sm focus:outline-none rounded"
-           max={today}
-           placeholder="End date"
-         />
-       </div>
-     </div>
+      {/* 2–4. Sleek date‐range row (no shadows, white inputs, gray borders, right-aligned) */}
+      <div className="flex justify-end items-center mb-4 space-x-3">
+        <input
+          type="date"
+          value={startDate}
+          onChange={e => setStartDate(e.target.value)}
+          className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+        <span className="text-gray-500">—</span>
+        <input
+          type="date"
+          value={endDate}
+          onChange={e => setEndDate(e.target.value)}
+          max={today}
+          className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
 
    {/* Staff Table */}
    <div className="bg-white rounded shadow overflow-x-auto mb-6">

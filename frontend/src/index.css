@@ -37,3 +37,7 @@ body {
 #root {
   height: 100%;
 }
+
+@utility page-title {
+  @apply text-2xl font-semibold text-gray-800;
+}

@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DynamicForm from '../components/DynamicForm';
 
 function ForgotPassword() {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const navigate = useNavigate(); // initialize navigation
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const formFields = [
+    {
+      type: 'email',
+      name: 'email',
+      label: 'Email Address',
+      placeholder: 'Enter personal or work email address',
+      required: true
+    }
+  ];
+
+  const handleSubmit = (formData) => {
     // Add your reset link trigger logic here
+    console.log('Reset password for:', formData.email);
     setIsSubmitted(true); // Show success message
   };
 
@@ -19,33 +30,19 @@ function ForgotPassword() {
     <div className="forgot-password-page">
       <div className="forgot-password-container">
         {!isSubmitted ? (
-          <form className="forgot-password-form" onSubmit={handleSubmit}>
-            <h1 className="forgot-password-title">Forgotten your password?</h1>
-            <p className="forgot-password-subtitle">
-              There is nothing to worry about, we’ll send you a message to help you reset your password.
-            </p>
-      <hr className="mb-10 border-t border-gray-400" />
-
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                required
-                placeholder="Enter personal or work email address"
-                className="form-input"
-              />
-            </div>
-
-            <button type="submit" className="forgot-password-button">
-              Send Reset Link
-            </button>
-          </form>
+          <DynamicForm
+            title="Forgotten your password?"
+            subtitle="There is nothing to worry about, we'll send you a message to help you reset your password."
+            fields={formFields}
+            onSubmit={handleSubmit}
+            submitButtonText="Send Reset Link"
+            className="forgot-password-form"
+          />
         ) : (
           <div className="reset-success-message">
             <h2>Reset Link Sent!</h2>
-            <p>Please check your inbox, and remember to look in your spam or junk folder if you don’t see it right away.</p>
-            <p>If you’re still having trouble, you can try resending the link or contacting support for assistance.</p>
+            <p>Please check your inbox, and remember to look in your spam or junk folder if you don't see it right away.</p>
+            <p>If you're still having trouble, you can try resending the link or contacting support for assistance.</p>
             <button className="forgot-password-button" onClick={handleBackToSignin}>
               Go Back to Sign In
             </button>

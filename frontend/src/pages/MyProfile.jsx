@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DynamicForm from '../components/DynamicForm';
 
 export default function MyProfile() {
   const [photo, setPhoto] = useState(null);
@@ -10,6 +11,46 @@ export default function MyProfile() {
 
   const handleRemovePhoto = () => {
     setPhoto(null);
+  };
+
+  const userDetailsFields = [
+    {
+      type: 'text',
+      name: 'firstName',
+      label: 'First Name',
+      placeholder: 'Placeholder',
+      group: 'name'
+    },
+    {
+      type: 'text',
+      name: 'lastName',
+      label: 'Last Name',
+      placeholder: 'Placeholder',
+      group: 'name'
+    },
+    {
+      type: 'text',
+      name: 'jobTitle',
+      label: 'Job Title',
+      placeholder: 'Placeholder'
+    },
+    {
+      type: 'text',
+      name: 'address',
+      label: 'Address',
+      placeholder: 'Placeholder'
+    },
+    {
+      type: 'text',
+      name: 'contactInfo',
+      label: 'Contact Info',
+      placeholder: 'Placeholder'
+    }
+  ];
+
+  const handleProfileUpdate = (formData) => {
+    console.log('Profile update:', formData);
+    // Handle profile update logic here
   };
 
   return (
@@ -30,7 +71,7 @@ export default function MyProfile() {
             <div className="flex flex-col">
               <label
                 htmlFor="photo-upload"
-                className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded cursor-pointer hover:bg-indigo-50 text-sm"
+                className="btn-secondary"
               >
                 Upload Photo
               </label>
@@ -67,66 +108,27 @@ export default function MyProfile() {
         {/* User Details Form */}
         <div className="space-y-4">
           <p className="font-medium text-gray-800">User Details</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* First Name */}
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">First Name</label>
-              <input
-                type="text"
-                placeholder="Placeholder"
-                className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
-              />
-            </div>
-            {/* Last Name */}
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Last Name</label>
-              <input
-                type="text"
-                placeholder="Placeholder"
-                className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
-              />
-            </div>
+          
+          <DynamicForm
+            fields={userDetailsFields}
+            onSubmit={handleProfileUpdate}
+            submitButtonText="Update My Profile"
+            showSubmitButton={false}
+            className="space-y-4"
+          />
+          
+          {/* Custom Update Button */}
+          <div className="flex justify-end">
+            <button 
+              className="btn-secondary"
+              onClick={() => {
+                // You can trigger form submission here if needed
+                console.log('Update profile clicked');
+              }}
+            >
+              Update My Profile
+            </button>
           </div>
-
-          {/* Job Title */}
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Job Title</label>
-            <input
-              type="text"
-              placeholder="Placeholder"
-              className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          {/* Address */}
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Address</label>
-            <input
-              type="text"
-              placeholder="Placeholder"
-              className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          {/* Contact Info */}
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Contact Info</label>
-            <input
-              type="text"
-              placeholder="Placeholder"
-              className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-        </div>
-
-        <hr className="border-gray-200" />
-
-        {/* Update Button */}
-        <div className="flex justify-end">
-          <button className="bg-indigo-600 text-white px-5 py-2 rounded text-sm hover:bg-indigo-700">
-            Update My Profile
-          </button>
         </div>
       </div>
     </div>

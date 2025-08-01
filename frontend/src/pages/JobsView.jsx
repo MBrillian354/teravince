@@ -1,9 +1,24 @@
 import StatsCard from '../components/StatsCard'
+import DataTable from '../components/DataTable'
 
 const JobsView = () => {
     const jobStats = [
         { label: "Active Titles", value: 3 },
         { label: "Drafts", value: 2 }
+    ];
+
+    // Define sample table data
+    const jobData = [
+        { id: 1, title: 'Software Engineer', description: 'Develop applications', employees: 5, status: 'Active' },
+        { id: 2, title: 'Product Manager', description: 'Oversee product roadmap', employees: 3, status: 'Draft' }
+    ];
+
+    // Define table columns configuration
+    const columns = [
+        { header: 'Job Title', accessor: 'title' },
+        { header: 'Job Description', accessor: 'description' },
+        { header: 'Number of Employees', accessor: 'employees' },
+        { header: 'Status', accessor: 'status' }
     ];
 
     return (
@@ -15,7 +30,12 @@ const JobsView = () => {
                 ))}
             </div>
             <div>
-                <p>Table here</p>
+                <DataTable
+                    columns={columns}
+                    data={jobData}
+                    rowKey="id"
+                    onRowClick={(row) => console.log('Row clicked:', row)}
+                />
             </div>
         </>
     )

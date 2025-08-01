@@ -5,7 +5,7 @@ import Navbar from './components/Navbar';
 import SPVDashboard from './pages/SPVDashboard.jsx';
 import MyProfile from './pages/MyProfile.jsx';
 import MyStaffs from './pages/MyStaffs.jsx';
-import Footer from './components/Footer.jsx';
+import Footer from './components/Footer'
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import CookiePolicy from './pages/CookiePolicy.jsx';
@@ -29,23 +29,25 @@ function AppContent() {
 
 
   return (
-    <div className='min-h-screen bg-background text-gray-900 font-inter max-w-6xl mx-auto'>
+    <div className='flex flex-col min-h-screen bg-background text-gray-900 font-inter'>
       {!hideNavbar && <Navbar />}
-      <Routes>
-        <Route path="/" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/jobs" element={<JobsView />} />
-        <Route path="/accounts" element={<AccountsView />} />
+      <main className="flex-1 p-4 max-w-6xl mx-auto w-full">
+        <Routes>
+          <Route path="/" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin-jobs" element={<JobsView />} />
+          <Route path="/admin-accounts" element={<AccountsView />} />
 
-        <Route path="/spv-dashboard" element={<SPVDashboard />} />
-        <Route path="/profile" element={<MyProfile />} />
-        <Route path="/staffs" element={<MyStaffs />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsAndConditions />} />
-        <Route path="/cookies" element={<CookiePolicy />} />
-      </Routes>
+          <Route path="/spv-dashboard" element={<SPVDashboard />} />
+          <Route path="/spv-profile" element={<MyProfile />} />
+          <Route path="/spv-staffs" element={<MyStaffs />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+        </Routes>
+      </main>
       <Footer />
     </div>
   );

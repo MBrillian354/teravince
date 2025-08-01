@@ -3,7 +3,7 @@ import { NavLink }       from 'react-router-dom';
 import TaskStatusChart   from '../components/TaskStatusChart';
 import StatsCard         from '../components/StatsCard';
 
-export default function Dashboard() {
+export default function SPVDashboard() {
   // state for the month picker
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7)
@@ -26,7 +26,7 @@ export default function Dashboard() {
       {/* Underline-only tab bar */}
       <nav className="flex space-x-6 border-b border-gray-200 mb-4">
         <NavLink
-          to="/"
+          to="/spv-dashboard"
           end
           className={({ isActive }) =>
             `pb-2 ${
@@ -39,7 +39,7 @@ export default function Dashboard() {
           Overview
         </NavLink>
         <NavLink
-          to="/staffs"
+          to="/spv-staffs"
           className={({ isActive }) =>
             `pb-2 ${
               isActive
@@ -81,7 +81,7 @@ export default function Dashboard() {
 
 
       {/* Centered Donut + Legend Card */}
-      <div className="bg-white rounded shadow p-4 mb-6 flex flex-col items-center justify-center md: flex-row md:items-center space-y-4 md: space-y-0 md:space-x-8">
+      <div className="bg-white rounded shadow p-4 mb-6 flex flex-col items-center justify-center md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-8">
         <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-8">
           <TaskStatusChart />
           <ul className="space-y-2">

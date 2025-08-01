@@ -1,7 +1,7 @@
 import StatsCard from '../components/StatsCard'
 import DataTable from '../components/DataTable'
 
-const JobsView = () => {
+const ManageJobs = () => {
     const jobStats = [
         { label: "Active Titles", value: 3 },
         { label: "Drafts", value: 2 }
@@ -23,7 +23,10 @@ const JobsView = () => {
 
     return (
         <>
-            <div className='page-title my-4'>Manage Jobs</div>
+            <div className="flex justify-between items-center">
+                <div className='page-title my-4'>Manage Jobs</div>
+                <button className="btn btn-primary">Create New Job</button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
                 {jobStats.map((stat, index) => (
                     <StatsCard key={index} label={stat.label} value={stat.value} />
@@ -41,4 +44,4 @@ const JobsView = () => {
     )
 }
 
-export default JobsView
+export default ManageJobs

@@ -1,7 +1,7 @@
 import StatsCard from "@/components/StatsCard"
 import DataTable from "@/components/DataTable"
 
-const AccountsView = () => {
+const ManageAccounts = () => {
   // accountStats and assignmentStats will be computed dynamically after accountData
 
   // Sample table data for accounts
@@ -38,7 +38,10 @@ const AccountsView = () => {
 
   return (
     <>
-      <div className='page-title my-4'>Manage Accounts</div>
+      <div className="flex justify-between items-center">
+        <div className='page-title my-4'>Manage Accounts</div>
+        <button className="btn btn-primary">Create New Account</button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
         {accountStats.map((stat, index) => (
           <StatsCard key={index} label={stat.label} value={stat.value} />
@@ -59,4 +62,4 @@ const AccountsView = () => {
   )
 }
 
-export default AccountsView
+export default ManageAccounts

@@ -18,8 +18,8 @@ import AdminDashboard from './pages/AdminDashboard'
 import SignIn from './pages/Signin'
 import SignUp from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
-import JobsView from './pages/JobsView'
-import AccountsView from './pages/AccountsView'
+import ManageJobs from './pages/ManageJobs'
+import ManageAccounts from './pages/ManageAccounts'
 import StaffDashboard from './pages/StaffDashboard'
 
 function AppContent() {
@@ -42,8 +42,8 @@ function AppContent() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/admin-jobs" element={<JobsView />} />
-          <Route path="/admin-accounts" element={<AccountsView />} />
+          <Route path="/admin-jobs" element={<ManageJobs />} />
+          <Route path="/admin-accounts" element={<ManageAccounts />} />
 
           <Route path="/spv-dashboard" element={<SPVDashboard />} />
           <Route path="/spv-profile" element={<MyProfile />} />

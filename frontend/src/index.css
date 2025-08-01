@@ -33,6 +33,10 @@ body {
   height: 100%;
 }
 
+h1 {
+  @apply font-montserrat
+}
+
 :root {
   --light-cream: #EEEBDD;
   --bright-red: #CE1212;
@@ -67,7 +71,7 @@ body {
 }
 
 @utility form-input {
-  @apply w-full p-3 border border-gray-300 rounded text-base;
+  @apply w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-indigo-500 transition-colors;
 }
 
 @utility form-hint {
@@ -82,8 +86,6 @@ body {
 .sign-in-container {
   @apply w-full max-w-lg;
 }
-
-
 
 .remember-me {
   @apply text-[var(--black)] flex items-center gap-2;
@@ -171,5 +173,13 @@ body {
 }
 
 @utility btn-primary {
-  @apply bg-primary text-white px-4 py-2 rounded hover:bg-primary/50 hover:cursor-pointer transition-colors;
+  @apply px-4 py-2 bg-primary text-white rounded hover:bg-primary/50 hover:cursor-pointer transition-colors duration-200;
+}
+
+@utility btn-secondary {
+  @apply px-4 py-2 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700 hover:cursor-pointer transition-colors duration-200;
+}
+
+@utility btn-outline {
+  @apply px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-100 hover:cursor-pointer transition-colors duration-200;
 }

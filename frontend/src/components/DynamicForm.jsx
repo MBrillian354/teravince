@@ -73,7 +73,7 @@ const DynamicForm = ({
       name,
       required,
       disabled,
-      className: `form-input ${fieldClassName}`,
+      className: `form-input ${fieldClassName} ${disabled ? 'disabled' : ''}`,
       value: formData[name] || '',
       onChange: handleInputChange
     };
@@ -87,6 +87,7 @@ const DynamicForm = ({
               {...inputProps}
               placeholder={placeholder}
               rows={rows}
+              className={`form-input ${fieldClassName} ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
             />
             {hint && <p className="form-hint">{hint}</p>}
           </>
@@ -96,7 +97,7 @@ const DynamicForm = ({
         return (
           <>
             <label className="form-label">{label}</label>
-            <select {...inputProps}>
+            <select {...inputProps} className={`form-input ${fieldClassName} ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}>
               <option value="">{placeholder || `Select ${label}`}</option>
               {options.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -111,7 +112,7 @@ const DynamicForm = ({
       case 'checkbox':
         return (
           <>
-            <label className="remember-me">
+            <label className={`remember-me ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
               <input
                 type="checkbox"
                 name={name}
@@ -132,7 +133,7 @@ const DynamicForm = ({
             <label className="form-label">{label}</label>
             <div className="space-y-2">
               {options.map((option) => (
-                <label key={option.value} className="remember-me">
+                <label key={option.value} className={`remember-me ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   <input
                     type="radio"
                     name={name}
@@ -150,15 +151,24 @@ const DynamicForm = ({
           </>
         );
 
+      case 'link':
+        return (
+          <div className="flex justify-end items-center h-full">
+            <a href={field.href} className="forgot-password">
+              {label}
+            </a>
+          </div>
+        );
+
       default:
         return (
           <>
-            <label className="block text-sm text-gray-600 mb-1">{label}</label>
+            <label className="form-label">{label}</label>
             <input
               {...inputProps}
               type={type}
               placeholder={placeholder}
-              className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+              className={`form-input ${fieldClassName} ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
             />
             {hint && <p className="form-hint">{hint}</p>}
           </>
@@ -242,7 +252,7 @@ DynamicForm.propTypes = {
   subtitle: PropTypes.string,
   fields: PropTypes.arrayOf(
     PropTypes.shape({
-      type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'date', 'textarea', 'select', 'checkbox', 'radio']),
+      type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'date', 'textarea', 'select', 'checkbox', 'radio', 'link']),
       name: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
       placeholder: PropTypes.string,

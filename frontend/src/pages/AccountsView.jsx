@@ -1,15 +1,39 @@
 import StatsCard from "@/components/StatsCard"
+import DataTable from "@/components/DataTable"
 
 const AccountsView = () => {
+  // accountStats and assignmentStats will be computed dynamically after accountData
+
+  // Sample table data for accounts
+  const accountData = [
+    { id: 1, name: 'Mei Tanaka', jobTitle: 'Admin', position: 'Admin', status: 'Full Time' },
+    { id: 2, name: 'Kenji Sato', jobTitle: 'Supervisor', position: 'Supervisor', status: 'Contract' },
+    { id: 3, name: 'Akihiro Nakamura', jobTitle: 'Staff', position: 'Staff', status: 'PIP' },
+    { id: 4, name: 'Sakura Yamamoto', jobTitle: '', position: '', status: 'Contract' },
+    { id: 5, name: 'Ren Tanaka', jobTitle: '', position: '', status: 'Contract' },
+    { id: 6, name: 'Ayumi Watanabe', jobTitle: '', position: '', status: 'Contract' },
+  ];
+
+  // Compute stats dynamically based on accountData
   const accountStats = [
-    { label: "Admins", value: 2 },
-    { label: "Supervisors", value: 3 },
-    { label: "Staffs", value: 2 }
+    { label: "Admins", value: accountData.filter(item => item.jobTitle === 'Admin').length },
+    { label: "Supervisors", value: accountData.filter(item => item.jobTitle === 'Supervisor').length },
+    { label: "Staffs", value: accountData.filter(item => item.jobTitle === 'Staff').length },
   ];
 
   const assignmentStats = [
-    { label: "Unassigned Positions", value: 2 },
-    { label: "Unassigned Jobs", value: 2 }
+    { label: "Unassigned Positions", value: accountData.filter(item => item.position === '').length },
+    { label: "Unassigned Jobs", value: accountData.filter(item => item.jobTitle === '').length },
+  ];
+
+  // Column definitions for DataTable
+  const columns = [
+    { header: 'Name', accessor: 'name' },
+    { header: 'ID', accessor: 'id' },
+    { header: 'Job Title', accessor: 'jobTitle' },
+    { header: 'Position', accessor: 'position' },
+    { header: 'Status', accessor: 'status' },
+    { header: 'Actions', render: row => <button onClick={() => console.log('Action on', row)}>Edit</button> }
   ];
 
   return (
@@ -25,9 +49,12 @@ const AccountsView = () => {
           <StatsCard key={index} label={stat.label} value={stat.value} />
         ))}
       </div>
-      <div>
-        <p>Table here</p>
-      </div>
+      <DataTable
+        columns={columns}
+        data={accountData}
+        rowKey="id"
+        onRowClick={row => console.log('Row clicked:', row)}
+      />
     </>
   )
 }

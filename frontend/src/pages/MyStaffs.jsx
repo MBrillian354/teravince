@@ -81,7 +81,7 @@ return (
 
       {/* 2–4. Sleek date‐range row (no shadows, white inputs, gray borders, right-aligned) */}
       {/* My Staff’s Profile + Labeled Date Range */}
-<div className="flex justify-between items-start mb-4">
+<div className="flex justify-between items-end mb-4">
   {/* Left label */}
   <div className="text-lg font-medium text-gray-700">
     My Staff’s Profile

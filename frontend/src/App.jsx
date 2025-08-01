@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
+import StaffNavbar from './components/StaffNavbar'
 import AdminDashboard from './pages/AdminDashboard'
 import SignIn from './pages/Signin'
 import SignUp from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
 import JobsView from './pages/JobsView'
 import AccountsView from './pages/AccountsView'
+import StaffDashboard from './pages/StaffDashboard'
 
 function AppContent() {
   const [hideNavbar, setHideNavbar] = useState(false)
@@ -18,10 +20,12 @@ function AppContent() {
     setHideNavbar(shouldHide)
   }, [location.pathname])
 
-  
+  const isStaffRoute = location.pathname.startsWith('/staff')
+
   return (
     <div className='min-h-screen bg-background text-gray-900 font-inter max-w-6xl mx-auto'>
-      {!hideNavbar && <Navbar />}
+      {!hideNavbar && (isStaffRoute ? <StaffNavbar /> : <Navbar />)}
+
       <Routes>
         <Route path="/" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
@@ -29,6 +33,7 @@ function AppContent() {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/jobs" element={<JobsView />} />
         <Route path="/accounts" element={<AccountsView />} />
+        <Route path="/staff-dashboard" element={<StaffDashboard />} />
       </Routes>
     </div>
   )

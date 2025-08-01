@@ -4,7 +4,7 @@ const Task = require('../models/Task');
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.find().populate('staffId');
+    const tasks = await Task.find().populate('userId');
     res.status(200).json({
       success: true,
       count: tasks.length,
@@ -24,7 +24,7 @@ exports.getTaskById = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid task ID' });
     }
 
-    const task = await Task.findById(id).populate('staffId');
+    const task = await Task.findById(id).populate('userId');
     if (!task) return res.status(404).json({ msg: 'Task not found' });
 
     res.status(200).json({
@@ -37,15 +37,15 @@ exports.getTaskById = async (req, res) => {
 };
 
 // Get tasks by staff ID
-exports.getTasksByStaffId = async (req, res) => {
+exports.getTasksByUserId = async (req, res) => {
   try {
-    const { staffId } = req.params;
+    const { userId } = req.params;
     
-    if (!mongoose.Types.ObjectId.isValid(staffId)) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ msg: 'Invalid staff ID' });
     }
 
-    const tasks = await Task.find({ staffId }).populate('staffId');
+    const tasks = await Task.find({ userId }).populate('userId');
     
     res.status(200).json({
       success: true,
@@ -58,15 +58,15 @@ exports.getTasksByStaffId = async (req, res) => {
 };
 
 // Get specific task by ID and staff ID
-exports.getTaskByIdAndStaffId = async (req, res) => {
+exports.getTaskByIdAnduserId = async (req, res) => {
   try {
-    const { staffId, taskId } = req.params;
+    const { userId, taskId } = req.params;
     
-    if (!mongoose.Types.ObjectId.isValid(staffId) || !mongoose.Types.ObjectId.isValid(taskId)) {
+    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(taskId)) {
       return res.status(400).json({ msg: 'Invalid staff ID or task ID' });
     }
 
-    const task = await Task.findOne({ _id: taskId, staffId }).populate('staffId');
+    const task = await Task.findOne({ _id: taskId, userId }).populate('userId');
     if (!task) return res.status(404).json({ msg: 'Task not found for this staff member' });
 
     res.status(200).json({
@@ -82,7 +82,7 @@ exports.getTaskByIdAndStaffId = async (req, res) => {
 exports.createTask = async (req, res) => {
   try {
     const {
-      staffId,
+      userId,
       title,
       description,
       activity,
@@ -96,12 +96,12 @@ exports.createTask = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!staffId || !title || !description || !score || !evidence || !startDate || !endDate) {
+    if (!userId || !title || !description || !score || !evidence || !startDate || !endDate) {
       return res.status(400).json({ msg: 'Missing required fields' });
     }
 
-    // Validate staffId
-    if (!mongoose.Types.ObjectId.isValid(staffId)) {
+    // Validate userId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ msg: 'Invalid staff ID' });
     }
 
@@ -118,7 +118,7 @@ exports.createTask = async (req, res) => {
     }
 
     const newTask = new Task({
-      staffId,
+      userId,
       title,
       description,
       activity: activity || [],
@@ -132,7 +132,7 @@ exports.createTask = async (req, res) => {
     });
 
     const savedTask = await newTask.save();
-    const populatedTask = await Task.findById(savedTask._id).populate('staffId');
+    const populatedTask = await Task.findById(savedTask._id).populate('userId');
 
     res.status(201).json({
       success: true,
@@ -154,8 +154,8 @@ exports.updateTask = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid task ID' });
     }
 
-    // Validate staffId if provided in update
-    if (updateData.staffId && !mongoose.Types.ObjectId.isValid(updateData.staffId)) {
+    // Validate userId if provided in update
+    if (updateData.userId && !mongoose.Types.ObjectId.isValid(updateData.userId)) {
       return res.status(400).json({ msg: 'Invalid staff ID' });
     }
 
@@ -184,7 +184,7 @@ exports.updateTask = async (req, res) => {
       id,
       updateData,
       { new: true, runValidators: true }
-    ).populate('staffId');
+    ).populate('userId');
 
     if (!updatedTask) return res.status(404).json({ msg: 'Task not found' });
 

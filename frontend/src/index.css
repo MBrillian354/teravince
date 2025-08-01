@@ -40,6 +40,40 @@ body {
   --black: #1B1717;
 }
 
+
+@utility card-static {
+  @apply bg-white p-8 rounded-lg shadow-md;
+}
+
+/* Utility classes for forms */
+@utility form-title {
+  @apply text-[var(--dark-red)] text-4xl font-bold text-center mb-3;
+}
+
+@utility form-subtitle {
+  @apply text-[var(--black)] text-center mb-6;
+}
+
+@utility form-submit-button {
+  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
+}
+
+@utility form-group {
+  @apply mb-5;
+}
+
+@utility form-label {
+  @apply block text-[var(--black)] mb-2 font-medium;
+}
+
+@utility form-input {
+  @apply w-full p-3 border border-gray-300 rounded text-base;
+}
+
+@utility form-hint {
+  @apply text-gray-600 text-sm mt-1;
+}
+
 /* SIGN IN */
 .sign-in-page {
   @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
@@ -49,37 +83,7 @@ body {
   @apply w-full max-w-lg;
 }
 
-.sign-in-form {
-  @apply bg-white p-8 rounded-lg shadow-md;
-}
 
-.sign-in-title {
-  @apply text-[var(--dark-red)] text-4xl font-bold text-center mb-3;
-}
-
-.sign-in-subtitle {
-  @apply text-[var(--black)] text-center mb-6;
-}
-
-.form-group {
-  @apply mb-5;
-}
-
-.form-label {
-  @apply block text-[var(--black)] mb-2 font-medium;
-}
-
-.form-input {
-  @apply w-full p-3 border border-gray-300 rounded text-base;
-}
-
-.form-hint {
-  @apply text-gray-600 text-sm mt-1;
-}
-
-.form-options {
-  @apply flex justify-between items-center my-4;
-}
 
 .remember-me {
   @apply text-[var(--black)] flex items-center gap-2;
@@ -114,18 +118,6 @@ body {
   @apply w-full max-w-lg;
 }
 
-.sign-up-form {
-  @apply bg-white p-8 rounded-lg shadow-md;
-}
-
-.sign-up-title {
-  @apply text-[var(--dark-red)] text-4xl font-bold text-center mb-3;
-}
-
-.sign-up-subtitle {
-  @apply text-[var(--black)] text-center mb-6;
-}
-
 .signup-button {
   @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
 }
@@ -155,26 +147,6 @@ body {
   @apply bg-white p-8 rounded-lg shadow-md;
 }
 
-.forgot-password-title {
-  @apply text-[var(--dark-red)] text-3xl font-bold text-center mb-3 font-montserrat;
-}
-
-.forgot-password-subtitle {
-  @apply text-[var(--black)] text-center mb-6 font-public-sans text-base;
-}
-
-.forgot-password-group {
-  @apply mb-5;
-}
-
-.forgot-password-label {
-  @apply block text-[var(--black)] mb-2 font-medium;
-}
-
-.forgot-password-input {
-  @apply w-full p-3 border border-gray-300 rounded text-base;
-}
-
 .forgot-password-button {
   @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
 }
@@ -192,10 +164,8 @@ body {
   @apply text-[var(--black)] text-base mb-3 font-public-sans;
 }
 
-.back-to-login-link {
-  @apply mt-6 text-center block text-sm text-[var(--bright-red)] font-medium;
-}
 
+/* Other utility classes */
 @utility page-title {
   @apply text-2xl font-semibold text-gray-800;
 }

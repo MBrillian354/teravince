@@ -15,7 +15,7 @@ exports.createReport = async (req, res) => {
   }
 };
 
-// Ambil semua laporan
+// get report
 exports.getAllReports = async (req, res) => {
   try {
     const reports = await Report.find().populate('userId', 'firstName lastName email');
@@ -25,7 +25,7 @@ exports.getAllReports = async (req, res) => {
   }
 };
 
-// Ambil laporan berdasarkan userId
+// get report by userId
 exports.getReportsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -58,7 +58,7 @@ exports.updateReport = async (req, res) => {
   }
 };
 
-// Hapus laporan
+// Delete report
 exports.deleteReport = async (req, res) => {
   try {
     const { id } = req.params;

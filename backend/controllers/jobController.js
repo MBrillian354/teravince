@@ -1,4 +1,3 @@
-// controllers/jobsController.js
 const Job = require('../models/Job');
 
 // Create a new job

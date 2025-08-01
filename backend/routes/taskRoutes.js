@@ -1,11 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const { createTask, getAllTasks } = require('../controllers/taskController');
 
-// Endpoint untuk membuat task
+const { getAllTasks, getTaskById, getTasksByUserId, getTaskByIdAnduserId, createTask, updateTask, deleteTask } = require('../controllers/taskController');
+
+
+router.get('/', getAllTasks);
+router.get('/:id', getTaskById);
+
+router.get('/:userId/tasks', getTasksByUserId);
+
+router.get('/:userId/tasks/:taskId', getTaskByIdAnduserId);
+
+
 router.post('/', createTask);
 
-// Endpoint untuk melihat semua task
-router.get('/', getAllTasks);
+router.put('/:id', updateTask);
+
+router.delete('/:id', deleteTask);
+
 
 module.exports = router;

@@ -1,6 +1,19 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+
 import { useState, useEffect } from 'react'
-import Navbar from './components/Navbar'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import Navbar from './components/Navbar';
+import SPVDashboard from './pages/SPVDashboard.jsx';
+import MyProfile from './pages/MyProfile.jsx';
+import MyStaffs from './pages/MyStaffs.jsx';
+import Footer from './components/Footer'
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
+import TermsAndConditions from './pages/TermsAndConditions.jsx';
+import CookiePolicy from './pages/CookiePolicy.jsx';
+import Reports from './pages/Reports.jsx';
+import JobDescription from './pages/JobDescription';
+import Tasks from './pages/Tasks.jsx';
+import StaffReport from './pages/StaffReport.jsx';
+
 import StaffNavbar from './components/StaffNavbar'
 import AdminDashboard from './pages/AdminDashboard'
 import SignIn from './pages/Signin'
@@ -36,7 +49,7 @@ function AppContent() {
         <Route path="/staff-dashboard" element={<StaffDashboard />} />
       </Routes>
     </div>
-  )
+  );
 }
 
 function App() {
@@ -47,4 +60,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

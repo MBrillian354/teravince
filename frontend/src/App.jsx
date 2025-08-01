@@ -9,6 +9,10 @@ import Footer from './components/Footer'
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import CookiePolicy from './pages/CookiePolicy.jsx';
+import Reports from './pages/Reports.jsx';
+import JobDescription from './pages/JobDescription';
+import Tasks from './pages/Tasks.jsx';
+import StaffReport from './pages/StaffReport.jsx';
 
 import AdminDashboard from './pages/AdminDashboard'
 import SignIn from './pages/Signin'
@@ -16,6 +20,7 @@ import SignUp from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
 import JobsView from './pages/JobsView'
 import AccountsView from './pages/AccountsView'
+import StaffDashboard from './pages/StaffDashboard'
 
 function AppContent() {
   const [hideNavbar, setHideNavbar] = useState(false)
@@ -31,7 +36,7 @@ function AppContent() {
   return (
     <div className='flex flex-col min-h-screen bg-background text-gray-900 font-inter'>
       {!hideNavbar && <Navbar />}
-      <main className="flex-1 p-4 max-w-6xl mx-auto w-full">
+      <main className="flex-1 p-4 md:max-w-6xl mx-auto w-full">
         <Routes>
           <Route path="/" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
@@ -43,13 +48,21 @@ function AppContent() {
           <Route path="/spv-dashboard" element={<SPVDashboard />} />
           <Route path="/spv-profile" element={<MyProfile />} />
           <Route path="/spv-staffs" element={<MyStaffs />} />
+          <Route path="/spv-tasks" element={<Tasks />} />
+          <Route path="/spv-reports" element={<Reports />} />
+          <Route path="/spv-jobs" element={<JobDescription />} />
+          <Route path="/spv-report/:reportId" element={<StaffReport />} />
+
+          <Route path="/staff-dashboard" element={<StaffDashboard />} />
+
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+
         </Routes>
       </main>
       <Footer />
-    </div>
+    </div >
   );
 }
 

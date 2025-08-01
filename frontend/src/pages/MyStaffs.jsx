@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import StaffTable from '../components/StaffTable';
+import DataTable from '../components/DataTable';
 
 export default function MyStaffs() {
 const navigate = useNavigate();
@@ -9,6 +9,30 @@ const today    = new Date().toISOString().slice(0, 10);
 // date‐range state
 const [startDate, setStartDate] = useState('');
 const [endDate,   setEndDate]   = useState('');
+
+// dummy columns
+const staffColumns = [
+  {
+    header: '',
+    render: (s) => (
+      <input
+        type="checkbox"
+        checked={s.id === selectedId}
+        readOnly
+      />
+    ),
+    align: 'center'
+  },
+  { header: 'Employee Name', accessor: 'name' },
+  { header: 'Employee ID',   accessor: 'id'   },
+  { header: 'Job Title',     accessor: 'title'},
+  { header: 'Contract Term', accessor: 'contract' },
+  {
+    header: '',
+    render: () => <span>•••</span>,
+    align: 'right'
+  },
+];
 
 // dummy staff data
 const staffList = [
@@ -122,11 +146,12 @@ return (
 
 
    {/* Staff Table */}
-     <StaffTable
-    staffList={staffList}
-    selectedId={selectedId}
-    onSelect={setSelectedId}
-  />
+     <DataTable
+      columns={staffColumns}
+      data={staffList}
+      rowKey="id"
+      onRowClick={({ id })=> setSelectedId(id)}
+     />
    {/* Selected Staff Profile */}
    {selected && (
      <div className="bg-white rounded shadow p-6 flex items-center space-x-6">

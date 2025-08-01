@@ -11,6 +11,7 @@ exports.getAllTasks = async (req, res) => {
       data: tasks
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
@@ -32,6 +33,7 @@ exports.getTaskById = async (req, res) => {
       data: task
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
@@ -53,6 +55,7 @@ exports.getTasksByUserId = async (req, res) => {
       data: tasks
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
@@ -74,6 +77,7 @@ exports.getTaskByIdAnduserId = async (req, res) => {
       data: task
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
@@ -140,6 +144,7 @@ exports.createTask = async (req, res) => {
       data: populatedTask
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
@@ -194,6 +199,7 @@ exports.updateTask = async (req, res) => {
       data: updatedTask
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
@@ -216,6 +222,7 @@ exports.deleteTask = async (req, res) => {
       data: deletedTask
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };

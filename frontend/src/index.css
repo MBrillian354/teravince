@@ -141,6 +141,7 @@ body {
 .sign-up-link {
   @apply text-[var(--bright-red)] no-underline font-medium;
 }
+
 /* FORGOT PASSWORD */
 .forgot-password-page {
   @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
@@ -194,6 +195,11 @@ body {
 .back-to-login-link {
   @apply mt-6 text-center block text-sm text-[var(--bright-red)] font-medium;
 }
+
 @utility page-title {
   @apply text-2xl font-semibold text-gray-800;
+}
+
+@utility btn-primary {
+  @apply bg-primary text-white px-4 py-2 rounded hover:bg-primary/50 hover:cursor-pointer transition-colors;
 }

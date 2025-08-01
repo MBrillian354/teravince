@@ -14,7 +14,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto">
+    <>
       <h1 className="page-title my-4">
         Welcome back, <span className="underline">Admin</span>.
       </h1>
@@ -31,6 +31,6 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
-    </div>
+    </>
   );
 }

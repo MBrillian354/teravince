@@ -41,6 +41,7 @@ function AppContent() {
           <Route path="/" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/admin-jobs" element={<ManageJobs />} />
           <Route path="/admin-accounts" element={<ManageAccounts />} />

@@ -1,10 +1,9 @@
-// src/pages/Tasks.jsx
-
 import React, { useState, useEffect } from 'react';
 import TasksReportsTabs from '../components/TasksReportsTabs';
 import StatsCard        from '../components/StatsCard';
 import DataTable        from '../components/DataTable';
 import Pagination       from '../components/Pagination';
+import DynamicForm      from '../components/DynamicForm';
 
 export default function Tasks() {
   // 1) Tab state
@@ -45,7 +44,6 @@ export default function Tasks() {
       end: '08/10/2025',
       supervisorComment: '',
     },
-    // ...add more rows as needed
   ];
 
   // 4) Selected row state
@@ -63,11 +61,136 @@ export default function Tasks() {
     );
   }, [selectedTaskId]);
 
-  // 6) Pagination state
+  // 6) Form fields configuration for DynamicForm
+  const getFormFields = (selectedTask) => {
+    if (!selectedTask) return [];
+    
+    return [
+      {
+        type: 'text',
+        name: 'employeeId',
+        label: 'Employee ID',
+        defaultValue: selectedTask.employeeId,
+        disabled: true,
+        group: 'employee'
+      },
+      {
+        type: 'text',
+        name: 'employeeName',
+        label: 'Employee Name',
+        defaultValue: selectedTask.employeeName,
+        disabled: true,
+        group: 'employee'
+      },
+      {
+        type: 'text',
+        name: 'taskId',
+        label: 'Task ID',
+        defaultValue: selectedTask.id,
+        disabled: true,
+        group: 'task'
+      },
+      {
+        type: 'text',
+        name: 'taskStatus',
+        label: 'Task Status',
+        defaultValue: selectedTask.status,
+        disabled: true,
+        group: 'task'
+      },
+      {
+        type: 'text',
+        name: 'taskTitle',
+        label: 'Task Title',
+        defaultValue: selectedTask.title,
+        disabled: true,
+      },
+      {
+        type: 'textarea',
+        name: 'taskDescription',
+        label: 'Task Description',
+        defaultValue: selectedTask.description,
+        disabled: true,
+        rows: 4
+      },
+      {
+        type: 'text',
+        name: 'startDate',
+        label: 'Start Date',
+        defaultValue: selectedTask.start,
+        disabled: true,
+        group: 'dates'
+      },
+      {
+        type: 'text',
+        name: 'finishDate',
+        label: 'Finish Date',
+        defaultValue: selectedTask.end,
+        disabled: true,
+        group: 'dates'
+      },
+      {
+        type: 'textarea',
+        name: 'supervisorComment',
+        label: 'Supervisor Comment',
+        defaultValue: supervisorComment,
+        rows: 3
+      },
+      {
+        type: 'checkbox',
+        name: 'biasReviewCheck',
+        label: 'I have properly reviewed the employee\'s task without bias',
+        required: true
+      }
+    ];
+  };
+
+  // 7) Handle form submission for approval/revision
+  const handleFormSubmit = (formData, action = 'approve') => {
+    console.log('Form data:', formData);
+    console.log('Action:', action);
+    
+    // Update the supervisor comment in state
+    setSupervisorComment(formData.supervisorComment || '');
+    
+    // Validate required fields
+    if (action === 'approve' && !formData.biasReviewCheck) {
+      alert('Please confirm that you have reviewed the task without bias.');
+      return;
+    }
+    
+    // Here you would typically make an API call to update the task
+    // For now, just log the action
+    if (action === 'approve') {
+      alert('Task approved successfully!');
+    } else if (action === 'revise') {
+      alert('Revision requested successfully!');
+    }
+  };
+
+  // 8) Handle button actions with form reference
+  const handleButtonAction = (action) => {
+    const form = document.querySelector('form');
+    if (!form) return;
+    
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    // Get textarea and checkbox values specifically
+    const supervisorCommentField = form.querySelector('[name="supervisorComment"]');
+    const biasCheckField = form.querySelector('[name="biasReviewCheck"]');
+    
+    data.supervisorComment = supervisorCommentField ? supervisorCommentField.value : '';
+    data.biasReviewCheck = biasCheckField ? biasCheckField.checked : false;
+    
+    handleFormSubmit(data, action);
+  };
+
+  // 9) Pagination state
   const [page, setPage] = useState(1);
   const totalPages = 11;
 
-  // 7) Table column definitions
+  // 10) Table column definitions
   const columns = [
     {
       header: '',
@@ -144,114 +267,32 @@ export default function Tasks() {
         onPageChange={setPage}
       />
 
-      {/* Detail Card */}
+      {/* Detail Card with DynamicForm */}
       {selected && (
-        <div className="bg-white rounded shadow p-6 mt-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Employee ID (read-only, grey) */}
-            <div>
-              <label className="block text-sm text-gray-600">Employee ID</label>
-              <input
-                readOnly
-                value={selected.employeeId}
-                className="w-full bg-gray-100 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-              />
-            </div>
-            {/* Employee Name (read-only, grey) */}
-            <div>
-              <label className="block text-sm text-gray-600">Employee Name</label>
-              <input
-                readOnly
-                value={selected.employeeName}
-                className="w-full bg-gray-100 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-              />
-            </div>
-            {/* Task ID (read-only, grey) */}
-            <div>
-              <label className="block text-sm text-gray-600">Task ID</label>
-              <input
-                readOnly
-                value={selected.id}
-                className="w-full bg-gray-100 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-              />
-            </div>
-            {/* Task Status (read-only, grey) */}
-            <div>
-              <label className="block text-sm text-gray-600">Task Status</label>
-              <input
-                readOnly
-                value={selected.status}
-                className="w-full bg-gray-100 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-              />
-            </div>
-          </div>
-
-          {/* Task Title */}
-          <div>
-            <label className="block text-sm text-gray-600">Task Title</label>
-            <input
-              readOnly
-              value={selected.title}
-              className="w-full bg-gray-100 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-            />
-          </div>
-
-          {/* Task Description */}
-          <div>
-            <label className="block text-sm text-gray-600">Task Description</label>
-            <textarea
-              readOnly
-              value={selected.description}
-              className="w-full bg-gray-100 border border-gray-200 rounded px-3 py-2 text-sm h-24 text-gray-700"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Start Date */}
-            <div>
-              <label className="block text-sm text-gray-600">Start Date</label>
-              <input
-                readOnly
-                value={selected.start}
-                className="w-full bg-gray-100 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-              />
-            </div>
-            {/* Finish Date */}
-            <div>
-              <label className="block text-sm text-gray-600">Finish Date</label>
-              <input
-                readOnly
-                value={selected.end}
-                className="w-full bg-gray-100 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-              />
-            </div>
-          </div>
-
-          {/* Supervisor Comment (editable, white) */}
-          <div>
-            <label className="block text-sm text-gray-600">Supervisor Comment</label>
-            <textarea
-              value={supervisorComment}
-              onChange={(e) => setSupervisorComment(e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm h-20 text-gray-900"
-            />
-          </div>
-
-          {/* Checklist + Buttons (right-aligned) */}
-          <div className="flex flex-col items-end space-y-2">
-            <label className="flex items-center text-sm">
-              <input type="checkbox" className="form-checkbox mr-2" />
-              I have properly reviewed the employee’s task without bias
-            </label>
-            <div className="space-x-2">
-              <button className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-100">
-                Request Revision
-              </button>
-              <button className="px-4 py-2 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700">
-                Approve Task
-              </button>
-            </div>
-          </div>
+        <div className="bg-white rounded shadow p-6 mt-6">
+          <DynamicForm
+            fields={getFormFields(selected)}
+            showSubmitButton={false}
+            className="space-y-6"
+            footer={
+              <div className="flex justify-end space-x-2 mt-6">
+                <button 
+                  type="button"
+                  onClick={() => handleButtonAction('revise')}
+                  className="btn-outline"
+                >
+                  Request Revision
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => handleButtonAction('approve')}
+                  className="btn-secondary"
+                >
+                  Approve Task
+                </button>
+              </div>
+            }
+          />
         </div>
       )}
     </div>

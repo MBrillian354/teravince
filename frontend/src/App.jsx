@@ -21,6 +21,8 @@ import ForgotPassword from './pages/ForgotPassword'
 import ManageJobs from './pages/ManageJobs'
 import ManageAccounts from './pages/ManageAccounts'
 import StaffDashboard from './pages/StaffDashboard'
+import NewJobForm from './pages/NewJobForm';
+import NewAccountForm from './pages/NewAccountForm';
 
 function AppContent() {
   const [hideNavbar, setHideNavbar] = useState(false)
@@ -41,10 +43,12 @@ function AppContent() {
           <Route path="/" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          
+
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/admin-jobs" element={<ManageJobs />} />
+          <Route path="/admin-jobs/new" element={<NewJobForm />} />
           <Route path="/admin-accounts" element={<ManageAccounts />} />
+          <Route path="/admin-accounts/new" element={<NewAccountForm />} />
 
           <Route path="/spv-dashboard" element={<SPVDashboard />} />
           <Route path="/spv-profile" element={<MyProfile />} />

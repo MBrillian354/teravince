@@ -1,5 +1,6 @@
 import StatsCard from '../components/StatsCard'
 import DataTable from '../components/DataTable'
+import { Link } from 'react-router-dom';
 
 const ManageJobs = () => {
     const jobStats = [
@@ -25,7 +26,7 @@ const ManageJobs = () => {
         <>
             <div className="flex justify-between items-center">
                 <div className='page-title my-4'>Manage Jobs</div>
-                <button className="btn btn-primary">Create New Job</button>
+                <Link to="/admin-jobs/new" className="btn-primary">Create New Job</Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
                 {jobStats.map((stat, index) => (

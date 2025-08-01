@@ -1,5 +1,6 @@
 import StatsCard from "@/components/StatsCard"
 import DataTable from "@/components/DataTable"
+import { Link } from 'react-router-dom';
 
 const ManageAccounts = () => {
   // accountStats and assignmentStats will be computed dynamically after accountData
@@ -40,7 +41,7 @@ const ManageAccounts = () => {
     <>
       <div className="flex justify-between items-center">
         <div className='page-title my-4'>Manage Accounts</div>
-        <button className="btn btn-primary">Create New Account</button>
+        <Link to="/admin-accounts/new" className="btn btn-primary">Create New Account</Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
         {accountStats.map((stat, index) => (

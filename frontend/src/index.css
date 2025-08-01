@@ -1,28 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@400;700&family=Public+Sans:wght@400;700&display=swap');
 @import "tailwindcss";
 
-
 /* Tailwind v4 Configuration */
 @theme {
-  /* Custom colors */
   --color-background: #EEEBDD;
   --color-primary: #CE1212;
   --color-danger: #810000;
   --color-secondary: #1B1717;
 
-
-  /* Custom fonts */
   --font-display: "Inter", "sans-serif";
   --font-inter: "Inter", sans-serif;
   --font-montserrat: "Montserrat", sans-serif;
   --font-public-sans: "Public Sans", sans-serif;
 
-  /* Custom animations */
   --animate-fade-in: fade-in 0.5s ease-in-out;
   --animate-slide-up: slide-up 0.3s ease-out;
 }
 
-/* Base styles for better defaults */
+/* Base styles */
 * {
   box-sizing: border-box;
 }
@@ -31,8 +26,174 @@ html,
 body {
   height: 100%;
   -webkit-text-size-adjust: 100%;
+  @apply bg-background text-gray-900 font-inter;
 }
 
 #root {
   height: 100%;
+}
+
+:root {
+  --light-cream: #EEEBDD;
+  --bright-red: #CE1212;
+  --dark-red: #810000;
+  --black: #1B1717;
+}
+
+/* SIGN IN */
+.sign-in-page {
+  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
+}
+
+.sign-in-container {
+  @apply w-full max-w-lg;
+}
+
+.sign-in-form {
+  @apply bg-white p-8 rounded-lg shadow-md;
+}
+
+.sign-in-title {
+  @apply text-[var(--dark-red)] text-4xl font-bold text-center mb-3;
+}
+
+.sign-in-subtitle {
+  @apply text-[var(--black)] text-center mb-6;
+}
+
+.form-group {
+  @apply mb-5;
+}
+
+.form-label {
+  @apply block text-[var(--black)] mb-2 font-medium;
+}
+
+.form-input {
+  @apply w-full p-3 border border-gray-300 rounded text-base;
+}
+
+.form-hint {
+  @apply text-gray-600 text-sm mt-1;
+}
+
+.form-options {
+  @apply flex justify-between items-center my-4;
+}
+
+.remember-me {
+  @apply text-[var(--black)] flex items-center gap-2;
+}
+
+.forgot-password {
+  @apply text-[var(--bright-red)] no-underline;
+}
+
+.sign-in-button {
+  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
+}
+
+.google-sign-in-button {
+  @apply w-full p-3 text-black border-2 border-[var(--bright-red)] rounded text-base font-medium cursor-pointer flex items-center justify-center gap-2 hover:bg-[var(--bright-red)] hover:text-white;
+}
+
+.google-logo {
+  @apply w-5 h-5 mr-2;
+}
+
+.sign-in-link {
+  @apply text-[var(--bright-red)] no-underline font-medium;
+}
+
+/* SIGN UP */
+.sign-up-page {
+  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
+}
+
+.sign-up-container {
+  @apply w-full max-w-lg;
+}
+
+.sign-up-form {
+  @apply bg-white p-8 rounded-lg shadow-md;
+}
+
+.sign-up-title {
+  @apply text-[var(--dark-red)] text-4xl font-bold text-center mb-3;
+}
+
+.sign-up-subtitle {
+  @apply text-[var(--black)] text-center mb-6;
+}
+
+.signup-button {
+  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
+}
+
+.google-signup-button {
+  @apply w-full p-3 text-black border-2 border-[var(--bright-red)] rounded text-base font-medium cursor-pointer flex items-center justify-center gap-2 hover:bg-[var(--bright-red)] hover:text-white;
+}
+
+.sign-up-footer {
+  @apply mt-6 text-center text-sm text-gray-600;
+}
+
+.sign-up-link {
+  @apply text-[var(--bright-red)] no-underline font-medium;
+}
+/* FORGOT PASSWORD */
+.forgot-password-page {
+  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
+}
+
+.forgot-password-container {
+  @apply w-full max-w-lg;
+}
+
+.forgot-password-form {
+  @apply bg-white p-8 rounded-lg shadow-md;
+}
+
+.forgot-password-title {
+  @apply text-[var(--dark-red)] text-3xl font-bold text-center mb-3 font-montserrat;
+}
+
+.forgot-password-subtitle {
+  @apply text-[var(--black)] text-center mb-6 font-public-sans text-base;
+}
+
+.forgot-password-group {
+  @apply mb-5;
+}
+
+.forgot-password-label {
+  @apply block text-[var(--black)] mb-2 font-medium;
+}
+
+.forgot-password-input {
+  @apply w-full p-3 border border-gray-300 rounded text-base;
+}
+
+.forgot-password-button {
+  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
+}
+
+/* RESET SUCCESS MESSAGE */
+.reset-success-message {
+  @apply bg-white p-8 rounded-lg shadow-md text-center;
+}
+
+.reset-success-message h2 {
+  @apply text-[var(--dark-red)] text-2xl font-bold mb-4;
+}
+
+.reset-success-message p {
+  @apply text-[var(--black)] text-base mb-3 font-public-sans;
+}
+
+.back-to-login-link {
+  @apply mt-6 text-center block text-sm text-[var(--bright-red)] font-medium;
+}
+@utility page-title {
+  @apply text-2xl font-semibold text-gray-800;
 }

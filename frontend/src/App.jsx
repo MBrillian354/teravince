@@ -9,6 +9,10 @@ import Footer from './components/Footer'
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import CookiePolicy from './pages/CookiePolicy.jsx';
+import Reports from './pages/Reports.jsx';
+import JobDescription from './pages/JobDescription';
+import Tasks from './pages/Tasks.jsx';
+import StaffReport from './pages/StaffReport.jsx';
 
 import AdminDashboard from './pages/AdminDashboard'
 import SignIn from './pages/Signin'
@@ -46,6 +50,12 @@ function AppContent() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/spv-tasks" element={<Tasks />} />
+          <Route path="/spv-reports" element={<Reports />} />
+          <Route path="/spv-jobs" element={<JobDescription />} />
+          <Route path="/spv-report/:reportId" element={<StaffReport />} />
+          
+          {/* Admin Routes */}
         </Routes>
       </main>
       <Footer />

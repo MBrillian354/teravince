@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import DataTable from '../components/DataTable';
 
 export default function MyStaffs() {
 const navigate = useNavigate();
@@ -8,6 +9,30 @@ const today    = new Date().toISOString().slice(0, 10);
 // date‐range state
 const [startDate, setStartDate] = useState('');
 const [endDate,   setEndDate]   = useState('');
+
+// dummy columns
+const staffColumns = [
+  {
+    header: '',
+    render: (s) => (
+      <input
+        type="checkbox"
+        checked={s.id === selectedId}
+        readOnly
+      />
+    ),
+    align: 'center'
+  },
+  { header: 'Employee Name', accessor: 'name' },
+  { header: 'Employee ID',   accessor: 'id'   },
+  { header: 'Job Title',     accessor: 'title'},
+  { header: 'Contract Term', accessor: 'contract' },
+  {
+    header: '',
+    render: () => <span>•••</span>,
+    align: 'right'
+  },
+];
 
 // dummy staff data
 const staffList = [
@@ -121,39 +146,12 @@ return (
 
 
    {/* Staff Table */}
-   <div className="bg-white rounded shadow overflow-x-auto mb-6">
-     <table className="min-w-full">
-       <thead className="bg-gray-100">
-         <tr>
-           <th className="p-3 text-left"><input type="checkbox" /></th>
-           <th className="p-3 text-left">Employee Name</th>
-           <th className="p-3 text-left">Employee ID</th>
-           <th className="p-3 text-left">Job Title</th>
-           <th className="p-3 text-left">Contract Term</th>
-           <th className="p-3 text-right">•••</th>
-         </tr>
-       </thead>
-       <tbody>
-         {staffList.map((s) => (
-           <tr
-             key={s.id}
-             className={`border-t cursor-pointer ${s.id === selectedId ? 'bg-gray-50' : ''}`}
-             onClick={() => setSelectedId(s.id)}
-           >
-             <td className="p-3">
-               <input type="checkbox" checked={s.id === selectedId} readOnly />
-             </td>
-             <td className="p-3">{s.name}</td>
-             <td className="p-3">{s.id}</td>
-             <td className="p-3">{s.title}</td>
-             <td className="p-3">{s.contract}</td>
-             <td className="p-3 text-right">•••</td>
-           </tr>
-         ))}
-       </tbody>
-     </table>
-   </div>
-
+     <DataTable
+      columns={staffColumns}
+      data={staffList}
+      rowKey="id"
+      onRowClick={({ id })=> setSelectedId(id)}
+     />
    {/* Selected Staff Profile */}
    {selected && (
      <div className="bg-white rounded shadow p-6 flex items-center space-x-6">

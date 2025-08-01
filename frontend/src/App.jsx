@@ -14,7 +14,6 @@ import JobDescription from './pages/JobDescription';
 import Tasks from './pages/Tasks.jsx';
 import StaffReport from './pages/StaffReport.jsx';
 
-import StaffNavbar from './components/StaffNavbar'
 import AdminDashboard from './pages/AdminDashboard'
 import SignIn from './pages/Signin'
 import SignUp from './pages/Signup'
@@ -33,22 +32,37 @@ function AppContent() {
     setHideNavbar(shouldHide)
   }, [location.pathname])
 
-  const isStaffRoute = location.pathname.startsWith('/staff')
 
   return (
-    <div className='min-h-screen bg-background text-gray-900 font-inter max-w-6xl mx-auto'>
-      {!hideNavbar && (isStaffRoute ? <StaffNavbar /> : <Navbar />)}
+    <div className='flex flex-col min-h-screen bg-background text-gray-900 font-inter'>
+      {!hideNavbar && <Navbar />}
+      <main className="flex-1 p-4 md:max-w-6xl mx-auto w-full">
+        <Routes>
+          <Route path="/" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin-jobs" element={<JobsView />} />
+          <Route path="/admin-accounts" element={<AccountsView />} />
 
-      <Routes>
-        <Route path="/" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/jobs" element={<JobsView />} />
-        <Route path="/accounts" element={<AccountsView />} />
-        <Route path="/staff-dashboard" element={<StaffDashboard />} />
-      </Routes>
-    </div>
+          <Route path="/spv-dashboard" element={<SPVDashboard />} />
+          <Route path="/spv-profile" element={<MyProfile />} />
+          <Route path="/spv-staffs" element={<MyStaffs />} />
+          <Route path="/spv-tasks" element={<Tasks />} />
+          <Route path="/spv-reports" element={<Reports />} />
+          <Route path="/spv-jobs" element={<JobDescription />} />
+          <Route path="/spv-report/:reportId" element={<StaffReport />} />
+
+          <Route path="/staff-dashboard" element={<StaffDashboard />} />
+
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+
+        </Routes>
+      </main>
+      <Footer />
+    </div >
   );
 }
 

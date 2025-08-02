@@ -1,19 +1,12 @@
 import StatsCard from "@/components/StatsCard"
 import DataTable from "@/components/DataTable"
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const ManageAccounts = () => {
   // accountStats and assignmentStats will be computed dynamically after accountData
 
-  // Sample table data for accounts
-  const accountData = [
-    { id: 1, name: 'Mei Tanaka', jobTitle: 'Admin', position: 'Admin', status: 'Full Time' },
-    { id: 2, name: 'Kenji Sato', jobTitle: 'Supervisor', position: 'Supervisor', status: 'Contract' },
-    { id: 3, name: 'Akihiro Nakamura', jobTitle: 'Staff', position: 'Staff', status: 'PIP' },
-    { id: 4, name: 'Sakura Yamamoto', jobTitle: '', position: '', status: 'Contract' },
-    { id: 5, name: 'Ren Tanaka', jobTitle: '', position: '', status: 'Contract' },
-    { id: 6, name: 'Ayumi Watanabe', jobTitle: '', position: '', status: 'Contract' },
-  ];
+  const accountData = useSelector((state) => state.admin.accountsData);
 
   // Compute stats dynamically based on accountData
   const accountStats = [

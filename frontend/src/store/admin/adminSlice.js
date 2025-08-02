@@ -8,6 +8,14 @@ const initialState = {
         { label: "Active Job Titles", value: 7 },
         { label: "Draft Job Titles", value: 2 },
         { label: "Unassigned Employees", value: 2 }
+    ],
+    accountsData: [
+        { id: 1, name: 'Mei Tanaka', jobTitle: 'Admin', position: 'Admin', status: 'Full Time' },
+        { id: 2, name: 'Kenji Sato', jobTitle: 'Supervisor', position: 'Supervisor', status: 'Contract' },
+        { id: 3, name: 'Akihiro Nakamura', jobTitle: 'Staff', position: 'Staff', status: 'PIP' },
+        { id: 4, name: 'Sakura Yamamoto', jobTitle: '', position: '', status: 'Contract' },
+        { id: 5, name: 'Ren Tanaka', jobTitle: '', position: '', status: 'Contract' },
+        { id: 6, name: 'Ayumi Watanabe', jobTitle: '', position: '', status: 'Contract' },
     ]
 };
 

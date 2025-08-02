@@ -26,9 +26,13 @@ const initialState = {
 const adminSlice = createSlice({
     name: "admin",
     initialState,
-    reducers: {}
+    reducers: {
+        addJob: (state, action) => {
+            state.jobsData.push(action.payload);
+        },
+    }
 });
 
-export const { } = adminSlice.actions;
+export const { addJob } = adminSlice.actions;
 
 export default adminSlice.reducer;

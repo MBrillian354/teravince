@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import DynamicForm from '../components/DynamicForm';
+import { addJob } from '@/store/admin/adminSlice';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const NewJobForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const navigate = useNavigate();
+
+    const dispatch = useDispatch();
+
 
     const formFields = [
         {
@@ -32,11 +39,22 @@ const NewJobForm = () => {
         try {
             // TODO: Replace with actual API call
             console.log('Job form data:', formData);
+            const newJob = {
+                id: Date.now(), // Temporary ID generation
+                title: formData.jobTitle,
+                description: formData.description,
+                employees: 0, // Default to 0 employees
+                status: 'Draft' // Default status
+            };
+
+            dispatch(addJob(newJob));
 
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 1000));
-
             setSuccess('Job posting created successfully!');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            navigate(-1); // Navigate to previous page
+
 
             // TODO: Redirect to jobs list or show success message
         } catch (err) {
@@ -56,7 +74,6 @@ const NewJobForm = () => {
                 submitButtonText={isSubmitting ? "Creating..." : "Create Job"}
                 error={error}
                 success={success}
-                className="space-y-6"
             />
         </div>
     );

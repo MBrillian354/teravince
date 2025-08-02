@@ -229,11 +229,6 @@ export default function Tasks() {
         </span>
       ),
     },
-    {
-      header: '',
-      render: () => <span className="cursor-pointer">•••</span>,
-      align: 'right',
-    },
   ];
 
   return (

@@ -27,11 +27,6 @@ const staffColumns = [
   { header: 'Employee ID',   accessor: 'id'   },
   { header: 'Job Title',     accessor: 'title'},
   { header: 'Contract Term', accessor: 'contract' },
-  {
-    header: '',
-    render: () => <span>•••</span>,
-    align: 'right'
-  },
 ];
 
 // dummy staff data

@@ -141,6 +141,12 @@ export default function StaffReport() {
       group: 'row3'
     },
     // Evidence links
+    {
+    type: 'title',
+    name: 'evidence_title',
+    label: 'Evidence',
+    className: 'mt-4'
+    },
     ...(tasks[0]?.evidence?.map((file, index) => ({
       type: 'link',
       name: `evidence_${index}`,
@@ -148,6 +154,7 @@ export default function StaffReport() {
       href: file.url,
       className: 'justify-start'
     })) || [])
+
   ];
 
   const handleSupervisorReviewSubmit = (formData) => {
@@ -180,11 +187,6 @@ export default function StaffReport() {
       ),
     },
     { header: 'Task Score', accessor: 'score', align: 'right' },
-    {
-      header: '',
-      render: () => <span className="cursor-pointer">•••</span>,
-      align: 'right',
-    },
   ];
 
   return (
@@ -233,14 +235,6 @@ export default function StaffReport() {
         />
         <button className="btn-secondary self-end">
           Send Review
-        </button>
-      </div>
-
-      {/* Employee Status + Continue */}
-      <div className="flex justify-between items-center mb-2">
-        <p className="font-medium text-gray-700">Employee Status</p>
-        <button className="border border-gray-300 px-4 py-1 text-sm rounded hover:bg-gray-100">
-          Continue
         </button>
       </div>
 

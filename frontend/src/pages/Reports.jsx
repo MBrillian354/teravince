@@ -1,12 +1,10 @@
-// src/pages/Reports.jsx
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ChevronDownIcon }   from '@heroicons/react/24/outline';
-import TasksReportsTabs      from '../components/TasksReportsTabs';
-import StatsCard             from '../components/StatsCard';
-import DataTable             from '../components/DataTable';
-import Pagination            from '../components/Pagination';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import TasksReportsTabs from '../components/TasksReportsTabs';
+import StatsCard from '../components/StatsCard';
+import DataTable from '../components/DataTable';
+import Pagination from '../components/Pagination';
 
 export default function Reports() {
   const navigate = useNavigate();
@@ -14,23 +12,42 @@ export default function Reports() {
   const totalPages = 11;
 
   const cards = [
-    { label: 'Upcoming Reviews',      value: 3 },
-    { label: 'Finished Review',       value: 0 },
+    { label: 'Upcoming Reviews', value: 3 },
+    { label: 'Finished Review', value: 0 },
     { label: "This Month’s Deadline", value: '31 May 2025' },
   ];
 
-  const reportData = [
-    {
-      reportId:    'r1',
-      employeeId:  '3210001',
-      name:        'Jane Doe',
-      month:       'May',
-      jobTitle:    'Social Media Trainee',
-      score:       '0/100',
-      status:      'Awaiting Review',
-    },
-    // …etc
+  // ─── Dummy report data ─────────────────────────────────────────
+  const initialData = [
+    { reportId: 'r1', employeeId: '3210001', name: 'Jane Doe', month: 'May', jobTitle: 'Social Media Trainee', score: '0/100', status: 'Awaiting Review' },
+    { reportId: 'r2', employeeId: '3210002', name: 'John Smith', month: 'March', jobTitle: 'Marketing Intern', score: '75/100', status: 'Completed' },
+    { reportId: 'r3', employeeId: '3210003', name: 'Lisa Ray', month: 'January', jobTitle: 'Design Assistant', score: '85/100', status: 'Completed' },
+    { reportId: 'r4', employeeId: '3210004', name: 'Alan Kim', month: 'April', jobTitle: 'Community Intern', score: '60/100', status: 'Awaiting Review' }
   ];
+
+  // ─── Sorting logic ─────────────────────────────────────────────
+  const [sortBy, setSortBy] = useState(null); // e.g. 'month'
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const sortedData = [...initialData].sort((a, b) => {
+    if (sortBy === 'month') {
+      const aIndex = monthOrder.indexOf(a.month);
+      const bIndex = monthOrder.indexOf(b.month);
+      return sortDirection === 'asc' ? aIndex - bIndex : bIndex - aIndex;
+    }
+    return 0; // default (no sorting)
+  });
+
+  const toggleSort = (field) => {
+    if (sortBy === field) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(field);
+      setSortDirection('asc');
+    }
+  };
 
   const columns = [
     {
@@ -54,16 +71,27 @@ export default function Reports() {
     },
     {
       header: () => (
-        <div className="flex items-center space-x-1">
+        <button
+          onClick={() => toggleSort('month')}
+          className="flex items-center space-x-1 group"
+        >
           <span>Month</span>
-          <ChevronDownIcon className="w-4 h-4 text-gray-500" />
-        </div>
+          {sortBy === 'month' ? (
+            sortDirection === 'asc' ? (
+              <ChevronUpIcon className="w-4 h-4 text-gray-500 group-hover:text-black" />
+            ) : (
+              <ChevronDownIcon className="w-4 h-4 text-gray-500 group-hover:text-black" />
+            )
+          ) : (
+            <ChevronDownIcon className="w-4 h-4 text-gray-300 group-hover:text-black" />
+          )}
+        </button>
       ),
       accessor: 'month',
       align: 'center'
     },
-    { header: 'Job Title',       accessor: 'jobTitle' },
-    { header: 'Employee Score',  accessor: 'score', align: 'right' },
+    { header: 'Job Title', accessor: 'jobTitle' },
+    { header: 'Employee Score', accessor: 'score', align: 'right' },
     {
       header: 'Report Status',
       render: row => (
@@ -91,7 +119,7 @@ export default function Reports() {
 
       <DataTable
         columns={columns}
-        data={reportData}
+        data={sortedData}
         rowKey="reportId"
         containerClass="bg-white rounded mb-4"
         onRowClick={({ reportId }) => navigate(`/spv-report/${reportId}`)}

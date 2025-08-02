@@ -24,7 +24,7 @@ export default function Navbar() {
         ],
         supervisor: [
             { path: "/spv-dashboard", label: "(Supervisor) Dashboard" },
-            { path: "/spv-profile", label: "(Supervisor) My Profiles" },
+            { path: "/spv-profile", label: "(Supervisor) My Profile" },
             { path: "/spv-tasks", label: "(Supervisor) Tasks & Reports" }
         ],
         staff: [

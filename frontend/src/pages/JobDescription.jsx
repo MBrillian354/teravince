@@ -44,13 +44,7 @@ export default function JobDescription() {
     { header: 'Job Description',    accessor: 'description' },
     {
       header: 'Number of Active Task',
-      accessor: 'activeTasks',
-      align: 'right',
-    },
-    {
-      header: '',
-      render: () => <span className="cursor-pointer">•••</span>,
-      align: 'right',
+      accessor: 'activeTasks'
     },
   ]
 
@@ -74,11 +68,6 @@ export default function JobDescription() {
           {r.status}
         </span>
       ),
-    },
-    {
-      header: '',
-      render: () => <span className="cursor-pointer">•••</span>,
-      align: 'right',
     },
   ]
 

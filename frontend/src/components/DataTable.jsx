@@ -17,7 +17,7 @@ export default function DataTable({
                 key={`header-${index}`}
                 className={`p-3 text-${col.align || 'left'}`}
               >
-                {col.header}
+                {typeof col.header === 'function' ? col.header() : col.header}
               </th>
             ))}
           </tr>

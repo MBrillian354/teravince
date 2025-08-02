@@ -31,7 +31,6 @@ const DynamicForm = ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    // Clear error when user starts typing
     if (localError) setLocalError('');
   };
 
@@ -39,7 +38,6 @@ const DynamicForm = ({
     e.preventDefault();
     setLocalError('');
 
-    // Basic validation
     const requiredFields = fields.filter(field => field.required);
     for (let field of requiredFields) {
       if (!formData[field.name] || formData[field.name].toString().trim() === '') {
@@ -48,13 +46,11 @@ const DynamicForm = ({
       }
     }
 
-    // Call parent's onSubmit handler
     if (onSubmit) {
       onSubmit(formData);
     }
   };
 
-  // Helper function to render just the field content (without form-group wrapper)
   const renderFieldContent = (field) => {
     const {
       type = 'text',
@@ -66,7 +62,8 @@ const DynamicForm = ({
       hint = '',
       className: fieldClassName = '',
       disabled = false,
-      rows = 3
+      rows = 3,
+      href = ''
     } = field;
 
     const inputProps = {
@@ -79,6 +76,13 @@ const DynamicForm = ({
     };
 
     switch (type) {
+      case 'title':
+        return (
+          <label className={`form-label ${field.className || ''}`}>
+            {label}
+          </label>
+        );
+
       case 'textarea':
         return (
           <>
@@ -154,7 +158,7 @@ const DynamicForm = ({
       case 'link':
         return (
           <div className={`flex items-center h-full justify-end ${field.className}`}>
-            <a href={field.href} className="clickable-link">
+            <a href={href} className="clickable-link" download>
               {label}
             </a>
           </div>
@@ -179,16 +183,13 @@ const DynamicForm = ({
   const renderField = (field, index) => {
     const { group = null } = field;
 
-    // Skip rendering if this field was already rendered as part of a group
     if (group && fields[index - 1] && fields[index - 1].group === group) {
       return null;
     }
 
-    // Check if this is the start of a group
     const isGroupStart = group && (!fields[index - 1] || fields[index - 1].group !== group);
 
     if (isGroupStart) {
-      // Find all fields in this group
       const groupFields = [];
       let currentIndex = index;
       while (currentIndex < fields.length && fields[currentIndex].group === group) {
@@ -196,10 +197,9 @@ const DynamicForm = ({
         currentIndex++;
       }
 
-      // Determine the grid layout based on number of fields in group
       let gridClass = '';
       let widthClass = '';
-      
+
       if (groupFields.length === 2) {
         gridClass = 'grid grid-cols-1 md:grid-cols-2 gap-4';
         widthClass = 'w-full';
@@ -207,11 +207,9 @@ const DynamicForm = ({
         gridClass = 'grid grid-cols-1 md:grid-cols-3 gap-4';
         widthClass = 'w-full';
       } else if (groupFields.length > 3) {
-        // For more than 3 fields, use flex layout with equal widths
         gridClass = 'flex flex-wrap gap-4';
         widthClass = 'flex-1 min-w-0';
       } else {
-        // Single field in group, treat as regular field
         return (
           <div className="form-group" key={field.name}>
             {renderFieldContent(field)}
@@ -219,7 +217,6 @@ const DynamicForm = ({
         );
       }
 
-      // Render grouped fields
       return (
         <div className={`form-group ${gridClass}`} key={`group-${group}-${index}`}>
           {groupFields.map((groupField) => (
@@ -231,7 +228,6 @@ const DynamicForm = ({
       );
     }
 
-    // Render single field with form-group wrapper (not part of any group)
     return (
       <div className="form-group" key={field.name}>
         {renderFieldContent(field)}
@@ -246,31 +242,23 @@ const DynamicForm = ({
 
       {(title || subtitle) && <hr className="mb-6 border-t border-gray-400" />}
 
-      {/* Display errors */}
       {(error || localError) && (
         <p className="text-red-500 text-sm mb-4">{error || localError}</p>
       )}
 
-      {/* Display success message */}
       {success && (
         <p className="text-green-500 text-sm mb-4">{success}</p>
       )}
 
-      {/* Render form fields */}
       {fields.map((field, index) => renderField(field, index)).filter(Boolean)}
 
-      {/* Submit button */}
       {showSubmitButton && (
         <button type="submit" className="form-submit-button">
           {submitButtonText}
         </button>
       )}
 
-      {footer && (
-        <div>
-          {footer}
-        </div>
-      )}
+      {footer && <div>{footer}</div>}
     </form>
   );
 };
@@ -280,7 +268,7 @@ DynamicForm.propTypes = {
   subtitle: PropTypes.string,
   fields: PropTypes.arrayOf(
     PropTypes.shape({
-      type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'date', 'textarea', 'select', 'checkbox', 'radio', 'link']),
+      type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'date', 'textarea', 'select', 'checkbox', 'radio', 'link', 'title']),
       name: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
       placeholder: PropTypes.string,
@@ -296,7 +284,8 @@ DynamicForm.propTypes = {
       className: PropTypes.string,
       disabled: PropTypes.bool,
       rows: PropTypes.number,
-      group: PropTypes.string
+      group: PropTypes.string,
+      href: PropTypes.string
     })
   ).isRequired,
   onSubmit: PropTypes.func,

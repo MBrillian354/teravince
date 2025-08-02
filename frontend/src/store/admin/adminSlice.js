@@ -16,6 +16,10 @@ const initialState = {
         { id: 4, name: 'Sakura Yamamoto', jobTitle: '', position: '', status: 'Contract' },
         { id: 5, name: 'Ren Tanaka', jobTitle: '', position: '', status: 'Contract' },
         { id: 6, name: 'Ayumi Watanabe', jobTitle: '', position: '', status: 'Contract' },
+    ],
+    jobsData: [
+        { id: 1, title: 'Software Engineer', description: 'Develop applications', employees: 5, status: 'Active' },
+        { id: 2, title: 'Product Manager', description: 'Oversee product roadmap', employees: 3, status: 'Draft' }
     ]
 };
 

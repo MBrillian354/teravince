@@ -44,23 +44,12 @@ export default function JobDescription() {
     { header: 'Job Description',    accessor: 'description' },
     {
       header: 'Number of Active Task',
-      accessor: 'activeTasks',
-      align: 'right',
-    },
-    {
-      header: '',
-      render: () => <span className="cursor-pointer">•••</span>,
-      align: 'right',
+      accessor: 'activeTasks'
     },
   ]
 
   // bottom‐table columns (include employee info)
   const taskColumns = [
-    {
-      header: '',
-      render: () => <input type="checkbox" className="form-checkbox" />,
-      align: 'center',
-    },
     { header: 'Employee ID',   accessor: 'employeeId'   },
     { header: 'Employee Name', accessor: 'employeeName' },
     { header: 'Task ID',       accessor: 'id'           },
@@ -74,11 +63,6 @@ export default function JobDescription() {
           {r.status}
         </span>
       ),
-    },
-    {
-      header: '',
-      render: () => <span className="cursor-pointer">•••</span>,
-      align: 'right',
     },
   ]
 

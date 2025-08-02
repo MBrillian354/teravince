@@ -4,9 +4,6 @@ const User = require('../models/User');
 
 // Create a new job
 exports.createJob = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { title, description } = req.body;
 
@@ -17,24 +14,11 @@ exports.createJob = async (req, res) => {
       status: 'draft'
     });
 
-    await newJob.save({ session });
-
-    if (assignedTo) {
-      const user = await User.findByIdAndUpdate(
-        assignedTo,
-        { jobId: newJob._id },
-        { session }
-      );
-      if (!user) throw new Error('Assigned user not found');
-    }
-
-    await session.commitTransaction();
-    session.endSession();
+    await newJob.save();
 
     res.status(201).json({ msg: 'Job created successfully', job: newJob });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
+    // Error handling without session
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };

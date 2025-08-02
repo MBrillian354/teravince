@@ -5,12 +5,12 @@ import HistoryList from '../components/HistoryList';
 
 const StaffDashboard = () => {
   // Mock staff data from sign-up
-  const staff = { name: "John"};
+  const staff = { firstame: "John", lastName: "Yasuarini" };
 
   // Mock dashboard data
   const mockupData = [
     { label: "Performance Score", value: "90.3 / 100" },
-    { label: "Performance Feedback", value: "John did a great job!" },
+    { label: "Performance Feedback", value: "Great job!" },
     { label: "Growth Rate", value: "+4.7%", delta: "+4.7%" },
   ];
 
@@ -19,7 +19,7 @@ const StaffDashboard = () => {
       {/* Main Dashboard Section */}
       <div className={cardStyle}>
         {/* Greeting */}
-        <h1 className={greetingStyle}>Welcome back, {staff.name}</h1>
+        <h1 className={greetingStyle}>Welcome back, {staff.firstName}</h1>
 
         {/* Filters */}
         <div className={filterWrapperStyle}>

@@ -4,10 +4,10 @@ const jobSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
   deadline: Date,
-  assignedTo: {
+  assignedTo: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  },
+  }],
   status: {
     type: String,
     enum: ['draft', 'underReview', 'ongoing', 'finished'],

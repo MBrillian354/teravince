@@ -13,6 +13,7 @@ exports.createJob = async (req, res) => {
     const newJob = new Job({
       title,
       description,
+      assignedTo: [],
       status: 'draft'
     });
 

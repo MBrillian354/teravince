@@ -7,8 +7,8 @@ const reportSchema = new mongoose.Schema({
     required: true,
   },
   period: {
-    type: String,
-    required: true,
+    type: Date,
+    required: true, 
   },
   score: {
     type: Number,

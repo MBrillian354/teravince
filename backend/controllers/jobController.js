@@ -1,21 +1,39 @@
+const mongoose = require('mongoose');
 const Job = require('../models/Job');
+const User = require('../models/User');
 
 // Create a new job
 exports.createJob = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const { title, description, deadline, assignedTo } = req.body;
+    const { title, description } = req.body;
 
     const newJob = new Job({
       title,
       description,
-      deadline,
-      assignedTo,
-      status: 'Pending'
+      status: 'draft'
     });
 
-    await newJob.save();
+    await newJob.save({ session });
+
+    if (assignedTo) {
+      const user = await User.findByIdAndUpdate(
+        assignedTo,
+        { jobId: newJob._id },
+        { session }
+      );
+      if (!user) throw new Error('Assigned user not found');
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
     res.status(201).json({ msg: 'Job created successfully', job: newJob });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
@@ -44,24 +62,56 @@ exports.getJobById = async (req, res) => {
 
 // Update job
 exports.updateJob = async (req, res) => {
-  try {
-    const job = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!job) return res.status(404).json({ msg: 'Job not found' });
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-    res.json({ msg: 'Job updated successfully', job });
+  try {
+    const { id } = req.params;
+    const { title, description, deadline, assignedTo, status } = req.body;
+
+    const jobData = { title, description, deadline, assignedTo, status };
+
+    const updatedJob = await Job.findByIdAndUpdate(id, jobData, {
+      new: true,
+      session
+    });
+    if (!updatedJob) throw new Error('Job not found');
+
+    await User.updateMany({ jobId: id }, { $unset: { jobId: "" } }, { session });
+
+    if (assignedTo) {
+      const user = await User.findByIdAndUpdate(assignedTo, { jobId: id }, { session });
+      if (!user) throw new Error('Assigned user not found');
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.json({ msg: 'Job updated successfully', job: updatedJob });
+
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };
 
 // Delete job
 exports.deleteJob = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const deleted = await Job.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ msg: 'Job not found' });
+    const deleted = await Job.findByIdAndDelete(req.params.id, { session });
+    if (!deleted) throw new Error('Job not found');
+
+    await session.commitTransaction();
+    session.endSession();
 
     res.json({ msg: 'Job deleted successfully' });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     res.status(500).json({ msg: 'Server error', error: error.message });
   }
 };

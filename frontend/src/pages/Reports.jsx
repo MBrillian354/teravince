@@ -101,11 +101,6 @@ export default function Reports() {
       ),
       align: 'right'
     },
-    {
-      header: '',
-      render: () => <span className="cursor-pointer">•••</span>,
-      align: 'right'
-    }
   ];
 
   return (

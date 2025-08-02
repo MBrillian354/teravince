@@ -50,11 +50,6 @@ export default function JobDescription() {
 
   // bottom‐table columns (include employee info)
   const taskColumns = [
-    {
-      header: '',
-      render: () => <input type="checkbox" className="form-checkbox" />,
-      align: 'center',
-    },
     { header: 'Employee ID',   accessor: 'employeeId'   },
     { header: 'Employee Name', accessor: 'employeeName' },
     { header: 'Task ID',       accessor: 'id'           },

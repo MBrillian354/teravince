@@ -1,202 +1,127 @@
 // src/pages/StaffReport.jsx
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import StatsCard from '../components/StatsCard';
-import DataTable from '../components/DataTable';
-import Pagination from '../components/Pagination';
-import DynamicForm from '../components/DynamicForm';
+
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate }     from 'react-router-dom';
+import { ArrowLeftIcon }               from '@heroicons/react/24/outline';
+import StatsCard                       from '../components/StatsCard';
+import DataTable                       from '../components/DataTable';
+import Pagination                      from '../components/Pagination';
 
 export default function StaffReport() {
   const { reportId } = useParams();
-  const navigate = useNavigate();
+  const navigate     = useNavigate();
 
-  // ─── Dummy report data ─────────────────────────────────────────
-  const report = {
-    reportId,
-    employeeId: '3210001',
-    name: 'Jane Doe',
-    jobTitle: 'Social Media Trainee',
-    month: 'May 2025',
-    employeeScore: '80/100',
-    supervisorReview: 'Looks good overall.',
+  // 1) initial data from reports
+  const reportData = {
+    r1: { employeeId: '3210001', name: 'Jane Doe',   month: 'May 2025',     jobTitle: 'Social Media Trainee', score: '0/100'  },
+    r2: { employeeId: '3210002', name: 'John Smith', month: 'March 2025',   jobTitle: 'Marketing Intern',    score: '75/100' },
+    r3: { employeeId: '3210003', name: 'Lisa Ray',   month: 'January 2025', jobTitle: 'Design Assistant',   score: '85/100' },
+    r4: { employeeId: '3210004', name: 'Alan Kim',   month: 'April 2025',   jobTitle: 'Community Intern',    score: '60/100' },
   };
 
-  // ─── Local state for supervisor review ──────────────────────────
-  const [supervisorReview, setSupervisorReview] = useState(report.supervisorReview);
+  const spvPlaceholder = "Enter your review...";
 
-  // ─── Dummy tasks under this report ──────────────────────────────
-  const tasks = [
+  // 2) Look up the current report; fallback to r1
+  const report = reportData[reportId] || reportData.r1;
+
+  // 3) Editable supervisor review
+  const [supervisorReview, setSupervisorReview] = useState('');
+  useEffect(() => {
+    setSupervisorReview('');  // reset when reportId changes
+  }, [reportId]);
+
+  // 4) Dummy tasks keyed by reportId
+  const allTasks = [
     {
-      jobDescId: '32100010001',
-      jobDesc: 'Proofreading',
-      taskId: '32100010001',
-      title: 'Review Social Media Post',
-      status: 'Awaiting Review',
-      score: '100/100',
-      start: '01/03/2025',
-      end: '07/10/2025',
-      evidence: [
-        { name: 'report-may.pdf', url: '/assets/report-may.pdf' },
-        { name: 'screenshots-may.zip', url: '/assets/screenshots-may.zip' },
-      ],
+      reportId:    'r1',
+      jobDescId:   '32100010001',
+      jobDesc:     'Proofreading',
+      taskId:      '32100010001',
+      title:       'Review Social Media Post',
+      status:      'Awaiting Review',
+      score:       '100/100',
+      start:       '01/03/2025',
+      end:         '07/10/2025',
+      evidence:    [{ name: 'report-may.pdf', url: '/assets/report-may.pdf' }],
     },
-    // …add more rows if you need…
+    {
+      reportId:    'r2',
+      jobDescId:   '32100020001',
+      jobDesc:     'Draft Campaign Copy',
+      taskId:      '32100020001',
+      title:       'Write blog post',
+      status:      'Completed',
+      score:       '75/100',
+      start:       '10/03/2025',
+      end:         '15/10/2025',
+      evidence:    [{ name: 'blog-draft.docx', url: '/assets/blog-draft.docx' }],
+    },
+    {
+      reportId:    'r3',
+      jobDescId:   '32100030001',
+      jobDesc:     'Design Layout',
+      taskId:      '32100030001',
+      title:       'Create flyer',
+      status:      'Completed',
+      score:       '85/100',
+      start:       '05/01/2025',
+      end:         '20/01/2025',
+      evidence:    [],
+    },
+    {
+      reportId:    'r4',
+      jobDescId:   '32100040001',
+      jobDesc:     'Community Engagement',
+      taskId:      '32100040001',
+      title:       'Host webinar',
+      status:      'Awaiting Review',
+      score:       '60/100',
+      start:       '15/04/2025',
+      end:         '30/04/2025',
+      evidence:    [],
+    },
   ];
 
+  // 5) Filter tasks for this report
+  const tasks = allTasks.filter(t => t.reportId === reportId);
+
+  // 6) Which task is selected?
+  const [selectedTaskId, setSelectedTaskId] = useState(tasks[0]?.taskId);
+  const selectedTask = tasks.find(t => t.taskId === selectedTaskId) || tasks[0];
+
+  // reset selectedTask when reportId changes
+  useEffect(() => {
+    setSelectedTaskId(tasks[0]?.taskId);
+  }, [reportId]);
+
+  // 7) Pagination
   const [page, setPage] = useState(1);
-  const totalPages = 3;
+  const totalPages      = 3;
 
-  // ─── Form configuration for supervisor review ────────────────────
-  const supervisorReviewFields = [
-    {
-      type: 'textarea',
-      name: 'supervisorReview',
-      label: 'Review',
-      defaultValue: supervisorReview,
-      placeholder: 'Enter your review...',
-      rows: 4,
-      className: 'w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700'
-    },
-    {
-      type: 'checkbox',
-      name: 'confirmReview',
-      label: 'I have properly reviewed the employee\'s report',
-      required: true,
-      className: 'form-checkbox mr-2'
-    }
-  ];
-
-  // ─── Form configuration for task details ────────────────────────
-  const taskDetailFields = [
-    {
-      type: 'text',
-      name: 'jobDescId',
-      label: 'Job Description ID',
-      defaultValue: tasks[0]?.jobDescId || '',
-      disabled: true,
-      group: 'row1'
-    },
-    {
-      type: 'text',
-      name: 'jobDesc',
-      label: 'Job Description',
-      defaultValue: tasks[0]?.jobDesc || '',
-      disabled: true,
-      group: 'row1'
-    },
-    {
-      type: 'text',
-      name: 'taskId',
-      label: 'Task ID',
-      defaultValue: tasks[0]?.taskId || '',
-      disabled: true,
-      group: 'row2'
-    },
-    {
-      type: 'text',
-      name: 'score',
-      label: 'Task Score',
-      defaultValue: tasks[0]?.score || '',
-      disabled: true,
-      group: 'row2'
-    },
-    {
-      type: 'text',
-      name: 'title',
-      label: 'Task Title',
-      defaultValue: tasks[0]?.title || '',
-      disabled: true
-    },
-    {
-      type: 'textarea',
-      name: 'description',
-      label: 'Task Description',
-      defaultValue: tasks[0]?.title || '', // Note: This seems to be using title instead of description in original
-      disabled: true,
-      rows: 3
-    },
-    {
-      type: 'text',
-      name: 'status',
-      label: 'Task Status',
-      defaultValue: tasks[0]?.status || '',
-      disabled: true,
-      group: 'row3'
-    },
-    {
-      type: 'text',
-      name: 'start',
-      label: 'Start Date',
-      defaultValue: tasks[0]?.start || '',
-      disabled: true,
-      group: 'row3'
-    },
-    {
-      type: 'text',
-      name: 'end',
-      label: 'Finish Date',
-      defaultValue: tasks[0]?.end || '',
-      disabled: true,
-      group: 'row3'
-    },
-    // Evidence links
-    {
-    type: 'title',
-    name: 'evidence_title',
-    label: 'Evidence',
-    className: 'mt-4'
-    },
-    ...(tasks[0]?.evidence?.map((file, index) => ({
-      type: 'link',
-      name: `evidence_${index}`,
-      label: file.name,
-      href: file.url,
-      className: 'justify-start'
-    })) || [])
-
-  ];
-
-  const handleSupervisorReviewSubmit = (formData) => {
-    console.log('Supervisor review submitted:', formData);
-    setSupervisorReview(formData.supervisorReview);
-    // Add logic to save the review
-  };
-
-  const handleTaskDetailSubmit = (formData) => {
-    // Handle form submission if needed
-    console.log('Task detail form data:', formData);
-  };
-
+  // 8) Columns for the tasks table
   const taskColumns = [
-    {
-      header: '',
-      render: () => <input type="checkbox" className="form-checkbox" />,
-      align: 'center',
-    },
+    { header: '', render: () => <input type="checkbox" className="form-checkbox" />, align: 'center' },
     { header: 'Job Description ID', accessor: 'jobDescId' },
-    { header: 'Job Description', accessor: 'jobDesc' },
-    { header: 'Task ID', accessor: 'taskId' },
-    { header: 'Task Title', accessor: 'title' },
+    { header: 'Job Description',    accessor: 'jobDesc'   },
+    { header: 'Task ID',            accessor: 'taskId'    },
+    { header: 'Task Title',         accessor: 'title'     },
     {
       header: 'Task Status',
-      render: r => (
-        <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">
-          {r.status}
-        </span>
-      ),
+      render: r => <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">
+                    {r.status}
+                  </span>,
     },
     { header: 'Task Score', accessor: 'score', align: 'right' },
   ];
 
   return (
     <div className="container mx-auto px-4">
-      {/* ← Back & Page Title */}
+      {/* Back & Title */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Staff Report</h1>
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center space-x-1 bg-gray-700 text-white px-3 py-2 rounded text-sm hover:bg-gray-800 hover:cursor-pointer"
+          className="flex items-center space-x-1 bg-gray-700 text-white px-3 py-1 rounded text-sm hover:bg-gray-800"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           <span>Back to Reports</span>
@@ -218,24 +143,29 @@ export default function StaffReport() {
         </div>
         <StatsCard
           label="Employee Score"
-          value={report.employeeScore}
+          value={report.score}
           colorClass="bg-white"
         />
       </div>
 
       {/* Supervisor Review */}
-      <div className="flex flex-col bg-white rounded shadow p-6 mb-6">
-        <p className="font-medium text-gray-600 mb-4">Supervisor Review</p>
-        <DynamicForm
-          fields={supervisorReviewFields}
-          onSubmit={handleSupervisorReviewSubmit}
-          showSubmitButton={false}
-          // submitButtonText="Send Review"
-          className="space-y-4"
+      <div className="bg-white rounded shadow p-6 mb-6">
+        <p className="font-medium text-gray-600 mb-2">Supervisor Review</p>
+        <textarea
+          value={supervisorReview}
+          onChange={e => setSupervisorReview(e.target.value)}
+          className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 h-28 text-sm text-gray-700 mb-4"
+          placeholder= {spvPlaceholder}
         />
-        <button className="btn-secondary self-end">
-          Send Review
-        </button>
+        <div className="flex justify-end items-center space-x-4">
+          <label className="flex items-center text-sm">
+            <input type="checkbox" className="form-checkbox mr-2"/>
+            I have properly reviewed the employee’s report
+          </label>
+          <button className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+            Send Review
+          </button>
+        </div>
       </div>
 
       {/* Tasks Table */}
@@ -244,6 +174,7 @@ export default function StaffReport() {
         data={tasks}
         rowKey="taskId"
         containerClass="bg-white rounded mb-4"
+        onRowClick={({ taskId }) => setSelectedTaskId(taskId)}
       />
 
       {/* Pagination */}
@@ -254,16 +185,93 @@ export default function StaffReport() {
       />
 
       {/* Bottom Detail Card */}
-      <div className="bg-white rounded shadow p-6 mt-6">
-        <div className="staff-report-form">
-          <DynamicForm
-            fields={taskDetailFields}
-            onSubmit={handleTaskDetailSubmit}
-            showSubmitButton={false}
-            className="space-y-6"
-          />
+      {selectedTask && (
+        <div className="bg-white rounded shadow p-6 mt-6 space-y-6">
+          {/* JobDesc ID & Desc */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[['Job Description ID', selectedTask.jobDescId],
+              ['Job Description',   selectedTask.jobDesc ]].map(([label, val]) => (
+              <div key={label}>
+                <label className="block text-sm text-gray-600">{label}</label>
+                <input
+                  readOnly
+                  value={val}
+                  className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
+                />
+              </div>
+            ))}
+           </div>
+
+          {/* Task ID & Score */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[['Task ID',    selectedTask.taskId],
+              ['Task Score', selectedTask.score]].map(([label, val]) => (
+              <div key={label}>
+                <label className="block text-sm text-gray-600">{label}</label>
+                <input
+                  readOnly
+                  value={val}
+                  className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Title */}
+          <div>
+            <label className="block text-sm text-gray-600">Task Title</label>
+            <input
+              readOnly
+              value={selectedTask.title}
+              className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm text-gray-600">Task Description</label>
+            <textarea
+              readOnly
+              value={selectedTask.title}
+              className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700 h-24"
+            />
+          </div>
+
+          {/* Status / Dates */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[['Task Status', selectedTask.status],
+              ['Start Date',  selectedTask.start ],
+              ['Finish Date', selectedTask.end   ]].map(([label, val]) => (
+              <div key={label}>
+                <label className="block text-sm text-gray-600">{label}</label>
+                <input
+                  readOnly
+                  value={val}
+                  className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Evidence */}
+          <div>
+            <label className="block text-sm text-gray-600">Evidence</label>
+            {selectedTask.evidence.length > 0
+              ? selectedTask.evidence.map(f => (
+                  <a
+                    key={f.url}
+                    href={f.url}
+                    download={f.name}
+                    className="block text-indigo-600 hover:underline text-sm"
+                  >
+                    {f.name}
+                  </a>
+                ))
+              : <p className="text-gray-500 text-sm">No evidence uploaded</p>
+            }
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

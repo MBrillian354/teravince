@@ -12,9 +12,9 @@ export default function DataTable({
       <table className="min-w-full">
         <thead className="bg-gray-100">
           <tr>
-            {columns.map((col) => (
+            {columns.map((col, index) => (
               <th
-                key={col.header}
+                key={`header-${index}`}
                 className={`p-3 text-${col.align || 'left'}`}
               >
                 {col.header}
@@ -31,9 +31,9 @@ export default function DataTable({
               }`}
               onClick={() => onRowClick && onRowClick(row)}
             >
-              {columns.map((col) => (
+              {columns.map((col, index) => (
                 <td
-                  key={col.header}
+                  key={`cell-${index}`}
                   className={`p-3 text-${col.align || 'left'}`}
                 >
                   {col.render

@@ -1,17 +1,15 @@
 import StatsCard from '../components/StatsCard'
 import DataTable from '../components/DataTable'
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const ManageJobs = () => {
-    const jobStats = [
-        { label: "Active Titles", value: 3 },
-        { label: "Drafts", value: 2 }
-    ];
-
     // Define sample table data
-    const jobData = [
-        { id: 1, title: 'Software Engineer', description: 'Develop applications', employees: 5, status: 'Active' },
-        { id: 2, title: 'Product Manager', description: 'Oversee product roadmap', employees: 3, status: 'Draft' }
+    const jobData = useSelector((state) => state.admin.jobsData);
+
+    const jobStats = [
+        { label: "Active Jobs", value: jobData.filter(job => job.status === 'Active').length },
+        { label: "Drafts", value: jobData.filter(job => job.status === 'Draft').length }
     ];
 
     // Define table columns configuration
@@ -19,7 +17,8 @@ const ManageJobs = () => {
         { header: 'Job Title', accessor: 'title' },
         { header: 'Job Description', accessor: 'description' },
         { header: 'Number of Employees', accessor: 'employees' },
-        { header: 'Status', accessor: 'status' }
+        { header: 'Status', accessor: 'status' },
+        { header: 'Actions', render: row => <button onClick={(e) => { console.log('Action on', row); e.stopPropagation(); }}>Edit</button> }
     ];
 
     return (

@@ -153,8 +153,8 @@ const DynamicForm = ({
 
       case 'link':
         return (
-          <div className="flex justify-end items-center h-full">
-            <a href={field.href} className="forgot-password">
+          <div className={`flex items-center h-full justify-end ${field.className}`}>
+            <a href={field.href} className="clickable-link">
               {label}
             </a>
           </div>
@@ -179,31 +179,59 @@ const DynamicForm = ({
   const renderField = (field, index) => {
     const { group = null } = field;
 
-    // Check if this field and the next field are in the same group (for side-by-side layout)
-    const nextField = fields[index + 1];
-    const isGroupStart = group && (!fields[index - 1] || fields[index - 1].group !== group);
-    const isInGroup = group && nextField && nextField.group === group;
-
-    // Handle grouped fields (side-by-side layout)
-    if (isGroupStart && isInGroup) {
-      return (
-        <div className="form-group flex gap-4" key={`group-${group}-${index}`}>
-          <div className="w-1/2">
-            {renderFieldContent(field)}
-          </div>
-          <div className="w-1/2">
-            {renderFieldContent(nextField)}
-          </div>
-        </div>
-      );
-    }
-
     // Skip rendering if this field was already rendered as part of a group
     if (group && fields[index - 1] && fields[index - 1].group === group) {
       return null;
     }
 
-    // Render single field with form-group wrapper
+    // Check if this is the start of a group
+    const isGroupStart = group && (!fields[index - 1] || fields[index - 1].group !== group);
+
+    if (isGroupStart) {
+      // Find all fields in this group
+      const groupFields = [];
+      let currentIndex = index;
+      while (currentIndex < fields.length && fields[currentIndex].group === group) {
+        groupFields.push(fields[currentIndex]);
+        currentIndex++;
+      }
+
+      // Determine the grid layout based on number of fields in group
+      let gridClass = '';
+      let widthClass = '';
+      
+      if (groupFields.length === 2) {
+        gridClass = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+        widthClass = 'w-full';
+      } else if (groupFields.length === 3) {
+        gridClass = 'grid grid-cols-1 md:grid-cols-3 gap-4';
+        widthClass = 'w-full';
+      } else if (groupFields.length > 3) {
+        // For more than 3 fields, use flex layout with equal widths
+        gridClass = 'flex flex-wrap gap-4';
+        widthClass = 'flex-1 min-w-0';
+      } else {
+        // Single field in group, treat as regular field
+        return (
+          <div className="form-group" key={field.name}>
+            {renderFieldContent(field)}
+          </div>
+        );
+      }
+
+      // Render grouped fields
+      return (
+        <div className={`form-group ${gridClass}`} key={`group-${group}-${index}`}>
+          {groupFields.map((groupField) => (
+            <div className={widthClass} key={groupField.name}>
+              {renderFieldContent(groupField)}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // Render single field with form-group wrapper (not part of any group)
     return (
       <div className="form-group" key={field.name}>
         {renderFieldContent(field)}

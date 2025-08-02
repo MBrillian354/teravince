@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import DynamicForm from '../components/DynamicForm';
-import { addJob } from '@/store/admin/adminSlice';
+import { addJob } from '@/store/adminSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 

@@ -1,0 +1,51 @@
+name: Backend Dev Check
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-dev-check.yml'
+
+defaults:
+  run:
+    working-directory: ./backend
+
+jobs:
+  backend-dev-check:
+    name: Check Backend Dev Server (Express.js)
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Start dev server and verify
+        run: |
+          # Start the dev server in background
+          npm run dev &
+          DEV_PID=$!
+          
+          # Wait a few seconds for server to start
+          sleep 5
+          
+          # Check if the process is still running (successful start)
+          if kill -0 $DEV_PID 2>/dev/null; then
+            echo "✅ Dev server started successfully"
+            kill $DEV_PID
+            wait $DEV_PID 2>/dev/null || true
+            exit 0
+          else
+            echo "❌ Dev server failed to start"
+            exit 1
+          fi

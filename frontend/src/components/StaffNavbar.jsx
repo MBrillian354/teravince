@@ -1,84 +1,78 @@
-// ================== Main Code ==================
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { HiChartBar, HiUserCircle, HiHome } from "react-icons/hi";
+import { HiUserCircle, HiHome } from "react-icons/hi";
 import { FiLogOut } from "react-icons/fi";
 import { FaTasks } from "react-icons/fa";
 
+const navItems = [
+  { to: "/staff-dashboard", icon: <HiHome className="text-xl" />, label: "Dashboard" },
+  { to: "/staff-profile", icon: <HiUserCircle className="text-xl" />, label: "Profile" },
+  { to: "/staff-tasks", icon: <FaTasks className="text-xl" />, label: "Tasks" },
+];
+
 const StaffNavbar = () => {
+  const [showNavbar, setShowNavbar] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowNavbar(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <header className="bg-[#1B1717] w-screen text-[#EEEBDD]">
-      <nav className="w-full py-3 flex justify-between items-center">
-        <NavLink to="/" className="text-[#CE1212] text-xl font-bold">
+    <header
+      className={`bg-black/20 backdrop-blur-md text-[#EEEBDD] w-full shadow-md transition-all duration-700 ease-out transform ${
+        showNavbar ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
+      }`}
+    >
+      <nav className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+        {/* Logo */}
+        <NavLink
+          to="/"
+          className={`text-[#CE1212] text-2xl font-bold tracking-wide transition-all duration-700 transform ${
+            showNavbar ? "opacity-100 scale-100" : "opacity-0 scale-90"
+          }`}
+        >
           Teravince Staff
         </NavLink>
+
+        {/* Navigation Links */}
         <ul className="flex gap-6 items-center">
-          <li>
-            <NavLink
-              to="/staff-dashboard"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-[#CE1212] font-semibold"
-                  : "hover:text-[#CE1212] transition"
-              }
+          {navItems.map(({ to, icon, label }, index) => (
+            <li
+              key={to}
+              className={`transition-all duration-500 ease-out transform ${
+                showNavbar
+                  ? `opacity-100 translate-y-0 delay-${index * 100}`
+                  : "opacity-0 translate-y-4"
+              }`}
             >
-              <div className="flex items-center gap-1">
-                <HiHome className="text-lg" />
-                Dashboard
-              </div>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/staff-tasks"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-[#CE1212] font-semibold"
-                  : "hover:text-[#CE1212] transition"
-              }
-            >
-              <div className="flex items-center gap-1">
-                <FaTasks className="text-lg" />
-                Tasks
-              </div>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/staff-analytics"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-[#CE1212] font-semibold"
-                  : "hover:text-[#CE1212] transition"
-              }
-            >
-              <div className="flex items-center gap-1">
-                <HiChartBar className="text-lg" />
-                Analytics
-              </div>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/staff-profile"
-              className={({ isActive }) =>
-                isActive
-                  ? "text-[#CE1212] font-semibold"
-                  : "hover:text-[#CE1212] transition"
-              }
-            >
-              <div className="flex items-center gap-1">
-                <HiUserCircle className="text-lg" />
-                Profile
-              </div>
-            </NavLink>
-          </li>
-          <li>
-            <button className="hover:text-[#CE1212] transition">
-              <div className="flex items-center gap-1">
-                <FiLogOut className="text-lg" />
-                Logout
-              </div>
+              <NavLink
+                to={to}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? "text-[#CE1212] bg-black/30"
+                      : "hover:text-[#1B1717]"
+                  }`
+                }
+              >
+                {icon}
+                <span>{label}</span>
+              </NavLink>
+            </li>
+          ))}
+
+          {/* Logout Button */}
+          <li
+            className={`transition-all duration-500 ease-out transform ${
+              showNavbar
+                ? `opacity-100 translate-y-0 delay-${navItems.length * 100}`
+                : "opacity-0 translate-y-4"
+            }`}
+          >
+            <button className="flex items-center gap-2 px-3 py-1 text-sm font-medium hover:text-[#1B1717] transition-all duration-200">
+              <FiLogOut className="text-xl" />
+              <span>Logout</span>
             </button>
           </li>
         </ul>
@@ -88,13 +82,3 @@ const StaffNavbar = () => {
 };
 
 export default StaffNavbar;
-
-// ================== CSS (Tailwind Styling) ==================
-// bg-[#1B1717]: Dark background
-// w-full: Full width bar
-// text-[#EEEBDD]: Light text color
-// text-[#CE1212]: Highlight red
-// hover:text-[#CE1212]: Red hover effect
-// px-6 py-3: Padding for nav
-// flex gap-6 items-center: Layout spacing
-// text-lg: Icon size

@@ -8,25 +8,30 @@ const HistoryList = () => {
   ];
 
   return (
-    <div className="bg-[#F8F8F8] p-4 rounded-lg shadow">
-      <div className="text-lg font-semibold mb-2">History</div>
-      <ul className="text-sm">
+    <div className="bg-white p-6 rounded-xl shadow-md">
+      <h2 className="text-lg font-semibold text-[#1B1717] mb-4">History</h2>
+      <ul className="space-y-3">
         {history.map((item, idx) => (
-          <li key={idx} className="flex justify-between py-1 border-b last:border-none">
-            <span>– {item.task}</span>
-            <span className="text-gray-600">
-              {item.status}
+          <li
+            key={idx}
+            className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3 bg-[#F8F8F8] hover:shadow-sm transition"
+          >
+            <div className="text-[#1B1717] font-medium">{item.task}</div>
+            <div className="text-sm text-gray-700 flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
+                {item.status}
+              </span>
               {item.file && (
                 <a
                   href={`/${item.file}`}
-                  className="ml-2 underline text-blue-600"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 font-medium no-underline"
                 >
-                  {item.file}
+                  📄 {item.file}
                 </a>
               )}
-            </span>
+            </div>
           </li>
         ))}
       </ul>

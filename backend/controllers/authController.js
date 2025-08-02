@@ -5,7 +5,7 @@ const sendEmail = require('../utils/sendEmail');
 
 exports.register = async (req, res) => {
   try {
-    const { email, password, firstName, lastName, role } = req.body;
+    const { email, password, firstName, lastName } = req.body;
     const name = `${firstName} ${lastName}`;
 
     const allowedRoles = ['staff', 'supervisor', 'HRD'];
@@ -32,8 +32,7 @@ exports.register = async (req, res) => {
     user = await User.create({
       email,
       password: hashedPassword,
-      name,
-      role
+      name
     });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });

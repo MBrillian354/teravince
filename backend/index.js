@@ -8,6 +8,8 @@ const taskRoutes = require('./routes/taskRoutes');
 const biasRoutes = require('./routes/biasRoutes');
 const exampleRoutes = require('./routes/exampleRoutes');
 const authRoutes = require('./routes/authRoutes');
+const jobRoutes = require('./routes/jobRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -38,6 +40,8 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/bias', biasRoutes);
 app.use('/api/examples', exampleRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

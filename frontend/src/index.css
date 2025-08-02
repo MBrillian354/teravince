@@ -78,6 +78,10 @@ h1 {
   @apply text-gray-600 text-sm mt-1;
 }
 
+@utility clickable-link {
+  @apply text-[var(--bright-red)] no-underline;
+}
+
 /* SIGN IN */
 .sign-in-page {
   @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
@@ -89,10 +93,6 @@ h1 {
 
 .remember-me {
   @apply text-[var(--black)] flex items-center gap-2;
-}
-
-.forgot-password {
-  @apply text-[var(--bright-red)] no-underline;
 }
 
 .sign-in-button {

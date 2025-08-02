@@ -7,7 +7,7 @@ const verifyToken = require('../middlewares/auth');
 router.post('/', verifyToken, jobController.createJob);       
 router.get('/', verifyToken, jobController.getAllJobs);       
 router.get('/:id', verifyToken, jobController.getJobById);    
-router.put('/:id', verifyToken, jobController.updateJob);     
+router.patch('/:id', verifyToken, jobController.updateJob);     
 router.delete('/:id', verifyToken, jobController.deleteJob);  
 
 module.exports = router;

@@ -7,7 +7,7 @@ const verifyToken = require('../middlewares/auth');
 router.post('/', verifyToken, reportController.createReport);
 router.get('/', verifyToken, reportController.getAllReports);
 router.get('/user/:userId', verifyToken, reportController.getReportsByUser);
-router.put('/:id', verifyToken, reportController.updateReport);
+router.patch('/:id', verifyToken, reportController.updateReport);
 router.delete('/:id', verifyToken, reportController.deleteReport);
 
 module.exports = router;

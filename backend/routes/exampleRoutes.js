@@ -17,8 +17,8 @@ router.get('/:id', getExampleById);
 // POST a new example
 router.post('/', createExample);
 
-// PUT (update) an example
-router.put('/:id', updateExample);
+// PATCH (update) an example
+router.patch('/:id', updateExample);
 
 // DELETE an example
 router.delete('/:id', deleteExample);

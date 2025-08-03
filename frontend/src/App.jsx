@@ -25,6 +25,7 @@ import StaffReport from './pages/StaffReport.jsx';
 
 import StaffDashboard from './pages/StaffDashboard';
 import MyProfileStaff from './pages/StaffMyProfile.jsx';
+import StaffTasks from './pages/StaffTasks.jsx';
 
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import TermsAndConditions from './pages/TermsAndConditions.jsx';
@@ -75,6 +76,7 @@ function AppContent() {
           {/* Staff */}
           <Route path="/staff-dashboard" element={<StaffDashboard />} />
           <Route path="/staff-profile" element={<MyProfileStaff />} />
+          <Route path="/staff-tasks" element={<StaffTasks />} />
 
           {/* Legal */}
           <Route path="/privacy" element={<PrivacyPolicy />} />

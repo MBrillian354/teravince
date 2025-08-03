@@ -4,68 +4,80 @@ import DynamicForm from '../components/DynamicForm';
 
 export default function MyProfile() {
   const navigate = useNavigate();
-  const staff = { firstName: 'Dadia', lastName: 'Yasuarini' };
-
   const [photo, setPhoto] = useState(null);
+  
+  // Complete mock user data
+  const mockUserData = {
+    firstName: 'John',
+    lastName: 'Doe',
+    jobTitle: 'Senior Developer',
+    address: '123 Tech Street, Silicon Valley',
+    contactInfo: '+1 555 123 4567',
+    email: 'john.doe@teravince.com'
+  };
+
+  // Initialize formData with mock data directly
   const [formData, setFormData] = useState({
-    firstName: staff.firstName,
-    lastName: staff.lastName,
-    jobTitle: 'Software Engineer',
-    address: '1234 Main Street, City, Country',
-    contactInfo: '+62 812 3456 7890',
+    firstName: mockUserData.firstName,
+    lastName: mockUserData.lastName,
+    jobTitle: mockUserData.jobTitle,
+    address: mockUserData.address,
+    contactInfo: mockUserData.contactInfo
   });
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
-    if (file) setPhoto(URL.createObjectURL(file));
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Image size should be less than 2MB');
+        return;
+      }
+      setPhoto(URL.createObjectURL(file));
+    }
   };
 
   const handleRemovePhoto = () => {
     setPhoto(null);
   };
 
+  // Form fields configuration
   const userDetailsFields = [
     {
       type: 'text',
       name: 'firstName',
       label: 'First Name',
-      placeholder: 'Enter first name',
-      group: 'name',
-      value: formData.firstName,
+      defaultValue: formData.firstName,  // Use defaultValue instead of value
+      required: true
     },
     {
       type: 'text',
       name: 'lastName',
       label: 'Last Name',
-      placeholder: 'Enter last name',
-      group: 'name',
-      value: formData.lastName,
+      defaultValue: formData.lastName,
+      required: true
     },
     {
       type: 'text',
       name: 'jobTitle',
       label: 'Job Title',
-      placeholder: 'Enter job title',
-      value: formData.jobTitle,
+      defaultValue: formData.jobTitle
     },
     {
       type: 'text',
       name: 'address',
       label: 'Address',
-      placeholder: 'Enter address',
-      value: formData.address,
+      defaultValue: formData.address
     },
     {
       type: 'text',
       name: 'contactInfo',
       label: 'Contact Info',
-      placeholder: 'Enter contact info',
-      value: formData.contactInfo,
-    },
+      defaultValue: formData.contactInfo
+    }
   ];
 
-  const handleProfileUpdate = (data) => {
-    setFormData(data);
+  const handleProfileUpdate = (updatedData) => {
+    setFormData(updatedData);
     alert('✅ Profile successfully updated!');
     navigate('/staff-dashboard');
   };
@@ -75,7 +87,7 @@ export default function MyProfile() {
       <h1 className="text-3xl font-bold mb-6 text-[#1B1717]">My Profile</h1>
 
       <div className="bg-white rounded-lg shadow p-6 space-y-6">
-        {/* Photo Upload */}
+        {/* Photo Upload Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-12">
           <div className="flex items-center space-x-6">
             <div className="w-24 h-24 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
@@ -88,7 +100,7 @@ export default function MyProfile() {
             <div className="flex flex-col space-y-2">
               <label
                 htmlFor="photo-upload"
-                className="px-4 py-2 bg-[#CE1212] text-white rounded cursor-pointer hover:bg-[#810000] transition"
+                className="px-4 py-2 bg-[#CE1212] text-white rounded cursor-pointer hover:bg-[#810000] transition text-center"
               >
                 Upload Photo
               </label>
@@ -132,6 +144,7 @@ export default function MyProfile() {
             onSubmit={handleProfileUpdate}
             showSubmitButton={false}
             className="space-y-4"
+            initialValues={formData} // Pass initial values separately
           />
 
           <div className="flex justify-end">

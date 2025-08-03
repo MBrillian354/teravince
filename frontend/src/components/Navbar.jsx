@@ -30,7 +30,7 @@ export default function Navbar() {
         staff: [
             { path: "/staff-dashboard", label: "(Staff) Dashboard" },
             { path: "/staff-tasks", label: "(Staff) Tasks" },
-            { path: "/staff-analytics", label: "(Staff) Analytics" },
+            // { path: "/staff-analytics", label: "(Staff) Analytics" },
             { path: "/staff-profile", label: "(Staff) Profile" }
         ]
     };

@@ -7,12 +7,13 @@ function Signin() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Dummy staff data
+  // Dummy staff data with split name fields
   const staffData = {
     staff: [
       {
         id: 1,
-        name: "John Doe",
+        firstName: "John",
+        lastName: "Doe",
         email: "john.doe@teravince.com",
         password: "password123!",
         role: "Admin",
@@ -64,7 +65,7 @@ function Signin() {
       );
 
       if (user) {
-        alert(`Login successful! Welcome, ${user.name}`);
+        alert(`Login successful! Welcome, ${user.firstName} ${user.lastName}`);
         navigate('/admin-dashboard');
       } else {
         setError('Invalid email or password.');

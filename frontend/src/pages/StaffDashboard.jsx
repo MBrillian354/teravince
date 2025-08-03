@@ -5,7 +5,7 @@ import HistoryList from '../components/HistoryList';
 
 const StaffDashboard = () => {
   // Mock staff data from sign-up
-  const staff = { firstame: "John", lastName: "Yasuarini" };
+  const staff = { firstName: "John", lastName: "Yasuarini" };
 
   // Mock dashboard data
   const mockupData = [

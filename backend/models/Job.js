@@ -10,7 +10,7 @@ const jobSchema = new mongoose.Schema({
   }],
   status: {
     type: String,
-    enum: ['draft', 'underReview', 'ongoing', 'finished'],
+    enum: ['draft', 'published', 'active'],
     default: 'draft'
   }
 });

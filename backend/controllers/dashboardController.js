@@ -1,0 +1,130 @@
+const Report = require('../models/Report');
+const Task = require('../models/Task');
+const User = require('../models/User');
+const Job = require('../models/Job');
+
+// Staff Dashboard
+exports.staffDashboard = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { month, year } = req.query;
+
+    const allReports = await Report.find({ userId });
+
+    const filteredPeriod = month && year ? `${year}-${month.toString().padStart(2, '0')}` : null;
+    const selectedReport = filteredPeriod
+      ? await Report.findOne({ userId, period: filteredPeriod })
+      : allReports[allReports.length - 1];
+
+    const currentYear = new Date().getFullYear();
+    const thisYearReports = allReports.filter(r => parseInt(r.period.slice(0, 4)) === currentYear);
+    const lastYearReports = allReports.filter(r => parseInt(r.period.slice(0, 4)) === currentYear - 1);
+
+    const thisYearAvg = thisYearReports.reduce((s, r) => s + r.score, 0) / (thisYearReports.length || 1);
+    const lastYearAvg = lastYearReports.reduce((s, r) => s + r.score, 0) / (lastYearReports.length || 1);
+    const growthRate = ((thisYearAvg - lastYearAvg) / (lastYearAvg || 1)) * 100;
+
+    const tasks = await Task.find({ userId }).sort({ createdAt: -1 });
+
+    const activityRecap = await Task.aggregate([
+      { $match: { userId: req.user._id } },
+      {
+        $group: {
+          _id: '$taskStatus',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    res.json({
+      performanceScore: selectedReport?.score || 0,
+      performanceFeedback: selectedReport?.review || '',
+      growthRate: parseFloat(growthRate.toFixed(1)),
+      activityRecap,
+      history: tasks.map(task => ({
+        title: task.title,
+        status: task.taskStatus,
+        evidence: task.evidence
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ msg: 'Failed to fetch staff dashboard', error: error.message });
+  }
+};
+
+// Supervisor Dashboard 
+exports.supervisorDashboard = async (req, res) => {
+  try {
+    const { month, year, startDate, endDate } = req.query;
+
+    const match = {};
+    if (month && year) {
+      const start = new Date(`${year}-${month}-01`);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
+      match.createdDate = { $gte: start, $lt: end };
+    }
+
+    // Filter staff berdasarkan tanggal kontrak 
+    const staffFilter = { role: 'staff' };
+    if (startDate && endDate) {
+      staffFilter.contractStartDate = { $gte: new Date(startDate) };
+      staffFilter.contractEndDate = { $lte: new Date(endDate) };
+    }
+
+    const staff = await User.find(staffFilter);
+    const staffIds = staff.map(s => s._id);
+
+    const tasks = await Task.find({ userId: { $in: staffIds }, ...match });
+
+    const taskStatusCounts = {
+      achieved: tasks.filter(t => t.taskStatus === 'achieved').length,
+      onProcess: tasks.filter(t => t.taskStatus === 'On Process').length,
+      awaitingReview: tasks.filter(t => t.taskStatus === 'Awaiting Review').length,
+      notYetStarted: tasks.filter(t => t.taskStatus === 'Not Yet Started').length,
+    };
+
+    res.json({
+      totalTasks: tasks.length,
+      numberOfStaffs: staff.length,
+      avgTasksPerPerson: parseFloat((tasks.length / (staff.length || 1)).toFixed(1)),
+      taskStatus: taskStatusCounts,
+      staffs: staff.map(s => ({
+        id: s._id,
+        name: s.name,
+        email: s.email,
+        jobId: s.jobId,
+        contract: {
+          start: s.contractStartDate,
+          end: s.contractEndDate,
+        }
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ msg: 'Failed to fetch supervisor dashboard', error: error.message });
+  }
+};
+
+// Admin Dashboard
+exports.adminDashboard = async (req, res) => {
+  try {
+    const [supervisors, staffs, jobs] = await Promise.all([
+      User.find({ role: 'supervisor' }),
+      User.find({ role: 'staff' }),
+      Job.find()
+    ]);
+
+    const draftJobTitles = jobs.filter(j => j.status === 'draft').length;
+    const unassignedEmployees = staffs.filter(s => !s.jobId).length;
+
+    res.json({
+      supervisorsCount: supervisors.length,
+      staffsCount: staffs.length,
+      jobTitlesCount: jobs.length,
+      draftJobTitles,
+      unassignedEmployees
+    });
+  } catch (error) {
+    res.status(500).json({ msg: 'Failed to fetch admin dashboard', error: error.message });
+  }
+};

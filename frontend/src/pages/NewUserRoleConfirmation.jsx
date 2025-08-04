@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-export default function RoleConfirmation() {
+export default function NewUserRoleConfirmation() {
   const navigate = useNavigate();
 
   const handleSelectRole = (role) => {

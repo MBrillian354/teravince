@@ -33,8 +33,8 @@ import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import CookiePolicy from './pages/CookiePolicy.jsx';
 import SimpleModalDemo from './components/SimpleModalDemo';
 
-import RoleConfirmation from './pages/RoleConfirmation';
-import JobTitleConfirmation from './pages/NewUserJobTitleConfirmation';
+import NewUserRoleConfirmation from './pages/NewUserRoleConfirmation';
+import NewUserJobConfirmation from './pages/NewUserJobConfirmation';
 
 // Auth Routes Component
 function AuthRoutes() {
@@ -172,8 +172,8 @@ function PublicRoutes() {
       <Route path="/terms" element={<TermsAndConditions />} />
       <Route path="/cookies" element={<CookiePolicy />} />
       <Route path="/demo" element={<SimpleModalDemo />} />
-      <Route path="/role-confirm" element={<RoleConfirmation />} />
-      <Route path="/job-title" element={<JobTitleConfirmation />} />
+      <Route path="/role-confirm" element={<NewUserRoleConfirmation />} />
+      <Route path="/job-confirm" element={<NewUserJobConfirmation />} />
     </>
   );
 }

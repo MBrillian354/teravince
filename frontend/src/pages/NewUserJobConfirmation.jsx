@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function JobTitleConfirmation() {
+export default function NewUserJobConfirmation() {
   const [role, setRole] = useState("");
   const [selectedJob, setSelectedJob] = useState("");
 

@@ -143,7 +143,8 @@ function Signin() {
             },
           );
 
-          setTimeout(() => redirectToAppropriateRoute(userData), 3000);
+          // Store the timeout so it can be cancelled on unmount
+          redirectTimeoutRef.current = setTimeout(() => redirectToAppropriateRoute(userData), 3000);
 
         } catch (userDataError) {
           console.error('Error fetching user data:', userDataError);

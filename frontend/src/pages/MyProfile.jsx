@@ -129,7 +129,7 @@ export default function MyProfile() {
       type: 'text',
       name: 'jobTitle',
       label: 'Job Title',
-      defaultValue: user?.jobTitle,
+      defaultValue: user?.jobTitle || 'Unassigned',
       disabled: true, // Assuming job title is not editable
     },
     {

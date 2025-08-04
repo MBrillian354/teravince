@@ -156,7 +156,7 @@ const ManageJobs = () => {
           >
             Delete
           </button>
-          {row.status === 'Draft' && (
+          {row.status === 'draft' && (
             <button
               className="btn-success"
               onClick={e => {

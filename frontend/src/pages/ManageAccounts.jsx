@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useModal } from '../hooks/useModal';
 import { useEffect } from 'react';
 import { fetchAccounts, deleteAccount, clearError } from '../store/adminSlice';
+import { capitalizeFirst, capitalizeFirstWithFallback } from '../utils/textUtils';
 
 const ManageAccounts = () => {
   const dispatch = useDispatch();
@@ -27,7 +28,7 @@ const ManageAccounts = () => {
 
   const handleDeleteAccount = (accountId, accountName) => {
     console.log('Deleting account:', accountId, accountName);
-    
+
     const performDelete = async () => {
       try {
         await dispatch(deleteAccount(accountId)).unwrap();
@@ -98,9 +99,9 @@ const ManageAccounts = () => {
   const columns = [
     { header: 'Name', accessor: 'name', render: row => `${row.firstName} ${row.lastName}` },
     { header: 'ID', accessor: 'id' },
-    { header: 'Job Title', accessor: 'jobTitle' },
-    { header: 'Position', accessor: 'position' },
-    { header: 'Status', accessor: 'status' },
+    { header: 'Job Title', accessor: 'jobTitle', render: row => capitalizeFirst(row.jobTitle) },
+    { header: 'Position', accessor: 'position', render: row => capitalizeFirst(row.position) },
+    { header: 'Status', accessor: 'status', render: row => capitalizeFirstWithFallback(row.status) },
     {
       header: 'Actions',
       render: row => (

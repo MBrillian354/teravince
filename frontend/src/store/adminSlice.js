@@ -180,7 +180,7 @@ const adminSlice = createSlice({
                     lastName: user.lastName,
                     jobTitle: user.jobTitle || '',
                     position: user.position || '',
-                    status: user.status || 'Full Time',
+                    status: user.status || '',
                     email: user.email,
                     role: user.role
                 }));
@@ -199,7 +199,7 @@ const adminSlice = createSlice({
                 // Refetch accounts after creation would be better, but for now add optimistically
                 state.accountsData.push({
                     ...action.payload,
-                    status: action.payload.status || 'Full Time'
+                    status: action.payload.status || ''
                 });
             })
             .addCase(createAccount.rejected, (state, action) => {
@@ -221,7 +221,7 @@ const adminSlice = createSlice({
                         lastName: updated.lastName,
                         jobTitle: updated.jobTitle || '',
                         position: updated.position || '',
-                        status: updated.status || 'Full Time',
+                        status: updated.status || '',
                         email: updated.email,
                         role: updated.role
                     } : account

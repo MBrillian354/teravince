@@ -62,9 +62,9 @@ const NewAccountForm = () => {
       placeholder: 'Select employment status',
       required: false,
       options: [
-        { value: 'Full Time', label: 'Full Time' },
-        { value: 'Part Time', label: 'Part Time' },
-        { value: 'Contract', label: 'Contract' },
+        { value: 'continue', label: 'Continue' },
+        { value: 'terminated', label: 'Terminated' },
+        { value: 'pip', label: 'Under Performance Improvement' },
       ],
     },
   ];

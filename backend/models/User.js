@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   profilePicture: { type: String, default: '' },
   contractStartDate: Date,
   contractEndDate: Date,
-  status: { type: String, default: 'Full Time' },
+  status: { type: String, default: 'continue' },
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job' }
 });
 

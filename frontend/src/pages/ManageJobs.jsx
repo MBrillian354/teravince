@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchJobs, deleteJob, updateJob, clearError } from '@/store/adminSlice';
 import { useModal } from '../hooks/useModal';
 import { useEffect } from 'react';
+import { capitalizeFirst } from '../utils/textUtils';
 
 const ManageJobs = () => {
   const dispatch = useDispatch();
@@ -133,7 +134,7 @@ const ManageJobs = () => {
     { header: 'Job Title', accessor: 'title' },
     { header: 'Job Description', accessor: 'description', render: row => <p className='whitespace-pre-line'>{row.description}</p> },
     { header: 'Number of Employees', accessor: 'employees' },
-    { header: 'Status', accessor: 'status', render: row => row.status.charAt(0).toUpperCase() + row.status.slice(1).toLowerCase() },
+    { header: 'Status', accessor: 'status', render: row => capitalizeFirst(row.status) },
     {
       header: 'Actions',
       render: row => (

@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const Job = require('../models/Job');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
@@ -134,46 +133,6 @@ exports.deleteUser = async (req, res) => {
     if (!deleted) return res.status(404).json({ msg: 'User not found' });
 
     res.json({ msg: 'User deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
-  }
-};
-
-// Login
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user) return res.status(404).json({ msg: 'User not found' });
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
-
-    const token = jwt.sign(
-      {
-        id: user._id,
-        role: user.role,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' }
-    );
-
-    res.json({
-      token,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        email: user.email,
-        profilePicture: user.profilePicture,
-        address: user.address,
-        contactInfo: user.contactInfo,
-        jobTitle: user.jobId ? user.jobId.title : 'Unassigned',
-        jobId: user.jobId ? user.jobId.toString() : null
-      },
-    });
   } catch (err) {
     res.status(500).json({ msg: 'Server error' });
   }

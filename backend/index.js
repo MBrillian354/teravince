@@ -5,6 +5,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const passport = require('passport');
+
+// Initialize passport configuration
+require('./config/passport');
 
 const taskRoutes = require('./routes/taskRoutes');
 const biasRoutes = require('./routes/biasRoutes');
@@ -28,6 +32,9 @@ const isLocalDB = MONGO_URI.includes('127.0.0.1') || MONGO_URI.includes('localho
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Initialize passport
+app.use(passport.initialize());
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');

@@ -1,7 +1,13 @@
+biasRoutes.js
 const express = require('express');
 const router = express.Router();
-const { checkBias } = require('../controllers/biasController');
+const verifyToken = require('../middlewares/auth');
+const {
+  submitTaskReviewAndCheckBias,
+  submitReportReviewAndCheckBias
+} = require('../controllers/biasController');
 
-router.post('/check-bias/:taskId', checkBias);
+router.post('/task/:taskId', verifyToken, submitTaskReviewAndCheckBias);
+router.post('/report/:reportId', verifyToken, submitReportReviewAndCheckBias);
 
 module.exports = router;

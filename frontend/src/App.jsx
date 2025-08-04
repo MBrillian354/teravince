@@ -34,6 +34,9 @@ import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import CookiePolicy from './pages/CookiePolicy.jsx';
 
+import RoleConfirmation from './pages/RoleConfirmation';
+import JobTitleConfirmation from './pages/JobTitleConfirmation';
+
 function AppContent() {
   const [hideNavbar, setHideNavbar] = useState(false);
   const location = useLocation();
@@ -88,6 +91,8 @@ function AppContent() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/role-confirm" element={<RoleConfirmation />} />
+          <Route path="/job-title" element={<JobTitleConfirmation />} />
         </Routes>
       </main>
 

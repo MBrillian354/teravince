@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/tasks', taskRoutes);
-app.use('/api/bias', biasRoutes);
+app.use('/api/bias-check', biasRoutes);
 app.use('/api/examples', exampleRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);

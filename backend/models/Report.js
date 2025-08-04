@@ -23,6 +23,10 @@ const reportSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  bias_check: {
+    type: Object,
+    default: null,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Report', reportSchema);

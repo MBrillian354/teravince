@@ -73,4 +73,16 @@ export const jobsAPI = {
   delete: (id) => api.delete(`/jobs/${id}`)
 };
 
+// Dashboard API functions
+export const dashboardAPI = {
+  // Get admin dashboard data
+  getAdminDashboard: () => api.get('/dashboard/admin'),
+  
+  // Get supervisor dashboard data
+  getSupervisorDashboard: (params) => api.get('/dashboard/supervisor', { params }),
+  
+  // Get staff dashboard data
+  getStaffDashboard: (params) => api.get('/dashboard/staff', { params })
+};
+
 export default api;

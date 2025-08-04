@@ -108,19 +108,23 @@ exports.supervisorDashboard = async (req, res) => {
 // Admin Dashboard
 exports.adminDashboard = async (req, res) => {
   try {
-    const [supervisors, staffs, jobs] = await Promise.all([
+    const [supervisors, staffs, admins, jobs] = await Promise.all([
       User.find({ role: 'supervisor' }),
       User.find({ role: 'staff' }),
+      User.find({ role: 'admin' }),
       Job.find()
     ]);
 
+    const activeJobTitles = jobs.filter(j => j.status === 'active').length;
     const draftJobTitles = jobs.filter(j => j.status === 'draft').length;
     const unassignedEmployees = staffs.filter(s => !s.jobId).length;
 
     res.json({
       supervisorsCount: supervisors.length,
       staffsCount: staffs.length,
+      adminsCount: admins.length,
       jobTitlesCount: jobs.length,
+      activeJobTitles,
       draftJobTitles,
       unassignedEmployees
     });

@@ -1,7 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { accountsAPI, jobsAPI } from "../utils/api";
+import { accountsAPI, jobsAPI, dashboardAPI } from "../utils/api";
 
 // Async thunks for API calls
+export const fetchDashboardData = createAsyncThunk(
+    'admin/fetchDashboardData',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await dashboardAPI.getAdminDashboard();
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.msg || 'Failed to fetch dashboard data');
+        }
+    }
+);
+
 export const fetchAccounts = createAsyncThunk(
     'admin/fetchAccounts',
     async (_, { rejectWithValue }) => {
@@ -110,12 +122,12 @@ export const deleteJob = createAsyncThunk(
 
 const initialState = {
     dashboardData: [
-        { label: "Supervisors", value: 85 },
-        { label: "Staffs", value: 31 },
-        { label: "Admins", value: 31 },
-        { label: "Active Job Titles", value: 7 },
-        { label: "Draft Job Titles", value: 2 },
-        { label: "Unassigned Employees", value: 2 }
+        { label: "Supervisors", value: 0 },
+        { label: "Staffs", value: 0 },
+        { label: "Admins", value: 0 },
+        { label: "Active Job Titles", value: 0 },
+        { label: "Draft Job Titles", value: 0 },
+        { label: "Unassigned Employees", value: 0 }
     ],
     accountsData: [],
     jobsData: [],
@@ -133,6 +145,27 @@ const adminSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            // Fetch dashboard data
+            .addCase(fetchDashboardData.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchDashboardData.fulfilled, (state, action) => {
+                state.isLoading = false;
+                const data = action.payload;
+                state.dashboardData = [
+                    { label: "Supervisors", value: data.supervisorsCount || 0 },
+                    { label: "Staffs", value: data.staffsCount || 0 },
+                    { label: "Admins", value: data.adminsCount || 0 },
+                    { label: "Active Job Titles", value: data.activeJobTitles || 0 },
+                    { label: "Draft Job Titles", value: data.draftJobTitles || 0 },
+                    { label: "Unassigned Employees", value: data.unassignedEmployees || 0 }
+                ];
+            })
+            .addCase(fetchDashboardData.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
             // Fetch accounts
             .addCase(fetchAccounts.pending, (state) => {
                 state.isLoading = true;

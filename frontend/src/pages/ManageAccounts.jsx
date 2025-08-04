@@ -38,7 +38,7 @@ const ManageAccounts = () => {
       render: row => (
         <div className="flex space-x-2">
           <Link
-            to={`/admin-accounts/edit/${row.id}`}
+            to={`/accounts/edit/${row.id}`}
             className="btn-primary"
             onClick={e => e.stopPropagation()}
           >
@@ -62,7 +62,7 @@ const ManageAccounts = () => {
     <>
       <div className="flex justify-between items-center">
         <div className='page-title my-4'>Manage Accounts</div>
-        <Link to="/admin-accounts/new" className="btn btn-primary">Create New Account</Link>
+        <Link to="/accounts/new" className="btn btn-primary">Create New Account</Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
         {accountStats.map((stat, index) => (

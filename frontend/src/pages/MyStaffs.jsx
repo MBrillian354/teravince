@@ -73,7 +73,7 @@ return (
       {/* 1. Underline-only tab bar */}
       <nav className="flex space-x-6 border-b border-gray-200 mb-4">
         <NavLink
-          to="/spv-dashboard"
+          to="/dashboard"
           end
           className={({ isActive }) =>
             `pb-2 ${
@@ -86,7 +86,7 @@ return (
           Overview
         </NavLink>
         <NavLink
-          to="/spv-staffs"
+          to="/staffs"
           className={({ isActive }) =>
             `pb-2 ${
               isActive

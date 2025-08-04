@@ -1,41 +1,39 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { authService } from '../utils/authService';
 
 export default function Navbar() {
-    const location = useLocation()
+    const navigate = useNavigate();
+    const user = authService.getStoredUser();
+    const userRole = user?.role?.toLowerCase();
 
-    const isStaffRoute = location.pathname.startsWith('/staff')
-    const isAdminRoute = location.pathname.startsWith('/admin');
-    const isSupervisorRoute = location.pathname.startsWith('/spv');
-
-    const getCurrentRole = () => {
-        if (isAdminRoute) return 'admin';
-        if (isSupervisorRoute) return 'supervisor';
-        if (isStaffRoute) return 'staff';
-        return 'public';
+    const handleLogout = () => {
+        authService.logout();
+        navigate('/');
     };
 
     const roleNavItems = {
-        public: [
-        ],
         admin: [
-            { path: "/admin-dashboard", label: "(Admin) Dashboard" },
-            { path: "/admin-jobs", label: "(Admin) Jobs & Descriptions" },
-            { path: "/admin-accounts", label: "(Admin) Accounts" }
+            { path: "/dashboard", label: "Dashboard" },
+            { path: "/jobs", label: "Jobs & Descriptions" },
+            { path: "/accounts", label: "Accounts" },
+            { path: "/profile", label: "Profile" }
         ],
         supervisor: [
-            { path: "/spv-dashboard", label: "(Supervisor) Dashboard" },
-            { path: "/spv-profile", label: "(Supervisor) My Profile" },
-            { path: "/spv-tasks", label: "(Supervisor) Tasks & Reports" }
+            { path: "/dashboard", label: "Dashboard" },
+            { path: "/profile", label: "My Profile" },
+            { path: "/tasks", label: "Tasks" },
+            { path: "/reports", label: "Reports" },
+            { path: "/staffs", label: "My Staffs" },
+            { path: "/job-description", label: "Job Description" }
         ],
         staff: [
-            { path: "/staff-dashboard", label: "(Staff) Dashboard" },
-            { path: "/staff-tasks", label: "(Staff) Tasks" },
-            // { path: "/staff-analytics", label: "(Staff) Analytics" },
-            { path: "/staff-profile", label: "(Staff) Profile" }
+            { path: "/dashboard", label: "Dashboard" },
+            { path: "/tasks", label: "Tasks" },
+            { path: "/profile", label: "Profile" }
         ]
     };
 
-    const navigationItems = roleNavItems[getCurrentRole()];
+    const navigationItems = roleNavItems[userRole] || [];
 
     return (
         <header className="bg-white shadow mb-8">
@@ -52,7 +50,12 @@ export default function Navbar() {
                         </NavLink>
                     ))}
                 </nav>
-                <NavLink to="/" className="text-gray-600 hover:text-gray-800 text-sm min-w-max px-2 py-1">Log Out</NavLink>
+                <button 
+                    onClick={handleLogout}
+                    className="text-gray-600 hover:text-gray-800 text-sm min-w-max px-2 py-1"
+                >
+                    Log Out
+                </button>
             </div>
         </header>
     );

@@ -98,7 +98,7 @@ export default function StaffTask() {
   };
 
   const handleEdit = (id) => {
-    navigate(`/staff/edit-task/${id}`);
+    navigate(`/edit-task/${id}`);
   };
 
   const handleView = (id) => {
@@ -106,7 +106,7 @@ export default function StaffTask() {
   if (task?.status === "Under Review") {
     alert("Your task is currently being reviewed. Please kindly wait.");
   }
-  navigate(`/staff/view-task/${id}`);
+  navigate(`/view-task/${id}`);
 };
 
 
@@ -163,7 +163,7 @@ export default function StaffTask() {
         {/* Add Task Button */}
         <div className="flex justify-end mb-2">
           <button
-            onClick={() => navigate("/staff/add-task")}
+            onClick={() => navigate("/add-task")}
             className="bg-[#5A0000] hover:bg-[#400000] text-white px-4 py-2 text-sm rounded shadow"
           >
             + Add Task

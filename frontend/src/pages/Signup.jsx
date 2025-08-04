@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import axios from 'axios';
 import DynamicForm from '../components/DynamicForm';
 import { openModal } from '../store/modalSlice';
+import { authService } from '../utils/authService';
 import googleLogo from '../assets/logos/google.png';
 
 
 function Signup() {
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -54,25 +55,27 @@ function Signup() {
 
   const handleSubmit = async (formData) => {
     setError('');
+    setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/signup', {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password
-      });
+      const response = await authService.register(
+        formData.firstName,
+        formData.lastName,
+        formData.email,
+        formData.password
+      );
 
       // If we reach here, the request was successful (status 2xx)
       setError('');
       console.log('Signup successful:', formData.firstName);
+      
       // Show success message since email verification is required
       dispatch(openModal({
         type: 'SUCCESS',
         title: 'Registration Successful',
         data: {
           message: 'Registration successful!',
-          description: 'Please check your email for verification.'
+          description: response.msg || 'Please check your email for verification.'
         }
       }));
       navigate('/');
@@ -86,6 +89,8 @@ function Signup() {
 
         if (status === 400 && data.msg && data.msg.toLowerCase().includes('email already in use')) {
           setError('A user with this email already exists.');
+        } else if (status === 400 && data.msg && data.msg.toLowerCase().includes('password must')) {
+          setError(data.msg);
         } else {
           setError(data.msg || data.message || 'Signup failed. Please try again.');
         }
@@ -96,6 +101,8 @@ function Signup() {
         // Something else happened
         setError('An unexpected error occurred. Please try again.');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -107,8 +114,9 @@ function Signup() {
           subtitle="Please sign up to continue"
           fields={formFields}
           onSubmit={handleSubmit}
-          submitButtonText="Sign Up"
+          submitButtonText={isLoading ? "Signing Up..." : "Sign Up"}
           error={error}
+          disabled={isLoading}
           className="card-static"
         />
 
@@ -119,7 +127,11 @@ function Signup() {
             <a href="/forgot-password" className="forgot-password">Forgot Password?</a>
           </div>
 
-          <button type="button" className="google-signup-button">
+          <button 
+            type="button" 
+            className="google-signup-button"
+            disabled={isLoading}
+          >
             <img
               src={googleLogo}
               alt="Google logo"

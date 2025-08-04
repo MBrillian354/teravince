@@ -31,7 +31,7 @@ const ManageJobs = () => {
       render: row => (
         <div className="flex space-x-2">
           <Link
-            to={`/admin-jobs/edit/${row.id}`}
+            to={`/jobs/edit/${row.id}`}
             className="btn-primary"
             onClick={e => e.stopPropagation()}
           >
@@ -55,7 +55,7 @@ const ManageJobs = () => {
     <>
       <div className="flex justify-between items-center">
         <div className='page-title my-4'>Manage Jobs</div>
-        <Link to="/admin-jobs/new" className="btn-primary">Create New Job</Link>
+        <Link to="/jobs/new" className="btn-primary">Create New Job</Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
         {jobStats.map((stat, index) => (

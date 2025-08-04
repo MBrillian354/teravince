@@ -50,7 +50,7 @@ export default function EditTask() {
     localStorage.setItem("tasks", JSON.stringify(updatedTasks));
 
     alert("Task updated successfully!");
-    navigate("/staff-tasks");
+    navigate("/tasks");
   };
 
   const displayAmountLabel =

@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { HiUserCircle, HiHome } from "react-icons/hi";
 import { FiLogOut } from "react-icons/fi";
 import { FaTasks } from "react-icons/fa";
+import { authService } from '../utils/authService';
 
 const navItems = [
   { to: "/staff-dashboard", icon: <HiHome className="text-xl" />, label: "Dashboard" },
@@ -20,6 +21,7 @@ const StaffNavbar = () => {
   }, []);
 
   const handleLogout = () => {
+    authService.logout();
     navigate("/");
   };
 

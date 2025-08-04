@@ -178,7 +178,7 @@ const adminSlice = createSlice({
                     id: user._id,
                     firstName: user.firstName,
                     lastName: user.lastName,
-                    jobTitle: user.jobTitle || '',
+                    jobId: user.jobId || '',
                     status: user.status || '',
                     email: user.email,
                     role: user.role
@@ -218,7 +218,7 @@ const adminSlice = createSlice({
                         id: updated._id,
                         firstName: updated.firstName,
                         lastName: updated.lastName,
-                        jobTitle: updated.jobTitle || '',
+                        jobId: updated.jobId || '',
                         status: updated.status || '',
                         email: updated.email,
                         role: updated.role

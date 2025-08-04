@@ -13,6 +13,7 @@ const ManageAccounts = () => {
 
   // Get data from Redux store
   const { accountsData, isLoading, error } = useSelector((state) => state.admin);
+  console.log('Accounts Data:', accountsData);
 
   // Fetch accounts on component mount
   useEffect(() => {
@@ -92,15 +93,15 @@ const ManageAccounts = () => {
 
   const assignmentStats = [
     { label: "Unassigned Positions", value: accountsData.filter(item => !item.role || item.role === '').length },
-    { label: "Unassigned Jobs", value: accountsData.filter(item => !item.jobTitle || item.jobTitle === '').length },
+    { label: "Unassigned Jobs", value: accountsData.filter(item => !item.jobId || item.jobId === '').length },
   ];
 
   // Column definitions for DataTable
   const columns = [
     { header: 'Name', accessor: 'name', render: row => `${row.firstName} ${row.lastName}` },
     { header: 'ID', accessor: 'id' },
-    { header: 'Job Title', accessor: 'jobTitle', render: row => capitalizeFirst(row.jobTitle) },
-    { header: 'Position', accessor: 'position', render: row => capitalizeFirst(row.role) },
+    { header: 'Job Title', accessor: 'jobId', render: row => capitalizeFirst(row.jobId?.title || 'Unassigned') },
+    { header: 'Position', accessor: 'role', render: row => capitalizeFirst(row.role) },
     { header: 'Status', accessor: 'status', render: row => capitalizeFirstWithFallback(row.status) },
     {
       header: 'Actions',

@@ -81,7 +81,8 @@ exports.login = async (req, res) => {
       lastName: user.lastName,
       name: user.name,
       role: user.role,
-      jobTitle: user.jobTitle,
+      jobTitle: user.jobId ? user.jobId.title : 'Unassigned',
+      jobId: user.jobId ? user.jobId.toString() : null,
       address: user.address,
       contactInfo: user.contactInfo,
       profilePicture: user.profilePicture,
@@ -133,7 +134,7 @@ exports.resetPassword = async (req, res) => {
 
 exports.getUserData = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select('-password').populate('jobId', 'title');
     res.json(user);
   } catch (err) {
     res.status(500).json({ msg: 'Failed to retrieve user data' });

@@ -9,7 +9,7 @@ const fs = require('fs');
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.find().select('-password').populate('jobId', 'title');
     res.json(users);
   } catch (err) {
     res.status(500).json({ msg: 'Server error' });
@@ -19,7 +19,7 @@ exports.getAllUsers = async (req, res) => {
 // Get user by ID
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await User.findById(req.params.id).select('-password').populate('jobId', 'title');
     if (!user) return res.status(404).json({ msg: 'User not found' });
     res.json(user);
   } catch (err) {
@@ -55,7 +55,7 @@ exports.createUser = async (req, res) => {
 // Update user
 exports.updateUser = async (req, res) => {
   const session = await mongoose.startSession();
-  
+
   try {
     await session.withTransaction(async () => {
       const updates = req.body;
@@ -67,7 +67,7 @@ exports.updateUser = async (req, res) => {
       }
 
       // Get the current user to check for jobId changes
-      const currentUser = await User.findById(userId).session(session);
+      const currentUser = await User.findById(userId).populate('jobId', 'title').session(session);
       if (!currentUser) {
         throw new Error('User not found');
       }
@@ -102,8 +102,8 @@ exports.updateUser = async (req, res) => {
 
       // Update the user
       const updatedUser = await User.findByIdAndUpdate(
-        userId, 
-        updates, 
+        userId,
+        updates,
         { new: true, session }
       ).select('-password');
 
@@ -115,13 +115,13 @@ exports.updateUser = async (req, res) => {
     });
 
     // Get the updated user after transaction completes
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await User.findById(req.params.id).select('-password').populate('jobId', 'title');
     res.json({ msg: 'User updated successfully', user });
 
   } catch (err) {
     console.error('Error updating user:', err);
     res.status(err.message === 'User not found' || err.message === 'Job not found' ? 404 : 500)
-       .json({ msg: err.message || 'Server error' });
+      .json({ msg: err.message || 'Server error' });
   } finally {
     await session.endSession();
   }
@@ -170,7 +170,8 @@ exports.login = async (req, res) => {
         profilePicture: user.profilePicture,
         address: user.address,
         contactInfo: user.contactInfo,
-        jobTitle: user.jobTitle
+        jobTitle: user.jobId ? user.jobId.title : 'Unassigned',
+        jobId: user.jobId ? user.jobId.toString() : null
       },
     });
   } catch (err) {
@@ -182,7 +183,7 @@ exports.login = async (req, res) => {
 exports.uploadPhoto = async (req, res) => {
   try {
     const userId = req.params.id;
-    
+
     if (!req.file) {
       return res.status(400).json({ msg: 'No profilePicture uploaded' });
     }
@@ -207,10 +208,10 @@ exports.uploadPhoto = async (req, res) => {
       userId,
       { profilePicture: profilePicturePath },
       { new: true }
-    ).select('-password');
+    ).select('-password').populate('jobId', 'title');
 
-    res.json({ 
-      msg: 'Photo uploaded successfully', 
+    res.json({
+      msg: 'Photo uploaded successfully',
       user: updatedUser,
       profilePictureUrl: `/${profilePicturePath}`
     });

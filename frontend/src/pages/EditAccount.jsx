@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DynamicForm from '../components/DynamicForm';
-import { updateAccount, fetchAccounts } from '@/store/adminSlice';
+import { updateAccount } from '@/store/adminSlice';
 import { useModal } from '../hooks/useModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -22,16 +22,9 @@ const EditAccount = () => {
       try {
         setLoadingAccount(true);
         const response = await accountsAPI.getById(id);
-        const user = response.data;
-        setAccountData({
-          firstName: user.firstName || '',
-          lastName: user.lastName || '',
-          email: user.email || '',
-          role: user.role || '',
-          jobTitle: user.jobTitle || '',
-          position: user.position || '',
-          status: user.status || 'Full Time'
-        });
+        console.log('Loaded account:', response.data);
+        setAccountData(response.data);
+
       } catch (error) {
         console.error('Error loading account:', error);
         showError(
@@ -56,6 +49,7 @@ const EditAccount = () => {
       placeholder: 'Enter first name',
       required: true,
       group: 'name',
+      defaultValue: accountData?.firstName || '',
     },
     {
       type: 'text',
@@ -64,6 +58,7 @@ const EditAccount = () => {
       placeholder: 'Enter last name',
       required: true,
       group: 'name',
+      defaultValue: accountData?.lastName || '',
     },
     {
       type: 'email',
@@ -71,6 +66,7 @@ const EditAccount = () => {
       label: 'Email Address',
       placeholder: 'Enter email address',
       required: true,
+      defaultValue: accountData?.email || '',
     },
     {
       type: 'select',
@@ -83,6 +79,7 @@ const EditAccount = () => {
         { value: 'supervisor', label: 'Supervisor' },
         { value: 'staff', label: 'Staff' },
       ],
+      defaultValue: accountData?.role || '',
     },
     {
       type: 'select',
@@ -95,6 +92,7 @@ const EditAccount = () => {
         { value: 'Part Time', label: 'Part Time' },
         { value: 'Contract', label: 'Contract' },
       ],
+      defaultValue: accountData?.status || '',
     },
   ];
 
@@ -168,7 +166,6 @@ const EditAccount = () => {
         title="Edit User Account"
         subtitle="Update the account details below"
         fields={formFields}
-        initialData={accountData}
         onSubmit={handleSubmit}
         submitButtonText={isSubmitting || loading ? "Updating..." : "Update Account"}
         disabled={isSubmitting || loading}

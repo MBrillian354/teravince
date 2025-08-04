@@ -16,13 +16,23 @@ const DynamicForm = ({
   const [formData, setFormData] = useState({});
   const [localError, setLocalError] = useState('');
 
-  // Initialize form data with default values
+  // Initialize form data with default values, preserving user input across re-renders.
   React.useEffect(() => {
-    const initialData = {};
-    fields.forEach(field => {
-      initialData[field.name] = field.defaultValue || '';
+    setFormData(currentData => {
+      const newData = {};
+      fields.forEach(field => {
+        // If there's a value in the current state for this field, keep it.
+        // Otherwise, use the default value.
+        // This preserves user input across re-renders that might change the `fields` array instance.
+        // It also handles removal of fields from the form.
+        if (currentData.hasOwnProperty(field.name)) {
+          newData[field.name] = currentData[field.name];
+        } else {
+          newData[field.name] = field.defaultValue || '';
+        }
+      });
+      return newData;
     });
-    setFormData(initialData);
   }, [fields]);
 
   const handleInputChange = (e) => {

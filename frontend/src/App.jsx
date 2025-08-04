@@ -32,6 +32,9 @@ import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import CookiePolicy from './pages/CookiePolicy.jsx';
 import SimpleModalDemo from './components/SimpleModalDemo';
 
+import RoleConfirmation from './pages/RoleConfirmation';
+import JobTitleConfirmation from './pages/JobTitleConfirmation';
+
 // Auth Routes Component
 function AuthRoutes() {
   return (
@@ -163,9 +166,12 @@ function PublicRoutes() {
       <Route path="/terms" element={<TermsAndConditions />} />
       <Route path="/cookies" element={<CookiePolicy />} />
       <Route path="/demo" element={<SimpleModalDemo />} />
+      <Route path="/role-confirm" element={<RoleConfirmation />} />
+      <Route path="/job-title" element={<JobTitleConfirmation />} />
     </>
   );
 }
+
 
 function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -179,14 +185,14 @@ function AppContent() {
     };
 
     checkAuth();
-    
+
     // Listen for storage events to handle login/logout in other tabs
     const handleStorageChange = () => {
       checkAuth();
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
@@ -199,23 +205,25 @@ function AppContent() {
 
       <main className="flex-1 p-4 md:max-w-6xl mx-auto w-full">
         <Routes>
+
           {/* Auth Routes */}
           {AuthRoutes()}
-          
+
           {/* Protected Routes */}
           {ProtectedRoutes()}
-          
+
           {/* Admin Routes */}
           {AdminRoutes()}
-          
+
           {/* Supervisor Routes */}
           {SupervisorRoutes()}
-          
+
           {/* Staff Routes */}
           {StaffRoutes()}
-          
+
           {/* Public Routes */}
           {PublicRoutes()}
+
         </Routes>
       </main>
 

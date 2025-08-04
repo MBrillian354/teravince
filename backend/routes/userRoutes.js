@@ -22,7 +22,7 @@ router.post('/', verifyToken, usersController.createUser);
 router.get('/:id', verifyToken, usersController.getUserById);
 
 // Update user profile/data
-router.put('/:id', verifyToken, usersController.updateUser);
+router.patch('/:id', verifyToken, usersController.updateUser);
 
 // Upload user profile picture
 router.post('/:id/profile-picture', verifyToken, upload.single('profilePicture'), usersController.uploadPhoto);

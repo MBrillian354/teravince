@@ -49,7 +49,7 @@ export const accountsAPI = {
   create: (userData) => api.post('/users', userData),
   
   // Update user/account
-  update: (id, userData) => api.put(`/users/${id}`, userData),
+  update: (id, userData) => api.patch(`/users/${id}`, userData),
   
   // Upload user profilePicture
   uploadPhoto: (id, formData) => {

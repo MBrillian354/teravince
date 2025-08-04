@@ -42,7 +42,19 @@ function Signin() {
   const redirectToAppropriateRoute = (user = null) => {
     const storedUser = user || authService.getStoredUser();
 
-    // All users go to the same dashboard route now
+    // Check if user needs role confirmation
+    if (!storedUser?.role) {
+      navigate('/role-confirm');
+      return;
+    }
+    
+    // Check if user needs job confirmation
+    if (!storedUser?.jobId) {
+      navigate('/job-confirm');
+      return;
+    }
+    
+    // User has both role and jobId, go to dashboard
     navigate('/dashboard');
   };
 
@@ -133,10 +145,10 @@ function Signin() {
           // Show success modal
           modal.showSuccess(
             'Sign In Successful!',
-            `Welcome back, ${userData.firstName} ${userData.lastName}. You will be redirected to your dashboard shortly.`,
+            `Welcome back, ${userData.firstName} ${userData.lastName}. You will be redirected shortly.`,
             {
               onConfirm: () => {
-                navigate('/dashboard');
+                redirectToAppropriateRoute(userData);
               },
               autoClose: true,
               timeout: 3000

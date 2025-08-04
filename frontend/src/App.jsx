@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import GlobalModal from './components/GlobalModal';
 import RoleBasedRoute from './components/RoleBasedRoute';
+import NewUserProtectedRoute from './components/NewUserProtectedRoute';
 import { authService } from './utils/authService';
 import Root from './components/Root';
 
@@ -172,8 +173,16 @@ function PublicRoutes() {
       <Route path="/terms" element={<TermsAndConditions />} />
       <Route path="/cookies" element={<CookiePolicy />} />
       <Route path="/demo" element={<SimpleModalDemo />} />
-      <Route path="/role-confirm" element={<NewUserRoleConfirmation />} />
-      <Route path="/job-confirm" element={<NewUserJobConfirmation />} />
+      <Route path="/role-confirm" element={
+        <NewUserProtectedRoute>
+          <NewUserRoleConfirmation />
+        </NewUserProtectedRoute>
+      } />
+      <Route path="/job-confirm" element={
+        <NewUserProtectedRoute>
+          <NewUserJobConfirmation />
+        </NewUserProtectedRoute>
+      } />
     </>
   );
 }
@@ -206,8 +215,11 @@ function AppContent() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-gray-900 font-inter">
-      {/* Show navbar only when user is authenticated */}
-      {isAuthenticated && <Navbar />}
+      {/* Show navbar only when user is authenticated and not on confirmation pages */}
+      {isAuthenticated && 
+       !location.pathname.includes('/role-confirm') && 
+       !location.pathname.includes('/job-confirm') && 
+       <Navbar />}
 
       <main className="flex-1 p-4 md:max-w-6xl mx-auto w-full">
         <Routes>

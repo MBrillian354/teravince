@@ -136,7 +136,7 @@ function Signup() {
           </button>
 
           <p className="sign-up-footer">
-            Already have an account? <a href="/signin" className="sign-up-link">Sign In</a>
+            Already have an account? <a href="/" className="sign-up-link">Sign In</a>
           </p>
         </div>
       </div>

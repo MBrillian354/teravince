@@ -6,8 +6,8 @@ import Footer from './components/Footer';
 import GlobalModal from './components/GlobalModal';
 import RoleBasedRoute from './components/RoleBasedRoute';
 import { authService } from './utils/authService';
+import Root from './components/Root';
 
-import SignIn from './pages/Signin';
 import SignUp from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 
@@ -40,7 +40,7 @@ import JobTitleConfirmation from './pages/NewUserJobTitleConfirmation';
 function AuthRoutes() {
   return (
     <>
-      <Route path="/" element={<SignIn />} />
+      <Route path="/" element={<Root />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
     </>

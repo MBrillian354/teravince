@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import DynamicForm from '../components/DynamicForm';
 import { updateJob } from '../store/adminSlice';
-import { openModal } from '../store/modalSlice';
+import { useModal } from '../hooks/useModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -11,20 +11,18 @@ const EditJobForm = () => {
   const job = useSelector(state => state.admin.jobsData.find(j => j.id === jobId));
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showSuccess, showError } = useModal();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!job) {
-      dispatch(openModal({
-        type: 'ERROR',
-        data: {
-          message: 'Job Not Found',
-          description: 'The job you are trying to edit could not be found.'
-        }
-      }));
+      showError(
+        'Job Not Found',
+        'The job you are trying to edit could not be found.'
+      );
     }
-  }, [job, dispatch]);
+  }, [job, showError]);
 
   const formFields = [
     {
@@ -60,13 +58,10 @@ const EditJobForm = () => {
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Show success modal
-      dispatch(openModal({
-        type: 'SUCCESS',
-        data: {
-          message: 'Job Updated Successfully!',
-          description: 'The job posting has been updated with the new information.'
-        }
-      }));
+      showSuccess(
+        'Job Updated Successfully!',
+        'The job posting has been updated with the new information.'
+      );
 
       // Navigate back after showing success
       setTimeout(() => {
@@ -75,13 +70,10 @@ const EditJobForm = () => {
 
     } catch (err) {
       // Show error modal
-      dispatch(openModal({
-        type: 'ERROR',
-        data: {
-          message: 'Update Failed',
-          description: 'Failed to update job posting. Please try again.'
-        }
-      }));
+      showError(
+        'Update Failed',
+        'Failed to update job posting. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }

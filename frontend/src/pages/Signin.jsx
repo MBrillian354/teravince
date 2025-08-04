@@ -41,9 +41,43 @@ function Signin() {
   // Function to redirect user based on their role
   const redirectToAppropriateRoute = (user = null) => {
     const storedUser = user || authService.getStoredUser();
-    
+
     // All users go to the same dashboard route now
     navigate('/dashboard');
+  };
+
+  // Error handling helper function
+  const handleError = (error, context = 'login') => {
+    console.error(`${context} error:`, error);
+
+    const errorMap = {
+      400: { title: 'Invalid Credentials', message: 'Invalid email or password.' },
+      401: { title: 'Authentication Failed', message: 'Invalid credentials. Please check your email and password.' },
+      500: { title: 'Server Error', message: 'Server error. Please try again later.' }
+    };
+
+    let errorTitle = 'Login Failed';
+    let errorMessage = 'Login failed. Please try again.';
+
+    if (error.response) {
+      const { status, data } = error.response;
+      const errorInfo = errorMap[status];
+
+      if (errorInfo) {
+        errorTitle = errorInfo.title;
+        errorMessage = data.msg || errorInfo.message;
+      } else {
+        errorMessage = data.msg || errorMessage;
+      }
+    } else if (error.request) {
+      errorTitle = 'Network Error';
+      errorMessage = 'Please check your connection and try again.';
+    } else {
+      errorTitle = 'Unexpected Error';
+      errorMessage = 'An unexpected error occurred. Please try again.';
+    }
+
+    modal.showError(errorTitle, errorMessage);
   };
 
   const formFields = [
@@ -86,7 +120,7 @@ function Signin() {
     try {
       // Call the backend login API
       const response = await authService.login(formData.email, formData.password);
-      
+
       if (response.token) {
         // Store the token
         authService.storeAuthData(response.token);
@@ -98,59 +132,30 @@ function Signin() {
 
           // Show success modal
           modal.showSuccess(
-            'Sign in successful!',
-            `Welcome back, ${userData.name}. You will be redirected to your dashboard.`
+            'Sign In Successful!',
+            `Welcome back, ${userData.firstName} ${userData.lastName}. You will be redirected to your dashboard shortly.`,
+            {
+              onConfirm: () => {
+                navigate('/dashboard');
+              },
+              autoClose: true,
+              timeout: 3000
+            },
           );
 
-          // Set flag to indicate we're waiting for redirect
-          setIsWaitingForRedirect(true);
-          
-          // Add a delay for automatic redirect if modal is not closed manually
-          redirectTimeoutRef.current = setTimeout(() => {
-            modal.close();
-            setIsWaitingForRedirect(false);
-            redirectToAppropriateRoute(userData);
-          }, 2500);
+          setTimeout(() => redirectToAppropriateRoute(userData), 3000);
 
         } catch (userDataError) {
           console.error('Error fetching user data:', userDataError);
-          // Still redirect even if we can't get user data
-          modal.showSuccess(
-            'Sign in successful!',
-            'You will be redirected to your dashboard.'
+          modal.showError(
+            'Cannot Sign In',
+            'An error occurred while trying to sign in. Please try again.'
           );
-          
-          setIsWaitingForRedirect(true);
-          redirectTimeoutRef.current = setTimeout(() => {
-            modal.close();
-            setIsWaitingForRedirect(false);
-            redirectToAppropriateRoute();
-          }, 2500);
+          throw userDataError; // Re-throw to let the outer catch handle cleanup
         }
       }
     } catch (error) {
-      console.error('Login error:', error);
-      
-      if (error.response) {
-        // Server responded with error status
-        const { status, data } = error.response;
-        
-        if (status === 400) {
-          setError(data.msg || 'Invalid email or password.');
-        } else if (status === 401) {
-          setError('Invalid credentials. Please check your email and password.');
-        } else if (status === 500) {
-          setError('Server error. Please try again later.');
-        } else {
-          setError(data.msg || 'Login failed. Please try again.');
-        }
-      } else if (error.request) {
-        // Request was made but no response received
-        setError('Network error. Please check your connection and try again.');
-      } else {
-        // Something else happened
-        setError('An unexpected error occurred. Please try again.');
-      }
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
@@ -169,8 +174,8 @@ function Signin() {
           error={error}
           disabled={isLoading}
           footer={
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="google-sign-in-button"
               disabled={isLoading}
             >

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import DynamicForm from '../components/DynamicForm';
-import { openModal } from '../store/modalSlice';
+import { useModal } from '../hooks/useModal';
 import { authService } from '../utils/authService';
 import googleLogo from '../assets/logos/google.png';
 
@@ -11,7 +10,7 @@ function Signup() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { showSuccess } = useModal();
 
   const formFields = [
     {
@@ -70,14 +69,10 @@ function Signup() {
       console.log('Signup successful:', formData.firstName);
       
       // Show success message since email verification is required
-      dispatch(openModal({
-        type: 'SUCCESS',
-        title: 'Registration Successful',
-        data: {
-          message: 'Registration successful!',
-          description: response.msg || 'Please check your email for verification.'
-        }
-      }));
+      showSuccess(
+        'Registration successful!',
+        response.msg || 'Please check your email for verification.'
+      );
       navigate('/');
 
     } catch (error) {

@@ -11,7 +11,7 @@ const ManageAccounts = () => {
   const { showDeleteConfirm, showSuccess, showError } = useModal();
 
   // Get data from Redux store
-  const { accountsData, loading, error } = useSelector((state) => state.admin);
+  const { accountsData, isLoading, error } = useSelector((state) => state.admin);
 
   // Fetch accounts on component mount
   useEffect(() => {
@@ -58,8 +58,8 @@ const ManageAccounts = () => {
     );
   };
 
-  // Show loading state
-  if (loading && accountsData.length === 0) {
+  // Show isLoading state
+  if (isLoading && accountsData.length === 0) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-lg">Loading accounts...</div>
@@ -118,7 +118,7 @@ const ManageAccounts = () => {
               e.stopPropagation();
               handleDeleteAccount(row.id, `${row.firstName} ${row.lastName}`);
             }}
-            disabled={loading}
+            disabled={isLoading}
           >
             Delete
           </button>
@@ -134,9 +134,9 @@ const ManageAccounts = () => {
         <Link to="/accounts/new" className="btn btn-primary">Create New Account</Link>
       </div>
 
-      {loading && (
+      {isLoading && (
         <div className="mb-4 text-blue-600">
-          Loading...
+          isLoading...
         </div>
       )}
 

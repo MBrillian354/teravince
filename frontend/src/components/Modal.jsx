@@ -57,7 +57,7 @@ const Modal = ({
 
       {/* Modal */}
       <div className={`
-        relative card-static
+        relative card-static min-w-1/3
         ${sizeClasses[size]} 
         transform transition-all duration-150 ease-out
         animate-slide-up

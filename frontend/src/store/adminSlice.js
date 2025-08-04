@@ -70,7 +70,7 @@ const initialState = {
         { id: 1, title: 'Software Engineer', description: 'Develop applications', employees: 5, status: 'Active' },
         { id: 2, title: 'Product Manager', description: 'Oversee product roadmap', employees: 3, status: 'Draft' }
     ],
-    loading: false,
+    isLoading: false,
     error: null
 };
 

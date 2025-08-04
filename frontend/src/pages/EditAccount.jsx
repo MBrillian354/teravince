@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DynamicForm from '../components/DynamicForm';
 import { updateAccount, fetchAccounts } from '@/store/adminSlice';
-import { openModal } from '@/store/modalSlice';
+import { useModal } from '../hooks/useModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { accountsAPI } from '../utils/api';
@@ -14,6 +14,7 @@ const EditAccount = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { loading, error } = useSelector((state) => state.admin);
+  const { showSuccess, showError } = useModal();
 
   // Load account data
   useEffect(() => {
@@ -33,13 +34,10 @@ const EditAccount = () => {
         });
       } catch (error) {
         console.error('Error loading account:', error);
-        dispatch(openModal({
-          type: 'ERROR',
-          data: {
-            message: 'Loading Failed',
-            description: 'Failed to load account data. Please try again.'
-          }
-        }));
+        showError(
+          'Loading Failed',
+          'Failed to load account data. Please try again.'
+        );
       } finally {
         setLoadingAccount(false);
       }
@@ -108,13 +106,10 @@ const EditAccount = () => {
 
       if (updateAccount.fulfilled.match(result)) {
         // Show success modal
-        dispatch(openModal({
-          type: 'SUCCESS',
-          data: {
-            message: 'Account Updated Successfully!',
-            description: 'The user account has been updated successfully.'
-          }
-        }));
+        showSuccess(
+          'Account Updated Successfully!',
+          'The user account has been updated successfully.'
+        );
 
         // Navigate back after showing success
         setTimeout(() => {
@@ -122,24 +117,18 @@ const EditAccount = () => {
         }, 2000);
       } else {
         // Show error modal
-        dispatch(openModal({
-          type: 'ERROR',
-          data: {
-            message: 'Update Failed',
-            description: result.payload || 'Failed to update user account. Please try again.'
-          }
-        }));
+        showError(
+          'Update Failed',
+          result.payload || 'Failed to update user account. Please try again.'
+        );
       }
 
     } catch (err) {
       // Show generic error modal
-      dispatch(openModal({
-        type: 'ERROR',
-        data: {
-          message: 'Update Failed',
-          description: 'An unexpected error occurred. Please try again.'
-        }
-      }));
+      showError(
+        'Update Failed',
+        'An unexpected error occurred. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }

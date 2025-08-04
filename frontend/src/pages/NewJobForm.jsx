@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import DynamicForm from '../components/DynamicForm';
 import { addJob } from '@/store/adminSlice';
-import { openModal } from '@/store/modalSlice';
+import { useModal } from '../hooks/useModal';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 const NewJobForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
-
     const dispatch = useDispatch();
+    const { showSuccess, showError } = useModal();
 
 
     const formFields = [
@@ -50,13 +50,10 @@ const NewJobForm = () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
             
             // Show success modal
-            dispatch(openModal({
-                type: 'SUCCESS',
-                data: {
-                    message: 'Job Created Successfully!',
-                    description: 'The job posting has been created and saved as draft.'
-                }
-            }));
+            showSuccess(
+                'Job Created Successfully!',
+                'The job posting has been created and saved as draft.'
+            );
 
             // Navigate back after showing success
             setTimeout(() => {
@@ -65,13 +62,10 @@ const NewJobForm = () => {
 
         } catch (err) {
             // Show error modal
-            dispatch(openModal({
-                type: 'ERROR',
-                data: {
-                    message: 'Creation Failed',
-                    description: 'Failed to create job posting. Please try again.'
-                }
-            }));
+            showError(
+                'Creation Failed',
+                'Failed to create job posting. Please try again.'
+            );
         } finally {
             setIsSubmitting(false);
         }

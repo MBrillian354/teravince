@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import DynamicForm from '../components/DynamicForm';
 import { createAccount } from '@/store/adminSlice';
-import { openModal } from '@/store/modalSlice';
+import { useModal } from '../hooks/useModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,6 +10,7 @@ const NewAccountForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.admin);
+  const { showSuccess, showError } = useModal();
 
   const formFields = [
     {
@@ -76,13 +77,10 @@ const NewAccountForm = () => {
       
       if (createAccount.fulfilled.match(result)) {
         // Show success modal
-        dispatch(openModal({
-          type: 'SUCCESS',
-          data: {
-            message: 'Account Created Successfully!',
-            description: 'The user account has been created and is ready to use.'
-          }
-        }));
+        showSuccess(
+          'Account Created Successfully!',
+          'The user account has been created and is ready to use.'
+        );
 
         // Navigate back after showing success
         setTimeout(() => {
@@ -90,24 +88,18 @@ const NewAccountForm = () => {
         }, 2000);
       } else {
         // Show error modal
-        dispatch(openModal({
-          type: 'ERROR',
-          data: {
-            message: 'Creation Failed',
-            description: result.payload || 'Failed to create user account. Please try again.'
-          }
-        }));
+        showError(
+          'Creation Failed',
+          result.payload || 'Failed to create user account. Please try again.'
+        );
       }
 
     } catch (err) {
       // Show generic error modal
-      dispatch(openModal({
-        type: 'ERROR',
-        data: {
-          message: 'Creation Failed',
-          description: 'An unexpected error occurred. Please try again.'
-        }
-      }));
+      showError(
+        'Creation Failed',
+        'An unexpected error occurred. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }

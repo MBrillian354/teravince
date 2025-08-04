@@ -8,12 +8,7 @@ exports.register = async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
     const name = `${firstName} ${lastName}`;
 
-    const allowedRoles = ['staff', 'supervisor', 'HRD'];
-    if (!allowedRoles.includes(role)) {
-      return res.status(400).json({ msg: 'Invalid role' });
-    }
-
-    if (!email || !password || !firstName || !lastName || !role) {
+    if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({ msg: 'Please fill in all fields' });
     }
 
@@ -32,17 +27,18 @@ exports.register = async (req, res) => {
     user = await User.create({
       email,
       password: hashedPassword,
-      name
+      name,
+      role: null
     });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    const url = `${process.env.CLIENT_URL}/verify-email/${token}`;
+    // const url = `${process.env.CLIENT_URL}/verify-email/${token}`;
 
-    await sendEmail(
-      email,
-      'Email Verification',
-      `<h2>Hi ${name}</h2><p>Please click the link below to verify your account:</p><a href="${url}">${url}</a>`
-    );
+    // await sendEmail(
+    //   email,
+    //   'Email Verification',
+    //   `<h2>Hi ${name}</h2><p>Please click the link below to verify your account:</p><a href="${url}">${url}</a>`
+    // );
 
     res.status(200).json({ msg: 'Registration successful! Check your email for verification.' });
   } catch (err) {

@@ -2,9 +2,9 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 const tabs = [
-  { path: '/spv-reports',          label: 'Reports'          },
-  { path: '/spv-jobs',  label: 'Job Description' },
-  { path: '/spv-tasks',            label: 'Tasks', badge: 2  },
+  { path: '/reports',          label: 'Reports'          },
+  { path: '/job-description',  label: 'Job Description' },
+  { path: '/tasks',            label: 'Tasks', badge: 2  },
 ];
 
 export default function TasksReportsTabs() {

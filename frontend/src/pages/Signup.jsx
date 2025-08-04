@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import DynamicForm from '../components/DynamicForm';
+import { openModal } from '../store/modalSlice';
+import { authService } from '../utils/authService';
 import googleLogo from '../assets/logos/google.png';
 
 
 function Signup() {
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const formFields = [
     {
@@ -50,40 +55,54 @@ function Signup() {
 
   const handleSubmit = async (formData) => {
     setError('');
+    setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password
-        }),
-      });
+      const response = await authService.register(
+        formData.firstName,
+        formData.lastName,
+        formData.email,
+        formData.password
+      );
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setError('');
-        console.log('Signup successful:', formData.firstName);
-        navigate('/signin');
-      } else {
-        // Check specific message or status code for duplicate staff error
-        if (
-          response.status === 409 ||
-          (data.message &&
-            data.message.toLowerCase().includes('already exists'))
-        ) {
-          setError('A staff member with this email already exists.');
-        } else {
-          setError(data.message || 'Signup failed. Please try again.');
+      // If we reach here, the request was successful (status 2xx)
+      setError('');
+      console.log('Signup successful:', formData.firstName);
+      
+      // Show success message since email verification is required
+      dispatch(openModal({
+        type: 'SUCCESS',
+        title: 'Registration Successful',
+        data: {
+          message: 'Registration successful!',
+          description: response.msg || 'Please check your email for verification.'
         }
-      }
+      }));
+      navigate('/');
+
     } catch (error) {
-      console.error('Network error:', error);
-      setError('Network error. Please try again later.');
+      console.error('Signup error:', error);
+
+      if (error.response) {
+        // Server responded with error status
+        const { status, data } = error.response;
+
+        if (status === 400 && data.msg && data.msg.toLowerCase().includes('email already in use')) {
+          setError('A user with this email already exists.');
+        } else if (status === 400 && data.msg && data.msg.toLowerCase().includes('password must')) {
+          setError(data.msg);
+        } else {
+          setError(data.msg || data.message || 'Signup failed. Please try again.');
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        // Something else happened
+        setError('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -95,8 +114,9 @@ function Signup() {
           subtitle="Please sign up to continue"
           fields={formFields}
           onSubmit={handleSubmit}
-          submitButtonText="Sign Up"
+          submitButtonText={isLoading ? "Signing Up..." : "Sign Up"}
           error={error}
+          disabled={isLoading}
           className="card-static"
         />
 
@@ -107,7 +127,11 @@ function Signup() {
             <a href="/forgot-password" className="forgot-password">Forgot Password?</a>
           </div>
 
-          <button type="button" className="google-signup-button">
+          <button 
+            type="button" 
+            className="google-signup-button"
+            disabled={isLoading}
+          >
             <img
               src={googleLogo}
               alt="Google logo"

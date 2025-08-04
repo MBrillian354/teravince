@@ -79,7 +79,7 @@ export default function MyProfile() {
   const handleProfileUpdate = (updatedData) => {
     setFormData(updatedData);
     alert('✅ Profile successfully updated!');
-    navigate('/staff-dashboard');
+    navigate('/dashboard');
   };
 
   return (

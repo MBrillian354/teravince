@@ -59,7 +59,7 @@ export default function Reports() {
       header: 'Employee Name',
       render: row => (
         <Link
-          to={`/spv-report/${row.reportId}`}
+          to={`/report/${row.reportId}`}
           className="flex items-center space-x-2 hover:underline"
         >
           <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
@@ -117,7 +117,7 @@ export default function Reports() {
         data={sortedData}
         rowKey="reportId"
         containerClass="bg-white rounded mb-4"
-        onRowClick={({ reportId }) => navigate(`/spv-report/${reportId}`)}
+        onRowClick={({ reportId }) => navigate(`/report/${reportId}`)}
       />
 
       <Pagination

@@ -44,15 +44,20 @@ export default function Navbar() {
                         <NavLink
                             key={item.path}
                             to={item.path}
-                            className="hover:text-indigo-500 px-2 py-1 whitespace-nowrap border-x border-gray-200"
+                            className={({ isActive }) =>
+                                `px-2 py-1 whitespace-nowrap ${isActive
+                                    ? 'text-indigo-700 font-semibold'
+                                    : 'text-gray-600 hover:text-indigo-500'
+                                }`
+                            }
                         >
                             {item.label}
                         </NavLink>
                     ))}
                 </nav>
-                <button 
+                <button
                     onClick={handleLogout}
-                    className="text-gray-600 hover:text-gray-800 text-sm min-w-max px-2 py-1"
+                    className="btn-outline"
                 >
                     Log Out
                 </button>

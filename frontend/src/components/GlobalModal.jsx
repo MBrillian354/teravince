@@ -67,7 +67,6 @@ const GlobalModal = () => {
       <ModalComponent 
         data={getModalData()} 
         onClose={handleClose}
-        {...(data?.modalProps || {})} // Allow passing additional props
       />
     </Modal>
   );

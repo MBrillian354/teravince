@@ -1,19 +1,31 @@
 import PropTypes from 'prop-types';
 import { AlertTriangle } from 'lucide-react';
+import { useDispatch } from 'react-redux';
 
 const ConfirmModal = ({ data, onClose, onConfirm }) => {
+  const dispatch = useDispatch();
+  
   const { 
     message = 'Are you sure you want to continue?',
     title = 'Confirmation',
     confirmText = 'Confirm',
     cancelText = 'Cancel',
-    type = 'danger' // 'danger' or 'warning'
+    type = 'danger', // 'danger' or 'warning'
+    actionType = null,
+    actionPayload = null
   } = data || {};
 
   const handleConfirm = () => {
+    // If we have an actionType, dispatch it to Redux
+    if (actionType) {
+      dispatch({ type: actionType, payload: actionPayload });
+    }
+    
+    // Also call onConfirm if provided (for backward compatibility)
     if (onConfirm) {
       onConfirm(data);
     }
+    
     onClose();
   };
 
@@ -62,6 +74,8 @@ ConfirmModal.propTypes = {
     confirmText: PropTypes.string,
     cancelText: PropTypes.string,
     type: PropTypes.oneOf(['danger', 'warning']),
+    actionType: PropTypes.string,
+    actionPayload: PropTypes.any,
   }),
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func,

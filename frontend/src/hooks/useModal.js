@@ -31,7 +31,8 @@ export const useModal = () => {
     confirmText = 'Confirm',
     cancelText = 'Cancel',
     type = 'danger', // 'danger' or 'warning'
-    onConfirm
+    actionType = null, // Redux action type to dispatch
+    actionPayload = null // Payload for the Redux action
   }) => {
     open({
       type: MODAL_TYPES.CONFIRM,
@@ -42,7 +43,8 @@ export const useModal = () => {
         confirmText,
         cancelText,
         type,
-        modalProps: { onConfirm }
+        actionType,
+        actionPayload
       },
       size: 'sm'
     });
@@ -85,6 +87,19 @@ export const useModal = () => {
     });
   };
 
+  // Helper for creating delete confirmations
+  const showDeleteConfirm = (itemName, actionType, actionPayload) => {
+    showConfirm({
+      title: 'Delete Confirmation',
+      message: `Are you sure you want to delete "${itemName}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      actionType,
+      actionPayload
+    });
+  };
+
   return {
     // Generic methods
     open,
@@ -98,6 +113,9 @@ export const useModal = () => {
     // Notification shortcuts
     showSuccess,
     showError,
+    
+    // Helper methods
+    showDeleteConfirm,
     
     // Modal types for custom usage
     MODAL_TYPES

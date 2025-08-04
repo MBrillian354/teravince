@@ -106,13 +106,16 @@ const EditAccount = () => {
         // Show success modal
         showSuccess(
           'Account Updated Successfully!',
-          'The user account has been updated successfully.'
+          'The user account has been updated successfully.',
+          {
+            onConfirm: () => {
+              navigate('/accounts');
+            },
+            autoClose: true,
+            timeout: 3000
+          },
         );
 
-        // Navigate back after showing success
-        setTimeout(() => {
-          navigate('/manage-accounts');
-        }, 2000);
       } else {
         // Show error modal
         showError(

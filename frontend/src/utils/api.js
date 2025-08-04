@@ -55,4 +55,22 @@ export const accountsAPI = {
   delete: (id) => api.delete(`/users/${id}`)
 };
 
+// Jobs API functions
+export const jobsAPI = {
+  // Get all jobs
+  getAll: () => api.get('/jobs'),
+  
+  // Get job by ID
+  getById: (id) => api.get(`/jobs/${id}`),
+  
+  // Create new job
+  create: (jobData) => api.post('/jobs', jobData),
+  
+  // Update job
+  update: (id, jobData) => api.patch(`/jobs/${id}`, jobData),
+  
+  // Delete job
+  delete: (id) => api.delete(`/jobs/${id}`)
+};
+
 export default api;

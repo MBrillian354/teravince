@@ -74,18 +74,24 @@ const NewAccountForm = () => {
 
     try {
       const result = await dispatch(createAccount(formData));
-      
+
       if (createAccount.fulfilled.match(result)) {
         // Show success modal
         showSuccess(
           'Account Created Successfully!',
-          'The user account has been created and is ready to use.'
+          'The user account has been created and is ready to use.',
+          {
+            onConfirm: () => {
+              navigate('/accounts');
+            },
+            autoClose: true,
+            timeout: 3000
+          }
         );
 
-        // Navigate back after showing success
         setTimeout(() => {
-          navigate('/manage-accounts');
-        }, 2000);
+          navigate('/accounts');
+        }, 3000);
       } else {
         // Show error modal
         showError(
@@ -112,7 +118,7 @@ const NewAccountForm = () => {
           Error: {error}
         </div>
       )}
-      
+
       <DynamicForm
         title="Create New User Account"
         subtitle="Fill in the details below to create a new user account"

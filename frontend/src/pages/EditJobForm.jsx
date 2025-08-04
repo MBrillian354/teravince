@@ -1,28 +1,38 @@
 import { useState, useEffect } from 'react';
 import DynamicForm from '../components/DynamicForm';
-import { updateJob } from '../store/adminSlice';
+import { updateJob, fetchJobs } from '../store/adminSlice';
 import { useModal } from '../hooks/useModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const EditJobForm = () => {
   const { id } = useParams();
-  const jobId = Number(id);
-  const job = useSelector(state => state.admin.jobsData.find(j => j.id === jobId));
+  const job = useSelector(state => state.admin.jobsData.find(j => j.id === id));
+  console.log('Editing job:', job);
+  const { isLoading } = useSelector(state => state.admin);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showSuccess, showError } = useModal();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Fetch jobs if not loaded
   useEffect(() => {
-    if (!job) {
+    if (!job && !isLoading) {
+      dispatch(fetchJobs());
+    }
+  }, [dispatch, job, isLoading]);
+
+  useEffect(() => {
+    if (!isLoading && !job) {
       showError(
         'Job Not Found',
-        'The job you are trying to edit could not be found.'
+        'The job you are trying to edit could not be found.',
+        'Error',
+        { timeout: 5000, autoClose: false }
       );
     }
-  }, [job, showError]);
+  }, [job, isLoading, showError]);
 
   const formFields = [
     {
@@ -41,6 +51,17 @@ const EditJobForm = () => {
       required: true,
       rows: 4,
       defaultValue: job ? job.description : ''
+    },
+    {
+      type: 'select',
+      name: 'status',
+      label: 'Job Status',
+      options: [
+        { value: 'active', label: 'Active' },
+        { value: 'draft', label: 'Draft' }
+      ],
+      required: true,
+      defaultValue: job ? job.status : ''
     }
   ];
 
@@ -48,39 +69,56 @@ const EditJobForm = () => {
     setIsSubmitting(true);
 
     try {
-      const updatedJob = {
-        id: jobId,
+      const jobData = {
         title: formData.jobTitle,
-        description: formData.description
+        description: formData.description,
+        status: formData.status
       };
 
-      dispatch(updateJob(updatedJob));
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await dispatch(updateJob({ id, ...jobData })).unwrap();
+
       // Show success modal
       showSuccess(
         'Job Updated Successfully!',
-        'The job posting has been updated with the new information.'
+        'The job posting has been updated with the new information.',
+        {
+          onConfirm: () => {
+            navigate('/jobs');
+          },
+          autoClose: true,
+          timeout: 3000
+        },
       );
+      
 
-      // Navigate back after showing success
-      setTimeout(() => {
-        navigate(-1);
-      }, 2000);
-
-    } catch (err) {
+    } catch (error) {
+      console.error('Job update failed:', error);
       // Show error modal
       showError(
         'Update Failed',
-        'Failed to update job posting. Please try again.'
+        error || 'Failed to update job posting. Please try again.',
+        'Error',
+        { timeout: 5000, autoClose: false }
       );
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-lg">Loading job...</div>
+      </div>
+    );
+  }
+
   if (!job) {
-    return <p className="text-red-500">Job not found.</p>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-red-500">Job not found.</p>
+      </div>
+    );
   }
 
   return (

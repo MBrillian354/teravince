@@ -52,7 +52,7 @@ const StaffNavbar = () => {
               <NavLink
                 to={to}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-all duration-200 ${
+                  `flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-all duration-150 ${
                     isActive
                       ? "text-[#CE1212] bg-black/30"
                       : "hover:text-[#1B1717]"
@@ -73,7 +73,7 @@ const StaffNavbar = () => {
           >
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-1 text-sm font-medium hover:text-[#1B1717] transition-all duration-200"
+              className="flex items-center gap-2 px-3 py-1 text-sm font-medium hover:text-[#1B1717] transition-all duration-150"
             >
               <FiLogOut className="text-xl" />
               <span>Logout</span>

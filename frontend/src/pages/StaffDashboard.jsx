@@ -66,6 +66,6 @@ const filterWrapperStyle = "flex justify-between items-center mb-4";
 const overviewTitleStyle = "text-lg font-medium border-b-2 border-[#1B1717]";
 const filterControlsStyle = "flex gap-4";
 const dateInputStyle =
-  "border border-[#1B1717] rounded-xl p-2 px-4 text-sm font-medium bg-[#F5F5F5] text-[#1B1717] shadow-md transition duration-200 ease-in-out hover:bg-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#1B1717] cursor-pointer";
+  "border border-[#1B1717] rounded-xl p-2 px-4 text-sm font-medium bg-[#F5F5F5] text-[#1B1717] shadow-md transition duration-150 ease-in-out hover:bg-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#1B1717] cursor-pointer";
 const statsGridStyle = "grid grid-cols-1 md:grid-cols-3 gap-4 mb-6";
 const chartSectionStyle = "mb-6";

@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import StaffNavbar from './components/StaffNavbar';
 import Footer from './components/Footer';
+import GlobalModal from './components/GlobalModal';
 
 import SignIn from './pages/Signin';
 import SignUp from './pages/Signup';
@@ -34,6 +35,7 @@ import ViewTask from './pages/ViewTask.jsx';
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import CookiePolicy from './pages/CookiePolicy.jsx';
+import SimpleModalDemo from './components/SimpleModalDemo';
 
 function AppContent() {
   const [hideNavbar, setHideNavbar] = useState(false);
@@ -90,10 +92,15 @@ function AppContent() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/demo" element={<SimpleModalDemo />} />
+
         </Routes>
       </main>
 
       <Footer />
+      
+      {/* Global Modal */}
+      <GlobalModal />
     </div>
   );
 }

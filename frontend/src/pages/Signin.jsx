@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import DynamicForm from '../components/DynamicForm';
+import { useModal } from '../hooks/useModal';
+import { selectModal } from '../store/modalSlice';
 import googleLogo from '../assets/logos/google.png';
 
 function Signin() {
   const [error, setError] = useState('');
+  const [isWaitingForRedirect, setIsWaitingForRedirect] = useState(false);
   const navigate = useNavigate();
+  const modal = useModal();
+  const modalState = useSelector(selectModal);
+  const redirectTimeoutRef = useRef(null);
+
+  // Clean up timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Watch for modal closing while waiting for redirect
+  useEffect(() => {
+    if (isWaitingForRedirect && !modalState.isOpen) {
+      // Modal was closed manually, redirect immediately
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+        redirectTimeoutRef.current = null;
+      }
+      setIsWaitingForRedirect(false);
+      navigate('/admin-dashboard');
+    }
+  }, [modalState.isOpen, isWaitingForRedirect, navigate]);
 
   // Dummy staff data with split name fields
   const staffData = {
@@ -15,7 +44,7 @@ function Signin() {
         firstName: "John",
         lastName: "Doe",
         email: "john.doe@teravince.com",
-        password: "password123!",
+        password: "1234",
         role: "Admin",
         department: "IT",
         position: "Senior Developer"
@@ -65,14 +94,31 @@ function Signin() {
       );
 
       if (user) {
-        alert(`Login successful! Welcome, ${user.firstName} ${user.lastName}`);
-        navigate('/admin-dashboard');
+        // Show success modal for successful signin
+        modal.showSuccess(
+          'Sign in successful!',
+          `Welcome back, ${user.firstName} ${user.lastName}. You will be redirected to your dashboard.`
+        );
+
+        // Set flag to indicate we're waiting for redirect
+        setIsWaitingForRedirect(true);
+        
+        // Add a delay for automatic redirect if modal is not closed manually
+        redirectTimeoutRef.current = setTimeout(() => {
+          modal.close();
+          setIsWaitingForRedirect(false);
+          navigate('/admin-dashboard');
+        }, 2500);
       } else {
         setError('Invalid email or password.');
       }
     } catch (error) {
       console.error('Mock data error:', error);
-      setError('Unable to process login. Please check the data format.');
+      // Show error modal instead of setting error state
+      modal.showError(
+        'Login Error',
+        'Unable to process login. Please check your connection and try again.'
+      );
     }
   };
 

@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import DynamicForm from '../components/DynamicForm';
+import { addAccount } from '@/store/adminSlice';
+import { openModal } from '@/store/modalSlice';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const NewAccountForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const formFields = [
     {
@@ -37,9 +41,9 @@ const NewAccountForm = () => {
       placeholder: 'Select user role',
       required: true,
       options: [
-        { value: 'staff', label: 'Staff' },
-        { value: 'supervisor', label: 'Supervisor' },
         { value: 'admin', label: 'Administrator' },
+        { value: 'supervisor', label: 'Supervisor' },
+        { value: 'staff', label: 'Staff' },
       ],
     },
     {
@@ -57,21 +61,40 @@ const NewAccountForm = () => {
 
   const handleSubmit = async (formData) => {
     setIsSubmitting(true);
-    setError('');
-    setSuccess('');
 
     try {
       // TODO: Replace with actual API call
       console.log('Account form data:', formData);
 
       // Simulate API call
+      dispatch(addAccount(formData));
+
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Show success modal
+      dispatch(openModal({
+        type: 'SUCCESS',
+        data: {
+          message: 'Account Created Successfully!',
+          description: 'The user account has been created and is ready to use.'
+        }
+      }));
 
-      setSuccess('User account created successfully!');
+      // Navigate back after showing success
+      setTimeout(() => {
+        navigate(-1);
+      }, 2000);
 
-      // TODO: Redirect to users list or show success message
     } catch (err) {
-      setError('Failed to create user account. Please try again.');
+      // Show error modal
+      dispatch(openModal({
+        type: 'ERROR',
+        data: {
+          message: 'Creation Failed',
+          description: 'Failed to create user account. Please try again.'
+        }
+      }));
     } finally {
       setIsSubmitting(false);
     }
@@ -85,8 +108,6 @@ const NewAccountForm = () => {
         fields={formFields}
         onSubmit={handleSubmit}
         submitButtonText={isSubmitting ? "Creating..." : "Create Account"}
-        error={error}
-        success={success}
         className="space-y-6"
       />
     </div>

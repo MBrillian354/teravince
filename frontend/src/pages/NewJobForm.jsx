@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import DynamicForm from '../components/DynamicForm';
 import { addJob } from '@/store/adminSlice';
+import { openModal } from '@/store/modalSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 const NewJobForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const navigate = useNavigate();
 
     const dispatch = useDispatch();
@@ -33,8 +32,6 @@ const NewJobForm = () => {
 
     const handleSubmit = async (formData) => {
         setIsSubmitting(true);
-        setError('');
-        setSuccess('');
 
         try {
             // TODO: Replace with actual API call
@@ -51,14 +48,30 @@ const NewJobForm = () => {
 
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 1000));
-            setSuccess('Job posting created successfully!');
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            navigate(-1); // Navigate to previous page
+            
+            // Show success modal
+            dispatch(openModal({
+                type: 'SUCCESS',
+                data: {
+                    message: 'Job Created Successfully!',
+                    description: 'The job posting has been created and saved as draft.'
+                }
+            }));
 
+            // Navigate back after showing success
+            setTimeout(() => {
+                navigate(-1);
+            }, 2000);
 
-            // TODO: Redirect to jobs list or show success message
         } catch (err) {
-            setError('Failed to create job posting. Please try again.');
+            // Show error modal
+            dispatch(openModal({
+                type: 'ERROR',
+                data: {
+                    message: 'Creation Failed',
+                    description: 'Failed to create job posting. Please try again.'
+                }
+            }));
         } finally {
             setIsSubmitting(false);
         }
@@ -72,8 +85,6 @@ const NewJobForm = () => {
                 fields={formFields}
                 onSubmit={handleSubmit}
                 submitButtonText={isSubmitting ? "Creating..." : "Create Job"}
-                error={error}
-                success={success}
             />
         </div>
     );

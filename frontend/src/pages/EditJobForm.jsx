@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import DynamicForm from '../components/DynamicForm';
 import { updateJob } from '../store/adminSlice';
+import { openModal } from '../store/modalSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -12,14 +13,18 @@ const EditJobForm = () => {
   const navigate = useNavigate();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     if (!job) {
-      setError('Job not found');
+      dispatch(openModal({
+        type: 'ERROR',
+        data: {
+          message: 'Job Not Found',
+          description: 'The job you are trying to edit could not be found.'
+        }
+      }));
     }
-  }, [job]);
+  }, [job, dispatch]);
 
   const formFields = [
     {
@@ -43,8 +48,6 @@ const EditJobForm = () => {
 
   const handleSubmit = async (formData) => {
     setIsSubmitting(true);
-    setError('');
-    setSuccess('');
 
     try {
       const updatedJob = {
@@ -55,11 +58,30 @@ const EditJobForm = () => {
 
       dispatch(updateJob(updatedJob));
       await new Promise(resolve => setTimeout(resolve, 500));
-      setSuccess('Job updated successfully!');
-      await new Promise(resolve => setTimeout(resolve, 500));
-      navigate(-1);
+      
+      // Show success modal
+      dispatch(openModal({
+        type: 'SUCCESS',
+        data: {
+          message: 'Job Updated Successfully!',
+          description: 'The job posting has been updated with the new information.'
+        }
+      }));
+
+      // Navigate back after showing success
+      setTimeout(() => {
+        navigate(-1);
+      }, 2000);
+
     } catch (err) {
-      setError('Failed to update job. Please try again.');
+      // Show error modal
+      dispatch(openModal({
+        type: 'ERROR',
+        data: {
+          message: 'Update Failed',
+          description: 'Failed to update job posting. Please try again.'
+        }
+      }));
     } finally {
       setIsSubmitting(false);
     }
@@ -77,8 +99,6 @@ const EditJobForm = () => {
         fields={formFields}
         onSubmit={handleSubmit}
         submitButtonText={isSubmitting ? 'Updating...' : 'Update Job'}
-        error={error}
-        success={success}
       />
     </div>
   );

@@ -12,6 +12,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import AdminDashboard from './pages/AdminDashboard';
 import ManageJobs from './pages/ManageJobs';
 import NewJobForm from './pages/NewJobForm';
+import EditJobForm from './pages/EditJobForm';
 import ManageAccounts from './pages/ManageAccounts';
 import NewAccountForm from './pages/NewAccountForm';
 
@@ -64,6 +65,7 @@ function AppContent() {
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/admin-jobs" element={<ManageJobs />} />
           <Route path="/admin-jobs/new" element={<NewJobForm />} />
+          <Route path="/admin-jobs/edit/:id" element={<EditJobForm />} />
           <Route path="/admin-accounts" element={<ManageAccounts />} />
           <Route path="/admin-accounts/new" element={<NewAccountForm />} />
 

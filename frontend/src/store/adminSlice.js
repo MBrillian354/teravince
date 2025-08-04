@@ -29,10 +29,23 @@ const adminSlice = createSlice({
     reducers: {
         addJob: (state, action) => {
             state.jobsData.push(action.payload);
+            console.log('Job added:', action.payload);
         },
+        updateJob: (state, action) => {
+            const updated = action.payload;
+            state.jobsData = state.jobsData.map(job =>
+                job.id === updated.id ? { ...job, ...updated } : job
+            );
+            console.log('Job updated:', updated);
+        },
+        deleteJob: (state, action) => {
+            const id = action.payload;
+            state.jobsData = state.jobsData.filter(job => job.id !== id);
+            console.log('Job deleted:', id);
+        }
     }
 });
 
-export const { addJob } = adminSlice.actions;
+export const { addJob, updateJob, deleteJob } = adminSlice.actions;
 
 export default adminSlice.reducer;

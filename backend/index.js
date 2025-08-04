@@ -11,9 +11,16 @@ const authRoutes = require('./routes/authRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const googleAuth = require('./routes/googleAuth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const passport = require('passport');
+require('./config/passport');
+const googleAuthRoutes = require('./routes/googleAuth');
+
+app.use(passport.initialize());
 
 // MongoDB connection string
 // const MONGO_URI = 'mongodb://127.0.0.1:27017/teravince';
@@ -40,6 +47,7 @@ app.get('/', (req, res) => {
 app.use('/api/tasks', taskRoutes);
 app.use('/api/bias-check', biasRoutes);
 app.use('/api/examples', exampleRoutes);
+app.use('/api/auth/google', googleAuth);
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/reports', reportRoutes);

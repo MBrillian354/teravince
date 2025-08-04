@@ -41,7 +41,7 @@ function Signin() {
   // Function to redirect user based on their role
   const redirectToAppropriateRoute = (user = null) => {
     const storedUser = user || authService.getStoredUser();
-    
+
     // All users go to the same dashboard route now
     navigate('/dashboard');
   };
@@ -86,7 +86,7 @@ function Signin() {
     try {
       // Call the backend login API
       const response = await authService.login(formData.email, formData.password);
-      
+
       if (response.token) {
         // Store the token
         authService.storeAuthData(response.token);
@@ -104,7 +104,7 @@ function Signin() {
 
           // Set flag to indicate we're waiting for redirect
           setIsWaitingForRedirect(true);
-          
+
           // Add a delay for automatic redirect if modal is not closed manually
           redirectTimeoutRef.current = setTimeout(() => {
             modal.close();
@@ -119,7 +119,7 @@ function Signin() {
             'Sign in successful!',
             'You will be redirected to your dashboard.'
           );
-          
+
           setIsWaitingForRedirect(true);
           redirectTimeoutRef.current = setTimeout(() => {
             modal.close();
@@ -130,11 +130,11 @@ function Signin() {
       }
     } catch (error) {
       console.error('Login error:', error);
-      
+
       if (error.response) {
         // Server responded with error status
         const { status, data } = error.response;
-        
+
         if (status === 400) {
           setError(data.msg || 'Invalid email or password.');
         } else if (status === 401) {
@@ -169,14 +169,16 @@ function Signin() {
           error={error}
           disabled={isLoading}
           footer={
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="google-sign-in-button"
               disabled={isLoading}
+              onClick={() => window.location.href = `http://localhost:5000/api/auth/google`}
             >
               <img src={googleLogo} alt="Google logo" className="google-logo" />
               Log In with Google
             </button>
+
           }
         />
 

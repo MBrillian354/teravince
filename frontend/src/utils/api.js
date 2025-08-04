@@ -37,4 +37,22 @@ api.interceptors.response.use(
   }
 );
 
+// User/Account API functions
+export const accountsAPI = {
+  // Get all users/accounts
+  getAll: () => api.get('/users'),
+  
+  // Get user by ID
+  getById: (id) => api.get(`/users/${id}`),
+  
+  // Create new user/account
+  create: (userData) => api.post('/users', userData),
+  
+  // Update user/account
+  update: (id, userData) => api.put(`/users/${id}`, userData),
+  
+  // Delete user/account
+  delete: (id) => api.delete(`/users/${id}`)
+};
+
 export default api;

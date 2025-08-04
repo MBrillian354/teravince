@@ -1,0 +1,4 @@
+export const MODAL_TYPES = {
+  CONFIRM: 'CONFIRM',
+  NOTIFICATION: 'NOTIFICATION',
+};

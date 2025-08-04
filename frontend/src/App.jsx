@@ -19,6 +19,7 @@ import NewJobForm from './pages/NewJobForm';
 import EditJobForm from './pages/EditJobForm';
 import ManageAccounts from './pages/ManageAccounts';
 import NewAccountForm from './pages/NewAccountForm';
+import EditAccount from './pages/EditAccount';
 import MyStaffs from './pages/MyStaffs.jsx';
 import Reports from './pages/Reports.jsx';
 import JobDescription from './pages/JobDescription';
@@ -33,7 +34,7 @@ import CookiePolicy from './pages/CookiePolicy.jsx';
 import SimpleModalDemo from './components/SimpleModalDemo';
 
 import RoleConfirmation from './pages/RoleConfirmation';
-import JobTitleConfirmation from './pages/JobTitleConfirmation';
+import JobTitleConfirmation from './pages/NewUserJobTitleConfirmation';
 
 // Auth Routes Component
 function AuthRoutes() {
@@ -88,6 +89,11 @@ function AdminRoutes() {
           <EditJobForm />
         </RoleBasedRoute>
       } />
+      <Route path="/manage-accounts" element={
+        <RoleBasedRoute allowedRoles={['admin']}>
+          <ManageAccounts />
+        </RoleBasedRoute>
+      } />
       <Route path="/accounts" element={
         <RoleBasedRoute allowedRoles={['admin']}>
           <ManageAccounts />
@@ -100,7 +106,7 @@ function AdminRoutes() {
       } />
       <Route path="/accounts/edit/:id" element={
         <RoleBasedRoute allowedRoles={['admin']}>
-          <NewAccountForm />
+          <EditAccount />
         </RoleBasedRoute>
       } />
     </>

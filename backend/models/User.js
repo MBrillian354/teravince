@@ -1,17 +1,20 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  name: String,
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: String,
   role: { type: String, enum: ['staff', 'supervisor', 'admin'], required: false },
+  jobTitle: { type: String, default: '' },
+  position: { type: String, default: '' },
   isVerified: { type: Boolean, default: false },
   googleId: String,
   contactInfo: String,
   address: String,
   contractStartDate: Date,
   contractEndDate: Date,
-  status: String,
+  status: { type: String, default: 'Full Time' },
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job' }
 });
 

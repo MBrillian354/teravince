@@ -89,7 +89,7 @@ function AdminRoutes() {
           <EditJobForm />
         </RoleBasedRoute>
       } />
-      <Route path="/manage-accounts" element={
+      <Route path="/accounts" element={
         <RoleBasedRoute allowedRoles={['admin']}>
           <ManageAccounts />
         </RoleBasedRoute>

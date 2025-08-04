@@ -51,6 +51,18 @@ export const accountsAPI = {
   // Update user/account
   update: (id, userData) => api.put(`/users/${id}`, userData),
   
+  // Upload user profilePicture
+  uploadPhoto: (id, formData) => {
+    return axios.create({
+      baseURL: '/api',
+      timeout: 10000,
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    }).post(`/users/${id}/profilePicture`, formData);
+  },
+  
   // Delete user/account
   delete: (id) => api.delete(`/users/${id}`)
 };

@@ -3,6 +3,8 @@ const Job = require('../models/Job');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const path = require('path');
+const fs = require('fs');
 
 // Get all users
 exports.getAllUsers = async (req, res) => {
@@ -165,9 +167,56 @@ exports.login = async (req, res) => {
         lastName: user.lastName,
         role: user.role,
         email: user.email,
+        profilePicture: user.profilePicture,
+        address: user.address,
+        contactInfo: user.contactInfo,
+        jobTitle: user.jobTitle
       },
     });
   } catch (err) {
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+// Upload user profilePicture
+exports.uploadPhoto = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    if (!req.file) {
+      return res.status(400).json({ msg: 'No profilePicture uploaded' });
+    }
+
+    // Get the current user to remove old profilePicture if exists
+    const currentUser = await User.findById(userId);
+    if (!currentUser) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    // Remove old profilePicture file if exists
+    if (currentUser.profilePicture) {
+      const oldPhotoPath = path.join(__dirname, '..', currentUser.profilePicture);
+      if (fs.existsSync(oldPhotoPath)) {
+        fs.unlinkSync(oldPhotoPath);
+      }
+    }
+
+    // Update user with new profilePicture path
+    const profilePicturePath = `uploads/${req.file.filename}`;
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePicture: profilePicturePath },
+      { new: true }
+    ).select('-password');
+
+    res.json({ 
+      msg: 'Photo uploaded successfully', 
+      user: updatedUser,
+      profilePictureUrl: `/${profilePicturePath}`
+    });
+
+  } catch (err) {
+    console.error('Error uploading profilePicture:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 };

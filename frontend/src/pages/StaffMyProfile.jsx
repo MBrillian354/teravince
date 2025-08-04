@@ -4,7 +4,7 @@ import DynamicForm from '../components/DynamicForm';
 
 export default function MyProfile() {
   const navigate = useNavigate();
-  const [photo, setPhoto] = useState(null);
+  const [profilePicture, setPhoto] = useState(null);
   
   // Complete mock user data
   const mockUserData = {
@@ -91,27 +91,27 @@ export default function MyProfile() {
         <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-12">
           <div className="flex items-center space-x-6">
             <div className="w-24 h-24 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
-              {photo ? (
-                <img src={photo} alt="Profile" className="w-full h-full object-cover" />
+              {profilePicture ? (
+                <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 <span className="text-gray-300 text-4xl">👤</span>
               )}
             </div>
             <div className="flex flex-col space-y-2">
               <label
-                htmlFor="photo-upload"
+                htmlFor="profilePicture-upload"
                 className="px-4 py-2 bg-[#CE1212] text-white rounded cursor-pointer hover:bg-[#810000] transition text-center"
               >
                 Upload Photo
               </label>
               <input
-                id="photo-upload"
+                id="profilePicture-upload"
                 type="file"
                 accept="image/*"
                 className="hidden"
                 onChange={handlePhotoChange}
               />
-              {photo && (
+              {profilePicture && (
                 <button
                   type="button"
                   className="text-sm text-[#CE1212] hover:underline"

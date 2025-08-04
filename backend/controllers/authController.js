@@ -73,7 +73,22 @@ exports.login = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    res.json({ token });
+    // Return user data without password
+    const userData = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      name: user.name,
+      role: user.role,
+      jobTitle: user.jobTitle,
+      address: user.address,
+      contactInfo: user.contactInfo,
+      profilePicture: user.profilePicture,
+      isVerified: user.isVerified
+    };
+
+    res.json({ token, user: userData });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Login failed' });

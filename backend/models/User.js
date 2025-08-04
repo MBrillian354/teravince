@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
   googleId: String,
   contactInfo: String,
   address: String,
+  profilePicture: { type: String, default: '' },
   contractStartDate: Date,
   contractEndDate: Date,
   status: { type: String, default: 'Full Time' },

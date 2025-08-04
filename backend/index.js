@@ -3,6 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 
 const taskRoutes = require('./routes/taskRoutes');
 const biasRoutes = require('./routes/biasRoutes');
@@ -26,6 +28,15 @@ const isLocalDB = MONGO_URI.includes('127.0.0.1') || MONGO_URI.includes('localho
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(uploadsDir));
 
 app.use((req, res, next) => {
     console.log('Received URL:', req.originalUrl);

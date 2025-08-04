@@ -148,7 +148,7 @@ const EditAccount = () => {
       <div className="flex justify-center items-center h-64">
         <div className="text-red-500">Account not found</div>
         <button
-          onClick={() => navigate('/manage-accounts')}
+          onClick={() => navigate('/accounts')}
           className="ml-4 btn btn-primary"
         >
           Back to Accounts

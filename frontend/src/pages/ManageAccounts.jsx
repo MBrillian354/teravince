@@ -91,7 +91,7 @@ const ManageAccounts = () => {
   ];
 
   const assignmentStats = [
-    { label: "Unassigned Positions", value: accountsData.filter(item => !item.position || item.position === '').length },
+    { label: "Unassigned Positions", value: accountsData.filter(item => !item.role || item.role === '').length },
     { label: "Unassigned Jobs", value: accountsData.filter(item => !item.jobTitle || item.jobTitle === '').length },
   ];
 
@@ -100,7 +100,7 @@ const ManageAccounts = () => {
     { header: 'Name', accessor: 'name', render: row => `${row.firstName} ${row.lastName}` },
     { header: 'ID', accessor: 'id' },
     { header: 'Job Title', accessor: 'jobTitle', render: row => capitalizeFirst(row.jobTitle) },
-    { header: 'Position', accessor: 'position', render: row => capitalizeFirst(row.position) },
+    { header: 'Position', accessor: 'position', render: row => capitalizeFirst(row.role) },
     { header: 'Status', accessor: 'status', render: row => capitalizeFirstWithFallback(row.status) },
     {
       header: 'Actions',

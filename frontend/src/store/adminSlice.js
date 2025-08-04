@@ -179,7 +179,6 @@ const adminSlice = createSlice({
                     firstName: user.firstName,
                     lastName: user.lastName,
                     jobTitle: user.jobTitle || '',
-                    position: user.position || '',
                     status: user.status || '',
                     email: user.email,
                     role: user.role
@@ -220,7 +219,6 @@ const adminSlice = createSlice({
                         firstName: updated.firstName,
                         lastName: updated.lastName,
                         jobTitle: updated.jobTitle || '',
-                        position: updated.position || '',
                         status: updated.status || '',
                         email: updated.email,
                         role: updated.role

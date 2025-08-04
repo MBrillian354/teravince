@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { HiUserCircle, HiHome } from "react-icons/hi";
 import { FiLogOut } from "react-icons/fi";
 import { FaTasks } from "react-icons/fa";
@@ -12,11 +12,16 @@ const navItems = [
 
 const StaffNavbar = () => {
   const [showNavbar, setShowNavbar] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => setShowNavbar(true), 100);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleLogout = () => {
+    navigate("/");
+  };
 
   return (
     <header
@@ -37,13 +42,11 @@ const StaffNavbar = () => {
 
         {/* Navigation Links */}
         <ul className="flex gap-6 items-center">
-          {navItems.map(({ to, icon, label }, index) => (
+          {navItems.map(({ to, icon, label }) => (
             <li
               key={to}
               className={`transition-all duration-500 ease-out transform ${
-                showNavbar
-                  ? `opacity-100 translate-y-0 delay-${index * 100}`
-                  : "opacity-0 translate-y-4"
+                showNavbar ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
             >
               <NavLink
@@ -65,12 +68,13 @@ const StaffNavbar = () => {
           {/* Logout Button */}
           <li
             className={`transition-all duration-500 ease-out transform ${
-              showNavbar
-                ? `opacity-100 translate-y-0 delay-${navItems.length * 100}`
-                : "opacity-0 translate-y-4"
+              showNavbar ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            <button className="flex items-center gap-2 px-3 py-1 text-sm font-medium hover:text-[#1B1717] transition-all duration-200">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-3 py-1 text-sm font-medium hover:text-[#1B1717] transition-all duration-200"
+            >
               <FiLogOut className="text-xl" />
               <span>Logout</span>
             </button>

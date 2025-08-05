@@ -8,8 +8,7 @@ const initialMockTasks = [
     taskId: "001",
     taskTitle: "UI Update",
     taskDescription: "Redesign staff dashboard",
-    jobTitle: "Frontend Developer",
-    deadline: "2025-08-10",
+    deadline: new Date(2025, 7, 10).toISOString().split('T')[0], // August 10, 2025
     status: "Ongoing",
     submitted: false,
     score: "N/A",
@@ -18,8 +17,7 @@ const initialMockTasks = [
     taskId: "002",
     taskTitle: "Bug Fixing",
     taskDescription: "Resolve login issue",
-    jobTitle: "Fullstack Developer",
-    deadline: "2025-08-12",
+    deadline: new Date(2025, 7, 12).toISOString().split('T')[0], // August 12, 2025
     status: "Completed",
     submitted: true,
     score: "90",
@@ -28,8 +26,7 @@ const initialMockTasks = [
     taskId: "003",
     taskTitle: "Content Review",
     taskDescription: "Proofread marketing copy",
-    jobTitle: "Content Strategist",
-    deadline: "2025-08-15",
+    deadline: new Date(2025, 7, 15).toISOString().split('T')[0], // August 15, 2025
     status: "Draft",
     submitted: false,
     score: "N/A",
@@ -38,8 +35,7 @@ const initialMockTasks = [
     taskId: "004",
     taskTitle: "Data Sync",
     taskDescription: "Integrate new API",
-    jobTitle: "Backend Developer",
-    deadline: "2025-08-20",
+    deadline: new Date(2025, 7, 20).toISOString().split('T')[0], // August 20, 2025
     status: "Under Review",
     submitted: true,
     score: "N/A",
@@ -49,57 +45,27 @@ const initialMockTasks = [
 export default function ManageTasks() {
   const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
-  const [dateRanges, setDateRanges] = useState({});
 
   useEffect(() => {
-    const storedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-
-    const formatted = storedTasks.map((task, idx) => ({
+    const formatted = initialMockTasks.map((task, idx) => ({
       taskId: String(initialMockTasks.length + idx + 1).padStart(3, "0"),
       taskTitle: task.taskTitle,
       taskDescription: task.taskDescription,
-      jobTitle: task.jobTitle,
-      deadline: task.endDate || new Date().toISOString().split("T")[0],
+      deadline: `${task.deadline ? Math.ceil((new Date(task.deadline) - new Date()) / (1000 * 60 * 60 * 24)) : null} days`,
       status: task.status || "Draft",
       submitted: false,
       score: "N/A",
       startDate: task.startDate || "",
       endDate: task.endDate || "",
-      document: task.document || null,
+      document: task.document || null
     }));
 
-    const allTasks = [...initialMockTasks, ...formatted];
-    setTasks(allTasks);
-
-    const dateObj = allTasks.reduce((acc, task) => {
-      acc[task.taskId] = {
-        from: task.startDate || "",
-        to: task.endDate || "",
-      };
-      return acc;
-    }, {});
-
-    const storedRanges = JSON.parse(localStorage.getItem("dateRanges")) || {};
-    const merged = { ...dateObj, ...storedRanges };
-    setDateRanges(merged);
+      setTasks(formatted);
   }, []);
 
-  const handleChange = (taskId, field, value) => {
-    setDateRanges((prev) => {
-      const updated = {
-        ...prev,
-        [taskId]: {
-          ...prev[taskId],
-          [field]: value,
-        },
-      };
-      localStorage.setItem("dateRanges", JSON.stringify(updated));
-      return updated;
-    });
-  };
 
   const handleEdit = (id) => {
-    navigate(`/edit-task/${id}`);
+    navigate(`/task/${id}/edit`);
   };
 
   const handleView = (id) => {
@@ -107,7 +73,7 @@ export default function ManageTasks() {
     if (task?.status === "Under Review") {
       alert("Your task is currently being reviewed. Please kindly wait.");
     }
-    navigate(`/view-task/${id}`);
+    navigate(`/task/${id}`);
   };
 
 
@@ -166,39 +132,9 @@ export default function ManageTasks() {
       )
     },
     {
-      header: "Job Title",
-      accessor: "jobTitle",
-      render: (task) => (
-        <span className="inline-block px-3 py-1 text-xs whitespace-nowrap bg-[#EEEBDD] text-[#810000] border border-[#CE1212] rounded-full">
-          {task.jobTitle}
-        </span>
-      )
-    },
-    {
       header: "Deadline",
       accessor: "deadline",
-      render: (task) => (
-        <div className="flex flex-col gap-1">
-          <div className="flex flex-col">
-            <label className="text-[10px] opacity-60">From</label>
-            <input
-              type="date"
-              value={dateRanges[task.taskId]?.from || ""}
-              onChange={(e) => handleChange(task.taskId, "from", e.target.value)}
-              className="border border-[#1B1717] rounded px-2 py-1 text-xs"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="text-[10px] opacity-60">To</label>
-            <input
-              type="date"
-              value={dateRanges[task.taskId]?.to || ""}
-              onChange={(e) => handleChange(task.taskId, "to", e.target.value)}
-              className="border border-[#1B1717] rounded px-2 py-1 text-xs"
-            />
-          </div>
-        </div>
-      )
+      render: (task) => (<span className="text-[#1B1717]">{task.deadline}</span>)
     },
     {
       header: "Status",

@@ -5,6 +5,7 @@ const { getAllTasks, getTaskById, getTasksByUserId, getTaskByIdAnduserId, create
 
 
 router.get('/', getAllTasks);
+
 router.get('/:id', getTaskById);
 
 router.get('/:userId/tasks', getTasksByUserId);

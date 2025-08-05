@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import DynamicForm from '../components/DynamicForm';
 import { createAccount } from '@/store/adminSlice';
 import { useModal } from '../hooks/useModal';
@@ -11,6 +11,16 @@ const NewAccountForm = () => {
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.admin);
   const { showSuccess, showError } = useModal();
+  const timeoutRef = useRef(null); // simpan timeout ID
+
+  // Cleanup timeout jika komponen di-unmount (navigasi ke halaman lain)
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const formFields = [
     {
@@ -76,24 +86,27 @@ const NewAccountForm = () => {
       const result = await dispatch(createAccount(formData));
 
       if (createAccount.fulfilled.match(result)) {
-        // Show success modal
+        // Tampilkan modal sukses
         showSuccess(
           'Account Created Successfully!',
           'The user account has been created and is ready to use.',
           {
             onConfirm: () => {
-              navigate('/accounts');
+              if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current); // batalkan auto redirect
+              }
+              navigate('/accounts'); // langsung redirect jika tekan OK
             },
             autoClose: true,
-            timeout: 3000
+            timeout: 3000,
           }
         );
 
-        setTimeout(() => {
+        // Jika user tidak menekan tombol OK, auto redirect setelah 3 detik
+        timeoutRef.current = setTimeout(() => {
           navigate('/accounts');
         }, 3000);
       } else {
-        // Show error modal
         showError(
           'Creation Failed',
           result.payload || 'Failed to create user account. Please try again.'
@@ -101,7 +114,6 @@ const NewAccountForm = () => {
       }
 
     } catch (err) {
-      // Show generic error modal
       showError(
         'Creation Failed',
         'An unexpected error occurred. Please try again.'

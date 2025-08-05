@@ -2,9 +2,9 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 const tabs = [
-  { path: '/reports',          label: 'Reports'          },
-  { path: '/job-description',  label: 'Job Description' },
-  { path: '/tasks',            label: 'Tasks', badge: 2  },
+  { path: '/reports/overview', label: 'Reports' },
+  { path: '/reports/job-description', label: 'Job Description' },
+  { path: '/reports/tasks', label: 'Tasks', badge: 2 },
 ];
 
 export default function TasksReportsTabs() {
@@ -15,10 +15,9 @@ export default function TasksReportsTabs() {
           key={path}
           to={path}
           className={({ isActive }) =>
-            `pb-2 ${
-              isActive
-                ? 'text-indigo-600 border-b-2 border-indigo-600'
-                : 'text-gray-600 hover:text-gray-800'
+            `pb-2 ${isActive
+              ? 'text-indigo-600 border-b-2 border-indigo-600'
+              : 'text-gray-600 hover:text-gray-800'
             }`
           }
         >

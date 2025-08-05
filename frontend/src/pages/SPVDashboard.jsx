@@ -39,7 +39,7 @@ export default function SPVDashboard() {
           Overview
         </NavLink>
         <NavLink
-          to="/staffs"
+          to="/dashboard/staffs"
           className={({ isActive }) =>
             `pb-2 ${
               isActive

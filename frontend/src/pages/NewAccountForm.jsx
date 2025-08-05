@@ -7,10 +7,12 @@ import { useNavigate } from 'react-router-dom';
 
 const NewAccountForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [countdown, setCountdown] = useState(3);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.admin);
-  const { showSuccess, showError } = useModal();
+  const { showError } = useModal();
 
   const formFields = [
     {
@@ -69,43 +71,43 @@ const NewAccountForm = () => {
     },
   ];
 
+  const startCountdown = () => {
+    setShowSuccessModal(true);
+    setCountdown(3);
+
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        const next = prev - 1;
+        if (next === 0) {
+          clearInterval(interval);
+          setShowSuccessModal(false);
+          navigate('/accounts');
+        }
+        return next;
+      });
+    }, 1000);
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
+    navigate('/accounts');
+  };
+
   const handleSubmit = async (formData) => {
     setIsSubmitting(true);
-
     try {
       const result = await dispatch(createAccount(formData));
 
       if (createAccount.fulfilled.match(result)) {
-        // Show success modal
-        showSuccess(
-          'Account Created Successfully!',
-          'The user account has been created and is ready to use.',
-          {
-            onConfirm: () => {
-              navigate('/accounts');
-            },
-            autoClose: true,
-            timeout: 3000
-          }
-        );
-
-        setTimeout(() => {
-          navigate('/accounts');
-        }, 3000);
+        startCountdown();
       } else {
-        // Show error modal
         showError(
           'Creation Failed',
           result.payload || 'Failed to create user account. Please try again.'
         );
       }
-
     } catch (err) {
-      // Show generic error modal
-      showError(
-        'Creation Failed',
-        'An unexpected error occurred. Please try again.'
-      );
+      showError('Creation Failed', 'An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -128,6 +130,29 @@ const NewAccountForm = () => {
         disabled={isSubmitting || loading}
         className="space-y-6"
       />
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <div className="flex items-center space-x-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800">Account Created Successfully!</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  The user account has been created. Redirecting in <span className="font-bold text-blue-600">{countdown}</span> second(s)...
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 text-right">
+              <button
+                onClick={handleCloseModal}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none"
+              >
+                Go to Accounts Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

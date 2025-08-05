@@ -20,7 +20,6 @@ export default function EditTaskForm() {
   // console.log('View Task - Tasks Array:', tasks);
   const task = currentTask || tasks.find(t => t._id === id);
 
-
   useEffect(() => {
     if (!task && !isLoading) {
       dispatch(fetchTaskById(id));
@@ -78,9 +77,8 @@ export default function EditTaskForm() {
       group: 'amounts', // top-level field in the group
       isDynamic: true, // Enable dynamic add/remove functionality
       position: 'top', // Position at the top of the group
-      defaultValue: task && task.kpis && task.kpis.length > 0
-        ? task.kpis.map(kpi => kpi.kpiTitle)
-        : [''],
+      // PERBAIKAN: defaultValue tidak perlu diset di sini untuk field dinamis
+      defaultValue: '',
     },
     {
       type: 'select',
@@ -93,9 +91,8 @@ export default function EditTaskForm() {
       group: 'amounts', // low level field in the group
       isDynamic: true, // Enable dynamic add/remove functionality
       position: 'center', // Position in the center of the group (default)
-      defaultValue: task && task.kpis && task.kpis.length > 0
-        ? task.kpis.map(kpi => kpi.operator)
-        : [''],
+      // PERBAIKAN: defaultValue tidak perlu diset di sini untuk field dinamis
+      defaultValue: '',
     },
     {
       type: 'number',
@@ -105,12 +102,10 @@ export default function EditTaskForm() {
       group: 'amounts', // low level field in the group
       isDynamic: true, // Enable dynamic add/remove functionality
       position: 'center', // Position at the bottom of the group
-      defaultValue: task && task.kpis && task.kpis.length > 0
-        ? task.kpis.map(kpi => kpi.amount)
-        : [''],
+      // PERBAIKAN: defaultValue tidak perlu diset di sini untuk field dinamis
+      defaultValue: '',
     }
   ];
-
 
   const handleSubmit = async (formData) => {
     if (!task) {
@@ -177,7 +172,6 @@ export default function EditTaskForm() {
     }
   };
 
-
   return (
     <div className="bg-[#EEEBDD] min-h-screen px-4 py-6 text-[#1B1717]">
       <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md border border-[#CE1212] p-6">
@@ -193,6 +187,15 @@ export default function EditTaskForm() {
             onSubmit={handleSubmit}
             submitButtonText={isSubmitting ? "Updating..." : "Update Task"}
             className="space-y-4"
+            initialData={task ? {
+              taskTitle: task.title,
+              taskDescription: task.description,
+              amounts: task.kpis && task.kpis.length > 0 ? task.kpis.map(kpi => ({
+                kpiTitle: kpi.kpiTitle,
+                operator: kpi.operator,
+                amount: kpi.amount
+              })) : [{ kpiTitle: '', operator: '', amount: '' }]
+            } : null}
           />
         )}
       </div>

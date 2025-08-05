@@ -1,28 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useDispatch, useSelector } from 'react-redux';
-import DynamicForm from '../components/DynamicForm';
-import { updateTask, fetchTaskById, fetchTasks } from '../store/staffSlice';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import DynamicForm from "../components/DynamicForm";
 import { useModal } from '../hooks/useModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from "react-router-dom";
+import { createTask, fetchTaskById, fetchTasks, updateTask } from '../store/staffSlice';
+import authService from '../utils/authService';
 
 export default function EditTaskForm() {
-  const { taskId } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { showSuccess, showError } = useModal();
-
-  const { currentTask, tasks, isLoading } = useSelector(state => state.staff);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showSuccess, showError } = useModal();
+  const dispatch = useDispatch();
 
-  // Get task from current task or tasks array
-  const task = currentTask || tasks.find(t => t._id === taskId);
+  const { id } = useParams();
+  const { currentTask, tasks, isLoading } = useSelector(state => state.staff);
 
-  // Fetch task if not loaded
+  // console.log('View Task - Current Task:', currentTask);
+  // console.log('View Task - Tasks Array:', tasks);
+  const task = currentTask || tasks.find(t => t._id === id);
+
+
   useEffect(() => {
     if (!task && !isLoading) {
-      dispatch(fetchTaskById(taskId));
+      dispatch(fetchTaskById(id));
     }
-  }, [dispatch, task, isLoading, taskId]);
+  }, [dispatch, task, isLoading, id]);
 
   // Fetch all tasks if tasks array is empty and no current task
   useEffect(() => {
@@ -35,7 +38,7 @@ export default function EditTaskForm() {
     if (!isLoading && !task) {
       showError(
         'Task Not Found',
-        'The task you are trying to edit could not be found.',
+        'The task you are trying to view could not be found.',
         {
           onConfirm: () => {
             navigate('/tasks');
@@ -45,138 +48,127 @@ export default function EditTaskForm() {
         },
       );
     }
-  }, [task, isLoading, showError]);
+  }, [task, isLoading, showError, navigate]);
 
-  const formFields = [
+  // Define form fields configuration
+  const formFieldsd = [
     {
       type: 'text',
-      name: 'title',
+      name: 'taskTitle',
       label: 'Task Title',
       placeholder: 'Enter task title',
+      defaultValue: task ? task.title : '',
       required: true,
-      defaultValue: task ? task.title : ''
     },
     {
       type: 'textarea',
-      name: 'description',
+      name: 'taskDescription',
       label: 'Task Description',
       placeholder: 'Enter task description',
+      defaultValue: task ? task.description : '',
       required: true,
-      rows: 4,
-      defaultValue: task ? task.description : ''
+      rows: 3,
+    },
+    {
+      type: 'text',
+      name: 'kpiTitle',
+      label: 'Indicator Title',
+      placeholder: 'Enter indicator title',
+      required: false,
+      group: 'amounts', // top-level field in the group
+      isDynamic: true, // Enable dynamic add/remove functionality
+      position: 'top', // Position at the top of the group
+      defaultValue: task && task.kpis && task.kpis.length > 0
+        ? task.kpis.map(kpi => kpi.kpiTitle)
+        : [''],
+    },
+    {
+      type: 'select',
+      name: 'operator',
+      label: 'Target',
+      options: [
+        { value: 'greaterThan', label: 'Greater Than' },
+        { value: 'lessThan', label: 'Less Than' },
+      ],
+      group: 'amounts', // low level field in the group
+      isDynamic: true, // Enable dynamic add/remove functionality
+      position: 'center', // Position in the center of the group (default)
+      defaultValue: task && task.kpis && task.kpis.length > 0
+        ? task.kpis.map(kpi => kpi.operator)
+        : [''],
     },
     {
       type: 'number',
-      name: 'score',
-      label: 'Score',
-      placeholder: 'Enter task score',
-      required: true,
-      min: 0,
-      max: 100,
-      defaultValue: task ? task.score : ''
-    },
-    {
-      type: 'textarea',
-      name: 'evidence',
-      label: 'Evidence',
-      placeholder: 'Enter evidence or proof of completion',
-      required: true,
-      rows: 3,
-      defaultValue: task ? task.evidence : ''
-    },
-    {
-      type: 'date',
-      name: 'startDate',
-      label: 'Start Date',
-      required: false,
-      defaultValue: task && task.startDate ? new Date(task.startDate).toISOString().split('T')[0] : ''
-    },
-    {
-      type: 'date',
-      name: 'endDate',
-      label: 'End Date',
-      required: false,
-      defaultValue: task && task.endDate ? new Date(task.endDate).toISOString().split('T')[0] : ''
-    },
-    {
-      type: 'select',
-      name: 'taskStatus',
-      label: 'Task Status',
-      options: [
-        { value: 'inProgress', label: 'In Progress' },
-        { value: 'submitted', label: 'Submitted' },
-        { value: 'rejected', label: 'Rejected' },
-        { value: 'completed', label: 'Completed' },
-        { value: 'cancelled', label: 'Cancelled' }
-      ],
-      required: true,
-      defaultValue: task ? task.taskStatus : ''
-    },
-    {
-      type: 'select',
-      name: 'approvalStatus',
-      label: 'Approval Status',
-      options: [
-        { value: 'pending', label: 'Pending' },
-        { value: 'approved', label: 'Approved' },
-        { value: 'rejected', label: 'Rejected' }
-      ],
-      required: true,
-      defaultValue: task ? task.approvalStatus : ''
-    },
-    {
-      type: 'textarea',
-      name: 'supervisorComment',
-      label: 'Supervisor Comment',
-      placeholder: 'Enter supervisor comments (optional)',
-      required: false,
-      rows: 2,
-      defaultValue: task ? task.supervisorComment : ''
+      name: 'amount',
+      label: 'Amount',
+      placeholder: 'Enter amount',
+      group: 'amounts', // low level field in the group
+      isDynamic: true, // Enable dynamic add/remove functionality
+      position: 'center', // Position at the bottom of the group
+      defaultValue: task && task.kpis && task.kpis.length > 0
+        ? task.kpis.map(kpi => kpi.amount)
+        : [''],
     }
   ];
 
+
   const handleSubmit = async (formData) => {
+    if (!task) {
+      showError(
+        'Task Not Available',
+        'Task data is not available. Please wait for the task to load.',
+        'Error',
+        { timeout: 3000, autoClose: true }
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      const user = authService.getStoredUser();
+      if (!user?._id) {
+        throw new Error('User not authenticated');
+      }
+
       const taskData = {
-        title: formData.title,
-        description: formData.description,
-        score: parseInt(formData.score),
-        evidence: formData.evidence,
-        startDate: formData.startDate || undefined,
-        endDate: formData.endDate || undefined,
-        taskStatus: formData.taskStatus,
-        approvalStatus: formData.approvalStatus,
-        supervisorComment: formData.supervisorComment || ''
+        id: task._id, // Include the task ID for updating
+        userId: user._id,
+        title: formData.taskTitle,
+        description: formData.taskDescription,
+        kpis: formData.amounts.map(activity => ({
+          kpiTitle: Array.isArray(activity.kpiTitle) ? activity.kpiTitle[0] : activity.kpiTitle,
+          amount: Array.isArray(activity.amount) ? activity.amount[0] : activity.amount,
+          operator: Array.isArray(activity.operator) ? activity.operator[0] : activity.operator
+        })),
       };
 
-      // For now, using console.log as requested
-      console.log('Task update data:', { id: taskId, ...taskData });
+      console.log('Task Data:', taskData);
 
-      // Commented out dispatch line as requested
-      // await dispatch(updateTask({ id: taskId, ...taskData })).unwrap();
+      // Dispatch action to update the task
+      const result = await dispatch(updateTask(taskData)).unwrap();
 
       // Show success modal
       showSuccess(
         'Task Updated Successfully!',
-        'The task has been updated with the new information.',
+        'The task has been updated successfully.',
         {
           onConfirm: () => {
             navigate('/tasks');
           },
           autoClose: true,
           timeout: 3000
-        },
+        }
       );
 
+      navigate('/tasks');
 
     } catch (error) {
-      console.error('Task update failed:', error);
+      console.error('Task creation failed:', error);
       // Show error modal
       showError(
         'Update Failed',
-        error || 'Failed to update task. Please try again.',
+        error.message || 'Failed to update task. Please try again.',
         'Error',
         { timeout: 5000, autoClose: false }
       );
@@ -185,31 +177,25 @@ export default function EditTaskForm() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading task...</div>
-      </div>
-    );
-  }
-
-  if (!task) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-red-500">Task not found.</p>
-      </div>
-    );
-  }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <DynamicForm
-        title="Edit Task"
-        subtitle="Update the task details below"
-        fields={formFields}
-        onSubmit={handleSubmit}
-        submitButtonText={isSubmitting ? 'Updating...' : 'Update Task'}
-      />
+    <div className="bg-[#EEEBDD] min-h-screen px-4 py-6 text-[#1B1717]">
+      <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md border border-[#CE1212] p-6">
+        {isLoading && !task ? (
+          <div className="text-center py-8">
+            <p>Loading task data...</p>
+          </div>
+        ) : (
+          <DynamicForm
+            title="Edit Task"
+            subtitle="Update the details below to modify the task"
+            fields={formFieldsd}
+            onSubmit={handleSubmit}
+            submitButtonText={isSubmitting ? "Updating..." : "Update Task"}
+            className="space-y-4"
+          />
+        )}
+      </div>
     </div>
   );
 }

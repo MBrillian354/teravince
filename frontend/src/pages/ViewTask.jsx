@@ -1,43 +1,198 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
+import DynamicForm from '../components/DynamicForm';
+import { fetchTaskById, fetchTasks } from '../store/staffSlice';
+import { useModal } from '../hooks/useModal';
 
 export default function ViewTask() {
-  const navigate = useNavigate();
   const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { showError } = useModal();
 
-  const [task, setTask] = useState({
-    taskId: "",
-    taskTitle: "",
-    taskDescription: "",
-    jobTitle: "",
-    startDate: "",
-    endDate: "",
-    status: "",
-    amountType: "",
-    customAmountType: "",
-    minAmount: "",
-    maxAmount: "",
-    document: null,
-  });
+  const { currentTask, tasks, isLoading } = useSelector(state => state.staff);
+
+  // Get task from current task or tasks array
+  const task = currentTask || tasks.find(t => t._id === id);
+
+  // Fetch task if not loaded
+  useEffect(() => {
+    if (!task && !isLoading) {
+      dispatch(fetchTaskById(id));
+    }
+  }, [dispatch, task, isLoading, id]);
+
+  // Fetch all tasks if tasks array is empty and no current task
+  useEffect(() => {
+    if (!currentTask && tasks.length === 0 && !isLoading) {
+      dispatch(fetchTasks());
+    }
+  }, [dispatch, currentTask, tasks.length, isLoading]);
 
   useEffect(() => {
-    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    const taskToView = tasks.find((t) => t.taskId === id);
-    if (taskToView) {
-      setTask(taskToView);
+    if (!isLoading && !task) {
+      showError(
+        'Task Not Found',
+        'The task you are trying to view could not be found.',
+        {
+          onConfirm: () => {
+            navigate('/tasks');
+          },
+          autoClose: true,
+          timeout: 3000
+        },
+      );
     }
-  }, [id]);
+  }, [task, isLoading, showError, navigate]);
 
-  const displayAmountLabel =
-    task.amountType === "Other" && task.customAmountType
-      ? task.customAmountType
-      : task.amountType || "Amount";
+  // Helper function to get display status
+  const getDisplayTaskStatus = (taskStatus) => {
+    switch (taskStatus) {
+      case 'inProgress':
+        return 'Ongoing';
+      case 'submitted':
+        return 'Under Review';
+      case 'completed':
+        return 'Completed';
+      case 'rejected':
+        return 'Rejected';
+      case 'cancelled':
+        return 'Cancelled';
+      default:
+        return 'Draft';
+    }
+  };
+
+  const getDisplayApprovalStatus = (approvalStatus) => {
+    switch (approvalStatus) {
+      case 'pending':
+        return 'Under Review';
+      case 'approved':
+        return 'Approved';
+      case 'rejected':
+        return 'Rejected';
+      default:
+        return 'Pending';
+    }
+  };
+
+  const formFields = [
+    {
+      type: 'text',
+      name: 'title',
+      label: 'Task Title',
+      defaultValue: task ? task.title : '',
+      disabled: true
+    },
+    {
+      type: 'textarea',
+      name: 'description',
+      label: 'Task Description',
+      rows: 4,
+      defaultValue: task ? task.description : '',
+      disabled: true
+    },
+    {
+      type: 'textarea',
+      name: 'kpis',
+      label: 'Key Performance Indicators (KPIs)',
+      rows: 3,
+      defaultValue: task && task.kpis ? task.kpis.map(kpi =>
+        `${kpi.kpiTitle}: ${kpi.amount}`
+      ).join('\n') : '',
+      disabled: true
+    },
+    {
+      type: 'number',
+      name: 'score',
+      label: 'Score',
+      min: 0,
+      max: 100,
+      defaultValue: task ? task.score : '',
+      disabled: true
+    },
+    {
+      type: 'textarea',
+      name: 'evidence',
+      label: 'Evidence',
+      rows: 3,
+      defaultValue: task ? task.evidence : '',
+      disabled: true
+    },
+    {
+      type: 'text',
+      name: 'createdDate',
+      label: 'Created Date',
+      defaultValue: task && task.createdDate ? new Date(task.createdDate).toISOString().split('T')[0] : '',
+      disabled: true
+    },
+    {
+      type: 'text',
+      name: 'startDate',
+      label: 'Start Date',
+      defaultValue: task && task.startDate ? new Date(task.startDate).toISOString().split('T')[0] : 'Not Started',
+      disabled: true
+    },
+    {
+      type: 'text',
+      name: 'endDate',
+      label: 'End Date',
+      defaultValue: task && task.endDate ? new Date(task.endDate).toISOString().split('T')[0] : 'Not Finished',
+      disabled: true
+    },
+    {
+      type: 'text',
+      name: 'deadline',
+      label: 'Deadline',
+      defaultValue: task && task.deadline ? new Date(task.deadline).toISOString().split('T')[0] : 'To be determined',
+      disabled: true
+    },
+    {
+      type: 'text',
+      name: 'taskStatus',
+      label: 'Task Status',
+      defaultValue: task ? getDisplayTaskStatus(task.taskStatus) : '',
+      disabled: true
+    },
+    {
+      type: 'text',
+      name: 'approvalStatus',
+      label: 'Approval Status',
+      defaultValue: task ? getDisplayApprovalStatus(task.approvalStatus) : '',
+      disabled: true
+    },
+    {
+      type: 'textarea',
+      name: 'supervisorComment',
+      label: 'Supervisor Comment',
+      rows: 2,
+      defaultValue: task ? task.supervisorComment : 'Waiting for review',
+      disabled: true
+    }
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-lg text-[#810000]">Loading task...</div>
+      </div>
+    );
+  }
+
+  if (!task) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-red-500">Task not found.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#EEEBDD] min-h-screen px-4 py-6 text-[#1B1717]">
-      <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md border border-[#CE1212] p-6">
+      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md border border-[#CE1212]">
         {/* Announcement for Under Review Status */}
-        {task.status === "Under Review" && (
+        {task.taskStatus === "submitted" && (
           <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -63,101 +218,22 @@ export default function ViewTask() {
           </div>
         )}
 
-        {/* Rest of the task details display */}
-        <div className="space-y-4">
-          {/* Task Title */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Task Title</label>
-            <div className="w-full border border-[#1B1717] rounded px-3 py-2 text-sm bg-gray-50">
-              {task.taskTitle}
+        <DynamicForm
+          title="View Task"
+          subtitle="Task details (read-only)"
+          fields={formFields}
+          showSubmitButton={false}
+          footer={
+            <div className="flex justify-start mt-6">
+              <button
+                onClick={() => navigate('/tasks')}
+                className="bg-[#5A0000] hover:bg-[#400000] text-white text-sm px-4 py-2 rounded shadow-sm transition"
+              >
+                Back to Tasks
+              </button>
             </div>
-          </div>
-          
-          {/* Task Description */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Task Description</label>
-            <div className="w-full border border-[#1B1717] rounded px-3 py-2 text-sm bg-gray-50 min-h-[100px]">
-              {task.taskDescription}
-            </div>
-          </div>
-          
-          {/* Job Title */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Job Title</label>
-            <div className="w-full border border-[#1B1717] rounded px-3 py-2 text-sm bg-gray-50">
-              {task.jobTitle}
-            </div>
-          </div>
-          
-          {/* Date Range */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">From</label>
-              <div className="w-full border border-[#1B1717] rounded px-3 py-2 text-sm bg-gray-50">
-                {task.startDate}
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">To</label>
-              <div className="w-full border border-[#1B1717] rounded px-3 py-2 text-sm bg-gray-50">
-                {task.endDate}
-              </div>
-            </div>
-          </div>
-          
-          {/* Status */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
-            <div className="w-full border border-[#1B1717] rounded px-3 py-2 text-sm bg-gray-50">
-              {task.status}
-            </div>
-          </div>
-          
-          {/* Amount Type */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Amount Type</label>
-            <div className="w-full border border-[#1B1717] rounded px-3 py-2 text-sm bg-gray-50">
-              {displayAmountLabel}
-            </div>
-          </div>
-          
-          {/* Min/Max Amount */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Min {displayAmountLabel}</label>
-              <div className="w-full border border-[#1B1717] rounded px-3 py-2 text-sm bg-gray-50">
-                {task.minAmount}
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Max {displayAmountLabel}</label>
-              <div className="w-full border border-[#1B1717] rounded px-3 py-2 text-sm bg-gray-50">
-                {task.maxAmount}
-              </div>
-            </div>
-          </div>
-
-          {/* Document View Section */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Supported Document</label>
-            {task.document ? (
-              <div className="flex items-center gap-2 p-2 border border-[#1B1717] rounded bg-gray-50">
-                <span>📄</span>
-                <span className="text-sm">{task.document.name}</span>
-              </div>
-            ) : (
-              <div className="text-sm text-gray-500 italic">No document uploaded</div>
-            )}
-          </div>
-
-          {/* Back Button */}
-          <button
-            onClick={() => navigate(-1)}
-            className="mt-4 bg-[#5A0000] hover:bg-[#400000] text-white text-sm px-4 py-2 rounded shadow-sm transition"
-          >
-            Back to Tasks
-          </button>
-        </div>
+          }
+        />
       </div>
     </div>
   );

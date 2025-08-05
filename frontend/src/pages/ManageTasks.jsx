@@ -18,10 +18,10 @@ export default function ManageTasks() {
 
   // Fetch tasks on component mount
   useEffect(() => {
-    if (user?.id) {
-      dispatch(fetchTasksByUserId(user.id));
+    if (user?._id) {
+      dispatch(fetchTasksByUserId(user._id));
     }
-  }, [dispatch, user?.id]);
+  }, [dispatch, user?._id]);
 
   // Clear error when component unmounts
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function ManageTasks() {
       case 'rejected':
         return 'Rejected';
       default:
-        return 'Pending';
+        return 'Waiting Submission';
     }
   };
 
@@ -81,10 +81,7 @@ export default function ManageTasks() {
 
   const handleView = (id) => {
     const task = transformedTasks.find((t) => t.taskId === id);
-    if (task?.status === "Under Review") {
-      alert("Your task is currently being reviewed. Please kindly wait.");
-    }
-    navigate(`/task/${id}`);
+    navigate(`/tasks/${id}`);
   };
 
   const handleDelete = async (id) => {
@@ -106,7 +103,7 @@ export default function ManageTasks() {
   const handleSubmit = async (taskId) => {
     try {
       // Update task status to 'submitted'
-      await tasksAPI.update(taskId, { taskStatus: 'submitted' });
+      await tasksAPI.update(taskId, { taskStatus: 'submitted', approvalStatus: 'pending' });
       // Refresh tasks after submission
       if (user?.id) {
         dispatch(fetchTasksByUserId(user.id));
@@ -190,6 +187,7 @@ export default function ManageTasks() {
       accessor: "manage",
       render: (task) => (
         <div className="flex gap-2">
+          {console.log("Task status:", task)}
           {task.status !== "Completed" && task.status !== "Approved" && !task.submitted && (
             <>
               <button
@@ -227,7 +225,7 @@ export default function ManageTasks() {
           ) : (
             <button
               onClick={() => handleSubmit(task.taskId)}
-              className="bg-[#5A0000] hover:bg-[#400000] text-white px-3 py-1 rounded text-xs"
+              className="btn-primary tex-xs"
             >
               Submit
             </button>

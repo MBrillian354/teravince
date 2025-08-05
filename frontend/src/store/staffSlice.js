@@ -42,7 +42,7 @@ export const updateTask = createAsyncThunk(
   'staff/updateTask',
   async ({ id, ...taskData }, { rejectWithValue }) => {
     try {
-      const response = await api.put(`/tasks/${id}`, taskData);
+      const response = await api.patch(`/tasks/${id}`, taskData);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.msg || 'Failed to update task');

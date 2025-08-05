@@ -77,20 +77,19 @@ export default function NewTaskForm() {
         title: formData.taskTitle,
         description: formData.taskDescription,
         kpis: formData.amounts.map(activity => ({
-          kpiTitle: activity.kpiTitle,
-          amount: activity.amount,
-          operator: activity.operator
+          kpiTitle: Array.isArray(activity.kpiTitle) ? activity.kpiTitle[0] : activity.kpiTitle,
+          amount: Array.isArray(activity.amount) ? activity.amount[0] : activity.amount,
+          operator: Array.isArray(activity.operator) ? activity.operator[0] : activity.operator
         })),
         score: 0, // Default score
         evidence: '', // Default empty evidence
         startDate: new Date().toISOString(), // Current date as start
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-        taskStatus: 'inProgress',
+        taskStatus: 'draft',
         approvalStatus: 'pending'
       };
 
       console.log('Task Data:', taskData);
-      
+
       // Dispatch action to create the task
       const result = await dispatch(createTask(taskData)).unwrap();
 

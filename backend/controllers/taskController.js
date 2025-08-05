@@ -1,10 +1,28 @@
 const mongoose = require('mongoose');
 const Task = require('../models/Task');
+const path = require('path');
+const fs = require('fs');
 
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.find().populate('userId');
+    const { jobId } = req.query;
+    
+    let tasks;
+    if (jobId) {
+      // If jobId is provided, get the job and find tasks for users assigned to that job
+      const Job = require('../models/Job');
+      const job = await Job.findById(jobId);
+      if (!job) {
+        return res.status(404).json({ msg: 'Job not found' });
+      }
+      
+      // Find tasks for users assigned to this job
+      tasks = await Task.find({ userId: { $in: job.assignedTo } }).populate('userId');
+    } else {
+      tasks = await Task.find().populate('userId');
+    }
+    
     res.status(200).json({
       success: true,
       count: tasks.length,
@@ -130,8 +148,8 @@ exports.createTask = async (req, res) => {
       evidence: evidence || '',
       startDate,
       endDate,
-      approvalStatus: approvalStatus || 'pending',
-      taskStatus: taskStatus || 'inProgress',
+      approvalStatus: approvalStatus || 'draft',
+      taskStatus: taskStatus || 'draft',
       supervisorComment
     });
 
@@ -181,10 +199,11 @@ exports.updateTask = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid approval status. Must be "pending", "approved", or "rejected"' });
     }
 
-    if (updateData.taskStatus && !['inProgress', 'submitted', 'rejected', 'completed', 'cancelled'].includes(updateData.taskStatus)) {
+    if (updateData.taskStatus && !['draft', 'inProgress', 'submitted', 'rejected', 'completed', 'cancelled'].includes(updateData.taskStatus)) {
       return res.status(400).json({ msg: 'Invalid task status' });
     }
 
+    console.log('Update Data:', updateData);
     const updatedTask = await Task.findByIdAndUpdate(
       id,
       updateData,
@@ -223,6 +242,53 @@ exports.deleteTask = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
+    res.status(500).json({ msg: 'Server error', error: err.message });
+  }
+};
+
+// Upload evidence file for task
+exports.uploadEvidence = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ msg: 'Invalid task ID' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ msg: 'No evidence file uploaded' });
+    }
+
+    // Get the current task to remove old evidence file if exists
+    const currentTask = await Task.findById(id);
+    if (!currentTask) {
+      return res.status(404).json({ msg: 'Task not found' });
+    }
+
+    // Remove old evidence file if exists
+    if (currentTask.evidence && currentTask.evidence.startsWith('uploads/')) {
+      const oldEvidencePath = path.join(__dirname, '..', currentTask.evidence);
+      if (fs.existsSync(oldEvidencePath)) {
+        fs.unlinkSync(oldEvidencePath);
+      }
+    }
+
+    // Update task with new evidence file path
+    const evidencePath = `uploads/${req.file.filename}`;
+    const updatedTask = await Task.findByIdAndUpdate(
+      id,
+      { evidence: evidencePath },
+      { new: true }
+    ).populate('userId');
+
+    res.status(200).json({
+      success: true,
+      msg: 'Evidence uploaded successfully',
+      data: updatedTask,
+      evidenceUrl: `/${evidencePath}`
+    });
+  } catch (err) {
+    console.error('Error uploading evidence:', err);
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };

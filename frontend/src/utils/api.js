@@ -60,7 +60,7 @@ export const accountsAPI = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'multipart/form-data',
       },
-    }).post(`/users/${id}/profilePicture`, formData);
+    }).post(`/users/${id}/profile-picture`, formData);
   },
   
   // Delete user/account
@@ -99,6 +99,9 @@ export const tasksAPI = {
   // Get specific task by user ID and task ID
   getByUserIdAndTaskId: (userId, taskId) => api.get(`/tasks/${userId}/tasks/${taskId}`),
   
+  // Get tasks by job ID (filter all tasks by jobId)
+  getByJobId: (jobId) => api.get(`/tasks?jobId=${jobId}`),
+  
   // Create new task
   create: (taskData) => api.post('/tasks', taskData),
   
@@ -106,7 +109,19 @@ export const tasksAPI = {
   update: (id, taskData) => api.patch(`/tasks/${id}`, taskData),
   
   // Delete task
-  delete: (id) => api.delete(`/tasks/${id}`)
+  delete: (id) => api.delete(`/tasks/${id}`),
+  
+  // Upload evidence file
+  uploadEvidence: (id, formData) => {
+    return axios.create({
+      baseURL: '/api',
+      timeout: 10000,
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    }).post(`/tasks/${id}/evidence`, formData);
+  }
 };
 
 // Dashboard API functions
@@ -119,6 +134,15 @@ export const dashboardAPI = {
   
   // Get staff dashboard data
   getStaffDashboard: (params) => api.get('/dashboard/staff', { params })
+};
+
+// Bias checking API functions
+export const biasAPI = {
+  // Check bias in task review
+  checkTaskReviewBias: (taskId, reviewData) => api.post(`/bias/task/${taskId}`, reviewData),
+  
+  // Check bias in report review
+  checkReportReviewBias: (reportId, reviewData) => api.post(`/bias/report/${reportId}`, reviewData)
 };
 
 export default api;

@@ -15,22 +15,67 @@ const DynamicForm = ({
 }) => {
   const [formData, setFormData] = useState({});
   const [localError, setLocalError] = useState('');
+  const [dynamicGroups, setDynamicGroups] = useState({});
 
   // Initialize form data with default values, preserving user input across re-renders.
   React.useEffect(() => {
     setFormData(currentData => {
       const newData = {};
+
+      // Initialize dynamic groups
+      const groups = {};
       fields.forEach(field => {
+        if (field.group && field.isDynamic) {
+          if (!groups[field.group]) {
+            groups[field.group] = [];
+          }
+        }
+      });
+
+      // Create at least one instance of each dynamic group
+      Object.keys(groups).forEach(groupName => {
+        if (!currentData[groupName] || !Array.isArray(currentData[groupName])) {
+          groups[groupName] = [{}];
+        } else {
+          groups[groupName] = currentData[groupName];
+        }
+
+        // Initialize each group instance with default values
+        const groupFields = fields.filter(f => f.group === groupName);
+        groups[groupName] = groups[groupName].map(instance => {
+          const initializedInstance = { ...instance };
+          groupFields.forEach(field => {
+            if (!initializedInstance.hasOwnProperty(field.name)) {
+              initializedInstance[field.name] = field.defaultValue || '';
+            }
+          });
+          return initializedInstance;
+        });
+      });
+
+      // Set dynamic groups state
+      setDynamicGroups(groups);
+
+      fields.forEach(field => {
+        // Skip dynamic group fields as they're handled above
+        if (field.group && field.isDynamic) {
+          return;
+        }
+
         // If there's a value in the current state for this field, keep it.
         // Otherwise, use the default value.
-        // This preserves user input across re-renders that might change the `fields` array instance.
-        // It also handles removal of fields from the form.
         if (currentData.hasOwnProperty(field.name)) {
           newData[field.name] = currentData[field.name];
         } else {
           newData[field.name] = field.defaultValue || '';
         }
       });
+
+      // Add dynamic group data to form data
+      Object.keys(groups).forEach(groupName => {
+        newData[groupName] = groups[groupName];
+      });
+
       return newData;
     });
   }, [fields]);
@@ -42,6 +87,66 @@ const DynamicForm = ({
       [name]: type === 'checkbox' ? checked : value
     }));
     if (localError) setLocalError('');
+  };
+
+  const handleDynamicInputChange = (groupName, index, fieldName, value) => {
+    setFormData(prev => {
+      const newGroupData = [...prev[groupName]];
+      newGroupData[index] = {
+        ...newGroupData[index],
+        [fieldName]: value
+      };
+      return {
+        ...prev,
+        [groupName]: newGroupData
+      };
+    });
+
+    setDynamicGroups(prev => {
+      const newGroups = { ...prev };
+      newGroups[groupName][index] = {
+        ...newGroups[groupName][index],
+        [fieldName]: value
+      };
+      return newGroups;
+    });
+
+    if (localError) setLocalError('');
+  };
+
+  const addDynamicGroup = (groupName) => {
+    const groupFields = fields.filter(f => f.group === groupName);
+    const newInstance = {};
+    groupFields.forEach(field => {
+      newInstance[field.name] = field.defaultValue || '';
+    });
+
+    setFormData(prev => ({
+      ...prev,
+      [groupName]: [...prev[groupName], newInstance]
+    }));
+
+    setDynamicGroups(prev => ({
+      ...prev,
+      [groupName]: [...prev[groupName], newInstance]
+    }));
+  };
+
+  const removeDynamicGroup = (groupName, index) => {
+    if (dynamicGroups[groupName].length <= 1) return; // Don't allow removing the last one
+
+    setFormData(prev => {
+      const newGroupData = prev[groupName].filter((_, i) => i !== index);
+      return {
+        ...prev,
+        [groupName]: newGroupData
+      };
+    });
+
+    setDynamicGroups(prev => ({
+      ...prev,
+      [groupName]: prev[groupName].filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -61,7 +166,7 @@ const DynamicForm = ({
     }
   };
 
-  const renderFieldContent = (field) => {
+  const renderFieldContent = (field, groupIndex = null, isDynamic = false) => {
     const {
       type = 'text',
       name,
@@ -76,13 +181,31 @@ const DynamicForm = ({
       href = ''
     } = field;
 
+    const getValue = () => {
+      if (isDynamic && groupIndex !== null) {
+        return dynamicGroups[field.group]?.[groupIndex]?.[name] || '';
+      }
+      return formData[name] || '';
+    };
+
+    const handleChange = (e) => {
+      const { value, type, checked } = e.target;
+      const finalValue = type === 'checkbox' ? checked : value;
+
+      if (isDynamic && groupIndex !== null) {
+        handleDynamicInputChange(field.group, groupIndex, name, finalValue);
+      } else {
+        handleInputChange(e);
+      }
+    };
+
     const inputProps = {
-      name,
+      name: isDynamic ? `${name}_${groupIndex}` : name,
       required,
       disabled,
       className: `form-input ${fieldClassName} ${disabled ? 'disabled' : ''}`,
-      value: formData[name] || '',
-      onChange: handleInputChange
+      value: getValue(),
+      onChange: handleChange
     };
 
     switch (type) {
@@ -129,11 +252,11 @@ const DynamicForm = ({
             <label className={`remember-me ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
               <input
                 type="checkbox"
-                name={name}
+                name={inputProps.name}
                 required={required}
                 disabled={disabled}
-                checked={formData[name] || false}
-                onChange={handleInputChange}
+                checked={getValue() || false}
+                onChange={handleChange}
               />
               {label}
             </label>
@@ -150,12 +273,12 @@ const DynamicForm = ({
                 <label key={option.value} className={`remember-me ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   <input
                     type="radio"
-                    name={name}
+                    name={inputProps.name}
                     value={option.value}
                     required={required}
                     disabled={disabled}
-                    checked={formData[name] === option.value}
-                    onChange={handleInputChange}
+                    checked={getValue() === option.value}
+                    onChange={handleChange}
                   />
                   {option.label}
                 </label>
@@ -191,8 +314,9 @@ const DynamicForm = ({
   };
 
   const renderField = (field, index) => {
-    const { group = null } = field;
+    const { group = null, isDynamic = false } = field;
 
+    // Skip if this field is part of a group that was already processed
     if (group && fields[index - 1] && fields[index - 1].group === group) {
       return null;
     }
@@ -206,6 +330,90 @@ const DynamicForm = ({
         groupFields.push(fields[currentIndex]);
         currentIndex++;
       }
+
+      // Check if this is a dynamic group
+      if (isDynamic && dynamicGroups[group]) {
+        return (
+          <div key={`group-${group}-${index}`} className="relative border border-gray-200 rounded-lg p-4 bg-gray-50 space-y-4">
+            {dynamicGroups[group].map((groupInstance, groupIndex) => {
+              // Separate fields by position
+              const topFields = groupFields.filter(field => field.position === 'top');
+              const centerFields = groupFields.filter(field => !field.position || field.position === 'center');
+              const bottomFields = groupFields.filter(field => field.position === 'bottom');
+
+              let gridClass = '';
+              let widthClass = '';
+
+              if (groupFields.length > 1) {
+                gridClass = 'flex flex-wrap gap-4';
+                widthClass = 'flex-1 min-w-0';
+              } else {
+                gridClass = 'w-full';
+                widthClass = 'w-full';
+              }
+
+              const renderFieldsByPosition = (fields, positionClass = '') => {
+                if (fields.length === 0) return null;
+
+                return (
+                  <div className={`${gridClass} ${positionClass}`}>
+                    {fields.map((groupField) => (
+                      <div className={widthClass} key={`${groupField.name}-${groupIndex}`}>
+                        {renderFieldContent(groupField, groupIndex, true)}
+                      </div>
+                    ))}
+                  </div>
+                );
+              };
+
+              return (
+                <div key={`${group}-${groupIndex}`} className="relative">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 space-y-4">
+                      {/* Top positioned fields */}
+                      {renderFieldsByPosition(topFields, 'order-1')}
+
+                      {/* Center positioned fields (default) */}
+                      {renderFieldsByPosition(centerFields, 'order-2')}
+
+                      {/* Bottom positioned fields */}
+                      {renderFieldsByPosition(bottomFields, 'order-3')}
+                    </div>
+                    {dynamicGroups[group].length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeDynamicGroup(group, groupIndex)}
+                        className="btn-icon text-red-500"
+                        title="Remove this group"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => addDynamicGroup(group)}
+              className="flex items-center justify-center w-full mt-8 p-3 border-2 border-dashed border-gray-400 rounded-lg text-gray-600 hover:text-gray-800 hover:border-gray-500 hover:cursor-pointer transition-colors"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add New
+            </button>
+          </div>
+        );
+      }
+
+      // Static group rendering (existing logic)
+      // Separate fields by position
+      const topFields = groupFields.filter(field => field.position === 'top');
+      const centerFields = groupFields.filter(field => !field.position || field.position === 'center');
+      const bottomFields = groupFields.filter(field => field.position === 'bottom');
 
       let gridClass = '';
       let widthClass = '';
@@ -221,19 +429,55 @@ const DynamicForm = ({
         widthClass = 'flex-1 min-w-0';
       } else {
         return (
-          <div className="form-group" key={field.name}>
-            {renderFieldContent(field)}
+          <div className="form-group space-y-4" key={field.name}>
+            {/* Top positioned fields */}
+            {topFields.map((groupField) => (
+              <div key={groupField.name} className="order-1">
+                {renderFieldContent(groupField)}
+              </div>
+            ))}
+
+            {/* Center positioned fields (default) */}
+            {centerFields.map((groupField) => (
+              <div key={groupField.name} className="order-2">
+                {renderFieldContent(groupField)}
+              </div>
+            ))}
+
+            {/* Bottom positioned fields */}
+            {bottomFields.map((groupField) => (
+              <div key={groupField.name} className="order-3">
+                {renderFieldContent(groupField)}
+              </div>
+            ))}
           </div>
         );
       }
 
+      const renderFieldsByPosition = (fields, positionClass = '') => {
+        if (fields.length === 0) return null;
+
+        return (
+          <div className={`${gridClass} ${positionClass}`}>
+            {fields.map((groupField) => (
+              <div className={widthClass} key={groupField.name}>
+                {renderFieldContent(groupField)}
+              </div>
+            ))}
+          </div>
+        );
+      };
+
       return (
-        <div className={`form-group ${gridClass}`} key={`group-${group}-${index}`}>
-          {groupFields.map((groupField) => (
-            <div className={widthClass} key={groupField.name}>
-              {renderFieldContent(groupField)}
-            </div>
-          ))}
+        <div className="form-group space-y-4" key={`group-${group}-${index}`}>
+          {/* Top positioned fields */}
+          {renderFieldsByPosition(topFields, 'order-1')}
+
+          {/* Center positioned fields (default) */}
+          {renderFieldsByPosition(centerFields, 'order-2')}
+
+          {/* Bottom positioned fields */}
+          {renderFieldsByPosition(bottomFields, 'order-3')}
         </div>
       );
     }
@@ -295,6 +539,8 @@ DynamicForm.propTypes = {
       disabled: PropTypes.bool,
       rows: PropTypes.number,
       group: PropTypes.string,
+      isDynamic: PropTypes.bool,
+      position: PropTypes.oneOf(['top', 'center', 'bottom']),
       href: PropTypes.string
     })
   ).isRequired,

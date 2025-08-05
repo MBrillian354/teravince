@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Task = require('../models/Task');
+const path = require('path');
+const fs = require('fs');
 
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
@@ -224,6 +226,53 @@ exports.deleteTask = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
+    res.status(500).json({ msg: 'Server error', error: err.message });
+  }
+};
+
+// Upload evidence file for task
+exports.uploadEvidence = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ msg: 'Invalid task ID' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ msg: 'No evidence file uploaded' });
+    }
+
+    // Get the current task to remove old evidence file if exists
+    const currentTask = await Task.findById(id);
+    if (!currentTask) {
+      return res.status(404).json({ msg: 'Task not found' });
+    }
+
+    // Remove old evidence file if exists
+    if (currentTask.evidence && currentTask.evidence.startsWith('uploads/')) {
+      const oldEvidencePath = path.join(__dirname, '..', currentTask.evidence);
+      if (fs.existsSync(oldEvidencePath)) {
+        fs.unlinkSync(oldEvidencePath);
+      }
+    }
+
+    // Update task with new evidence file path
+    const evidencePath = `uploads/${req.file.filename}`;
+    const updatedTask = await Task.findByIdAndUpdate(
+      id,
+      { evidence: evidencePath },
+      { new: true }
+    ).populate('userId');
+
+    res.status(200).json({
+      success: true,
+      msg: 'Evidence uploaded successfully',
+      data: updatedTask,
+      evidenceUrl: `/${evidencePath}`
+    });
+  } catch (err) {
+    console.error('Error uploading evidence:', err);
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };

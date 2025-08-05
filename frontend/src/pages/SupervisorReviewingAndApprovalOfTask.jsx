@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import DynamicForm from '../components/DynamicForm';
@@ -147,14 +147,6 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         disabled: true,
         rows: 3
       },
-      ...(selectedTask.evidence ? [{
-        type: 'textarea',
-        name: 'evidence',
-        label: 'Evidence',
-        defaultValue: selectedTask.evidence,
-        disabled: true,
-        rows: 3
-      }] : []),
       {
         type: 'text',
         name: 'createdDate',
@@ -181,6 +173,14 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         group: 'dates',
         disabled: selectedTask.approvalStats !== 'approved'
       },
+      ...(selectedTask.evidence ? [{
+        type: 'link',
+        name: 'evidence',
+        label: 'Evidence',
+        // href: `${process.env.REACT_APP_API_URL}${selectedTask.evidence}`,
+        href: `http://localhost:5000/${selectedTask.evidence}`,
+        className: 'justify-start',
+      }] : []),
       {
         type: 'textarea',
         name: 'supervisorComment',
@@ -190,6 +190,7 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         placeholder: 'Enter your review comments here...',
         disabled: selectedTask.taskStatus === 'inProgress' || selectedTask.taskStatus === 'completed'
       },
+
       ...(selectedTask.evidence && selectedTask.taskStatus === 'submitted' ? [{
         type: 'checkbox',
         name: 'biasReviewCheck',

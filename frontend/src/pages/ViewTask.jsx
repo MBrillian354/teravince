@@ -15,6 +15,8 @@ export default function ViewTask() {
   const dispatch = useDispatch();
   const { showError, showSuccess } = useModal();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [evidenceFile, setEvidenceFile] = useState(null);
+  const [isUploadingEvidence, setIsUploadingEvidence] = useState(false);
 
   const user = authService.getStoredUser();
   const { currentTask, tasks, isLoading } = useSelector(state => state.staff);
@@ -102,7 +104,7 @@ export default function ViewTask() {
     setIsSubmitting(true);
     try {
       // Update task status to 'submitted'
-      const updateData = { taskStatus: 'submitted' };
+      const updateData = { taskStatus: 'submitted', submittedDate: new Date() };
       if (task?.approvalStatus === 'draft') {
         updateData.approvalStatus = 'pending';
       }
@@ -145,6 +147,54 @@ export default function ViewTask() {
   const canSubmitTask = () => {
     if (!task) return false;
     return task.taskStatus === 'inProgress' || task.taskStatus === 'draft' || task.taskStatus === 'rejected';
+  };
+
+  // Handle evidence file upload
+  const handleEvidenceUpload = async (file) => {
+    if (!file || !task) return;
+
+    setIsUploadingEvidence(true);
+    try {
+      const formData = new FormData();
+      formData.append('evidence', file);
+
+      await tasksAPI.uploadEvidence(task._id, formData);
+
+      // Refresh task data
+      if (taskId) {
+        dispatch(fetchTaskById(taskId));
+      } else {
+        dispatch(fetchTaskById(task._id));
+      }
+
+      showSuccess(
+        'Evidence Uploaded',
+        'Evidence file has been uploaded successfully.',
+        {
+          autoClose: true,
+          timeout: 3000
+        }
+      );
+    } catch (err) {
+      console.error('Error uploading evidence:', err);
+      showError(
+        'Upload Failed',
+        'Failed to upload evidence file. Please try again.',
+        {
+          autoClose: true,
+          timeout: 3000
+        }
+      );
+    } finally {
+      setIsUploadingEvidence(false);
+    }
+  };
+
+  // Handle form submission (for evidence file upload)
+  const handleFormSubmit = (formData) => {
+    if (formData.evidence && formData.evidence instanceof File) {
+      handleEvidenceUpload(formData.evidence);
+    }
   };
 
   const formFields = [
@@ -234,12 +284,13 @@ export default function ViewTask() {
       disabled: true
     },
     {
-      type: 'textarea',
+      type: 'link',
       name: 'evidence',
       label: 'Evidence',
-      rows: 3,
       defaultValue: task ? task.evidence : '',
-      disabled: isSubmissionMode ? false : true
+      disabled: isSubmissionMode ? false : true,
+      accept: '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xlsx,.xls',
+      hint: isSubmissionMode ? 'Upload files as evidence for this task (PDF, DOC, images, etc.)' : ''
     },
   ];
 
@@ -288,10 +339,12 @@ export default function ViewTask() {
         )}
 
         <DynamicForm
-          title="View Task"
+          title={isSubmissionMode ? `Submit Task` : `View Task`}
           subtitle={isSubmissionMode ? "Review task details before submission" : "Task details (read-only)"}
           fields={formFields}
-          showSubmitButton={false}
+          onSubmit={isSubmissionMode ? handleFormSubmit : undefined}
+          showSubmitButton={isSubmissionMode && !task?.evidence && !isUploadingEvidence}
+          submitButtonText={isUploadingEvidence ? 'Uploading...' : 'Upload Evidence'}
           footer={
             <div className="flex justify-between items-center mt-6">
               <button
@@ -311,10 +364,19 @@ export default function ViewTask() {
                       Edit Task
                     </button>
                   )}
+                  {task?.evidence ? (
+                    <span className="text-green-600 font-medium">
+                      ✓ Evidence uploaded - Task ready for submission
+                    </span>
+                  ) : (
+                    <span className="text-orange-600 font-medium">
+                      ⚠ Please upload evidence before submitting
+                    </span>
+                  )}
                   <button
                     onClick={handleSubmitTask}
-                    disabled={isSubmitting}
-                    className="btn-primary"
+                    disabled={isSubmitting || !task?.evidence}
+                    className={`btn-primary ${!task?.evidence ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit Task'}
                   </button>

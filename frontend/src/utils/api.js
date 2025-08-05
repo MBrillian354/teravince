@@ -60,7 +60,7 @@ export const accountsAPI = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'multipart/form-data',
       },
-    }).post(`/users/${id}/profilePicture`, formData);
+    }).post(`/users/${id}/profile-picture`, formData);
   },
   
   // Delete user/account

@@ -100,24 +100,9 @@ export default function ManageTasks() {
     }
   };
 
-  const handleSubmit = async (taskId) => {
-    try {
-      // Update task status to 'submitted'
-      const task = tasks.find(t => t._id === taskId);
-      const updateData = { taskStatus: 'submitted' };
-      if (task?.approvalStatus === 'draft') {
-        updateData.approvalStatus = 'pending';
-      }
-      await tasksAPI.update(taskId, updateData);
-      // Refresh tasks after submission
-      if (user?.id) {
-        dispatch(fetchTasksByUserId(user.id));
-      }
-      alert('Task submitted successfully');
-    } catch (err) {
-      console.error('Error submitting task:', err);
-      alert('Failed to submit task. Please try again.');
-    }
+  const handleSubmit = (taskId) => {
+    // Navigate to ViewTask with submission mode
+    navigate(`/tasks/${taskId}?mode=submit`);
   };
 
   const getStatusColor = (status) => {
@@ -211,9 +196,10 @@ export default function ManageTasks() {
           {(task.taskStatus === "Ongoing" || task.taskStatus === "Under Review") && (
             <button
               onClick={() => handleView(task.taskId)}
-              className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
+              className="btn-outline text-xs flex items-center gap-1"
             >
-              <Eye className="w-3 h-3" /> View
+              <Eye className="w-3 h-3" />
+              View
             </button>
           )}
         </div>
@@ -225,7 +211,7 @@ export default function ManageTasks() {
       render: (task) => (
         <div className="text-xs">
           {task.submitted ? (
-            <span className="bg-[#5A0000] text-white px-3 py-1 rounded text-xs">Submitted</span>
+            <span className="bg-[#5A0000]/[0.7] text-white px-3 py-1 rounded-full text-xs">Submitted</span>
           ) : (
             <button
               onClick={() => handleSubmit(task.taskId)}

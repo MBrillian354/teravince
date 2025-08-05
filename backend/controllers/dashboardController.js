@@ -78,10 +78,10 @@ exports.supervisorDashboard = async (req, res) => {
     const tasks = await Task.find({ userId: { $in: staffIds }, ...match });
 
     const taskStatusCounts = {
-      achieved: tasks.filter(t => t.taskStatus === 'achieved').length,
-      onProcess: tasks.filter(t => t.taskStatus === 'On Process').length,
-      awaitingReview: tasks.filter(t => t.taskStatus === 'Awaiting Review').length,
-      notYetStarted: tasks.filter(t => t.taskStatus === 'Not Yet Started').length,
+      achieved: tasks.filter(t => t.taskStatus === 'completed').length,
+      onProcess: tasks.filter(t => t.taskStatus === 'inProgress').length,
+      awaitingReview: tasks.filter(t => t.taskStatus === 'submitted').length,
+      notYetStarted: tasks.filter(t => !t.taskStatus || t.taskStatus === 'draft').length,
     };
 
     res.json({

@@ -18,7 +18,7 @@ const taskSchema = new Schema({
   startDate: { type: Date, required: false },
   endDate: { type: Date, required: false },
   approvalStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'draft' },
-  taskStatus: { type: String, enum: ['inProgress', 'submitted', 'rejected', 'completed', 'cancelled'], default: 'draft' },
+  taskStatus: { type: String, enum: ['draft', 'inProgress', 'submitted', 'rejected', 'completed', 'cancelled'], default: 'draft' },
   supervisorComment: { type: String, default: '' },
   bias_check: {
     type: Object,

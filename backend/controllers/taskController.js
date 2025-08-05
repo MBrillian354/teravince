@@ -131,7 +131,7 @@ exports.createTask = async (req, res) => {
       startDate,
       endDate,
       approvalStatus: approvalStatus || 'pending',
-      taskStatus: taskStatus || 'inProgress',
+      taskStatus: taskStatus || 'draft',
       supervisorComment
     });
 
@@ -181,7 +181,7 @@ exports.updateTask = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid approval status. Must be "pending", "approved", or "rejected"' });
     }
 
-    if (updateData.taskStatus && !['inProgress', 'submitted', 'rejected', 'completed', 'cancelled'].includes(updateData.taskStatus)) {
+    if (updateData.taskStatus && !['draft', 'inProgress', 'submitted', 'rejected', 'completed', 'cancelled'].includes(updateData.taskStatus)) {
       return res.status(400).json({ msg: 'Invalid task status' });
     }
 

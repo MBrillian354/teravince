@@ -1,20 +1,59 @@
-import React, { useState } from 'react';
-import { NavLink }       from 'react-router-dom';
-import TaskStatusChart   from '../components/TaskStatusChart';
-import StatsCard         from '../components/StatsCard';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { NavLink } from 'react-router-dom';
+import TaskStatusChart from '../components/TaskStatusChart';
+import StatsCard from '../components/StatsCard';
+import { fetchSupervisorDashboard } from '../store/supervisorSlice';
 
 export default function SPVDashboard() {
+  const dispatch = useDispatch();
+  const { 
+    totalTasks, 
+    numberOfStaffs, 
+    avgTasksPerPerson, 
+    taskStatus,
+    isLoading,
+    error 
+  } = useSelector((state) => state.supervisor);
+
   // state for the month picker
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7)
   );
 
+  // Fetch dashboard data on component mount and when month changes
+  useEffect(() => {
+    const [year, month] = selectedMonth.split('-');
+    dispatch(fetchSupervisorDashboard({ month, year }));
+  }, [dispatch, selectedMonth]);
+
+  // Prepare chart data from backend response
   const statusData = [
-    { label: 'Achieved',        value: 21, color: '#374151' },
-    { label: 'On Process',      value: 42, color: '#6B7280' },
-    { label: 'Awaiting Review', value: 19, color: '#9CA3AF' },
-    { label: 'Not Yet Started', value:  3, color: '#D1D5DB' },
+    { label: 'Achieved', value: taskStatus.achieved, color: '#374151' },
+    { label: 'On Process', value: taskStatus.onProcess, color: '#6B7280' },
+    { label: 'Awaiting Review', value: taskStatus.awaitingReview, color: '#9CA3AF' },
+    { label: 'Not Yet Started', value: taskStatus.notYetStarted, color: '#D1D5DB' },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg text-gray-600">Loading dashboard data...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg text-red-600">Error: {error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4">
@@ -83,7 +122,7 @@ export default function SPVDashboard() {
       {/* Centered Donut + Legend Card */}
       <div className="bg-white rounded shadow p-4 mb-6 flex flex-col items-center justify-center md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-8">
         <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-8">
-          <TaskStatusChart />
+          <TaskStatusChart data={statusData} />
           <ul className="space-y-2">
             {statusData.map(({ label, value, color }) => (
               <li key={label} className="flex items-center">
@@ -101,9 +140,9 @@ export default function SPVDashboard() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatsCard label="Total Tasks" value={85} delta="+2.5%" />
-        <StatsCard label="Number of Staffs" value={31} delta="-1.2%" />
-        <StatsCard label="Avg Task per Person" value={7} delta="+11%" />
+        <StatsCard label="Total Tasks" value={totalTasks} delta="+2.5%" />
+        <StatsCard label="Number of Staffs" value={numberOfStaffs} delta="-1.2%" />
+        <StatsCard label="Avg Task per Person" value={avgTasksPerPerson} delta="+11%" />
       </div>
     </div>
   );

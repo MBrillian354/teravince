@@ -12,11 +12,11 @@ export default function NewUserRoleConfirmation() {
   const handleSelectRole = async (role) => {
     setSelectedRole(role);
     setIsLoading(true);
-    
+
     try {
       // Update user role in backend
       await dispatch(updateCurrentUser({ role: role.toLowerCase() })).unwrap();
-      
+
       // Navigate to job confirmation
       navigate("/job-confirm");
     } catch (error) {
@@ -29,25 +29,25 @@ export default function NewUserRoleConfirmation() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+    <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-2xl font-semibold mb-6 text-gray-900">
         What is Your Role?
       </h1>
       <div className="flex space-x-4">
-        <button
+        <div
           onClick={() => handleSelectRole("supervisor")}
           disabled={isLoading}
-          className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="card-interactive"
         >
           {isLoading && selectedRole === "supervisor" ? "Updating..." : "SUPERVISOR"}
-        </button>
-        <button
+        </div>
+        <div
           onClick={() => handleSelectRole("staff")}
           disabled={isLoading}
-          className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="card-interactive"
         >
           {isLoading && selectedRole === "staff" ? "Updating..." : "STAFF"}
-        </button>
+        </div>
       </div>
     </div>
   );

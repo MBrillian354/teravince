@@ -1,40 +1,34 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useState, useEffect, useMemo } from 'react';
 import { accountsAPI } from '../utils/api';
+import { authService } from '../utils/authService';
 import DynamicForm from '../components/DynamicForm';
 
 export default function MyProfile() {
-  const { user, updateUser, isLoading: authLoading } = useAuth();
+  const [user, setUser] = useState(null);
   const [profilePicture, setPhoto] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    address: '',
-    contactInfo: ''
-  });
 
   // Load user data when component mounts
   useEffect(() => {
     console.log('MyProfile: Loading user data...');
-    if (user) {
-      console.log('MyProfile: User data found:', user);
-      setFormData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        address: user.address || '',
-        contactInfo: user.contactInfo || ''
-      });
+    
+    const userData = authService.getStoredUser();
+    console.log('MyProfile: user object:', userData);
 
+    if (userData) {
+      setUser(userData);
       // Load existing profilePicture if available
-      if (user.profilePicture) {
-        setPhoto(`http://localhost:5000/${user.profilePicture}`);
+      if (userData.profilePicture) {
+        console.log('MyProfile: Setting profile picture:', userData.profilePicture);
+        setPhoto(`http://localhost:5000/${userData.profilePicture}`);
       }
+    } else {
+      console.log('MyProfile: No user data available');
     }
-  }, [user]);
+  }, []);
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -82,9 +76,10 @@ export default function MyProfile() {
 
       const response = await accountsAPI.uploadPhoto(userId, formData);
 
-      // Update user context with new profilePicture
+      // Update user data in localStorage and state
       const updatedUser = { ...user, profilePicture: response.data.user.profilePicture };
-      updateUser(updatedUser);
+      setUser(updatedUser);
+      authService.storeAuthData(authService.getToken(), updatedUser);
 
       // Update the displayed profilePicture
       setPhoto(`http://localhost:5000/${response.data.user.profilePicture}`);
@@ -108,12 +103,12 @@ export default function MyProfile() {
   };
 
   // Generate form fields with current user data
-  const userDetailsFields = [
+  const userDetailsFields = useMemo(() => [
     {
       type: 'text',
       name: 'firstName',
       label: 'First Name',
-      defaultValue: user?.firstName,
+      defaultValue: user ? user.firstName : '',
       required: true,
       group: 'name'
     },
@@ -121,7 +116,7 @@ export default function MyProfile() {
       type: 'text',
       name: 'lastName',
       label: 'Last Name',
-      defaultValue: user?.lastName,
+      defaultValue: user ? user.lastName : '',
       required: true,
       group: 'name'
     },
@@ -129,26 +124,26 @@ export default function MyProfile() {
       type: 'text',
       name: 'jobId',
       label: 'Job Title',
-      defaultValue: user?.jobId?.title || 'Unassigned',
+      defaultValue: user ? user.jobId?.title : 'Unassigned',
       disabled: true, // Assuming job title is not editable
     },
     {
       type: 'text',
       name: 'address',
       label: 'Address',
-      defaultValue: user?.address
+      defaultValue: user ? user.address : ''
     },
     {
       type: 'number',
       name: 'contactInfo',
       label: 'Contact Info',
-      defaultValue: user?.contactInfo
+      defaultValue: user ? user?.contactInfo : ''
     }
-  ];
+  ], [user]);
 
 
-  // Show loading while auth context is initializing
-  if (authLoading) {
+  // Show loading while user data is being loaded
+  if (!user) {
     return (
       <div className="container mx-auto px-4">
         <div className="flex justify-center items-center h-64">
@@ -179,12 +174,10 @@ export default function MyProfile() {
       const response = await accountsAPI.update(userId, updatedFormData);
       console.log('API update response:', response);
 
-      // Update local state
-      setFormData(updatedFormData);
-
-      // Update user context with new data
+      // Update local state and localStorage
       const updatedUser = { ...user, ...updatedFormData };
-      updateUser(updatedUser);
+      setUser(updatedUser);
+      authService.storeAuthData(authService.getToken(), updatedUser);
 
       setSuccess('Profile updated successfully!');
 
@@ -217,7 +210,7 @@ export default function MyProfile() {
         </div>
       )}
 
-      {!authLoading && user && (
+      {!user ? null : (
 
 
 

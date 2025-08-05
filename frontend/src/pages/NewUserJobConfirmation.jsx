@@ -55,7 +55,7 @@ export default function NewUserJobConfirmation() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+    <div className="flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-2xl font-semibold mb-4 text-gray-900">
         What is Your Job Title?
       </h1>
@@ -70,7 +70,7 @@ export default function NewUserJobConfirmation() {
         <select
           onChange={handleJobChange}
           value={selectedJobId}
-          className="border border-gray-300 rounded px-4 py-2 min-w-[200px]"
+          className="border border-gray-300 rounded px-4 py-2 min-w-1/2 bg-white"
           disabled={isLoading}
         >
           <option disabled value="">
@@ -86,7 +86,7 @@ export default function NewUserJobConfirmation() {
         <button
           onClick={handleSubmit}
           disabled={isLoading || !selectedJobId}
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-secondary"
         >
           {isLoading ? "Updating..." : "Complete Setup"}
         </button>

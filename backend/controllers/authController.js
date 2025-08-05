@@ -6,7 +6,6 @@ const sendEmail = require('../utils/sendEmail');
 exports.register = async (req, res) => {
   try {
     const { email, password, firstName, lastName } = req.body;
-    const name = `${firstName} ${lastName}`;
 
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({ msg: 'Please fill in all fields' });
@@ -27,7 +26,8 @@ exports.register = async (req, res) => {
     user = await User.create({
       email,
       password: hashedPassword,
-      name,
+      firstName,
+      lastName,
       role: null
     });
 
@@ -37,7 +37,7 @@ exports.register = async (req, res) => {
     // await sendEmail(
     //   email,
     //   'Email Verification',
-    //   `<h2>Hi ${name}</h2><p>Please click the link below to verify your account:</p><a href="${url}">${url}</a>`
+    //   `<h2>Hi ${firstName}</h2><p>Please click the link below to verify your account:</p><a href="${url}">${url}</a>`
     // );
 
     res.status(200).json({ msg: 'Registration successful! Check your email for verification.' });
@@ -73,7 +73,22 @@ exports.login = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    res.json({ token });
+    // Return user data without password
+    const userData = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      jobTitle: user.jobId ? user.jobId.title : 'Unassigned',
+      jobId: user.jobId ? user.jobId.toString() : null,
+      address: user.address,
+      contactInfo: user.contactInfo,
+      profilePicture: user.profilePicture,
+      isVerified: user.isVerified
+    };
+
+    res.json({ token, user: userData });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Login failed' });
@@ -92,7 +107,7 @@ exports.forgotPassword = async (req, res) => {
     await sendEmail(
       email,
       'Reset Password',
-      `<h2>Hi ${user.name}</h2><p>Click the following link to reset your password:</p><a href="${url}">${url}</a>`
+      `<h2>Hi ${user.firstName}</h2><p>Click the following link to reset your password:</p><a href="${url}">${url}</a>`
     );
 
     res.status(200).json({ msg: 'Password reset link sent to email.' });
@@ -118,7 +133,7 @@ exports.resetPassword = async (req, res) => {
 
 exports.getUserData = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select('-password').populate('jobId', 'title');
     res.json(user);
   } catch (err) {
     res.status(500).json({ msg: 'Failed to retrieve user data' });

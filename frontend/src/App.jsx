@@ -5,9 +5,10 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import GlobalModal from './components/GlobalModal';
 import RoleBasedRoute from './components/RoleBasedRoute';
+import NewUserProtectedRoute from './components/NewUserProtectedRoute';
 import { authService } from './utils/authService';
+import Root from './components/Root';
 
-import SignIn from './pages/Signin';
 import SignUp from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 
@@ -19,12 +20,13 @@ import NewJobForm from './pages/NewJobForm';
 import EditJobForm from './pages/EditJobForm';
 import ManageAccounts from './pages/ManageAccounts';
 import NewAccountForm from './pages/NewAccountForm';
+import EditAccount from './pages/EditAccount';
 import MyStaffs from './pages/MyStaffs.jsx';
 import Reports from './pages/Reports.jsx';
 import JobDescription from './pages/JobDescription';
 import StaffReport from './pages/StaffReport.jsx';
-import AddTask from './pages/AddTask';
-import EditTask from './pages/EditTask';
+import NewTaskForm from './pages/NewTaskForm';
+import EditTaskForm from './pages/EditTaskForm';
 import ViewTask from './pages/ViewTask.jsx';
 
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
@@ -32,14 +34,14 @@ import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import CookiePolicy from './pages/CookiePolicy.jsx';
 import SimpleModalDemo from './components/SimpleModalDemo';
 
-import RoleConfirmation from './pages/RoleConfirmation';
-import JobTitleConfirmation from './pages/JobTitleConfirmation';
+import NewUserRoleConfirmation from './pages/NewUserRoleConfirmation';
+import NewUserJobConfirmation from './pages/NewUserJobConfirmation';
 
 // Auth Routes Component
 function AuthRoutes() {
   return (
     <>
-      <Route path="/" element={<SignIn />} />
+      <Route path="/" element={<Root />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
     </>
@@ -83,9 +85,14 @@ function AdminRoutes() {
           <NewJobForm />
         </RoleBasedRoute>
       } />
-      <Route path="/jobs/edit/:id" element={
+      <Route path="/jobs/:id/edit" element={
         <RoleBasedRoute allowedRoles={['admin']}>
           <EditJobForm />
+        </RoleBasedRoute>
+      } />
+      <Route path="/accounts" element={
+        <RoleBasedRoute allowedRoles={['admin']}>
+          <ManageAccounts />
         </RoleBasedRoute>
       } />
       <Route path="/accounts" element={
@@ -98,9 +105,9 @@ function AdminRoutes() {
           <NewAccountForm />
         </RoleBasedRoute>
       } />
-      <Route path="/accounts/edit/:id" element={
+      <Route path="/accounts/:id/edit" element={
         <RoleBasedRoute allowedRoles={['admin']}>
-          <NewAccountForm />
+          <EditAccount />
         </RoleBasedRoute>
       } />
     </>
@@ -139,21 +146,22 @@ function SupervisorRoutes() {
 function StaffRoutes() {
   return (
     <>
-      <Route path="/add-task" element={
+      <Route path="/tasks/new" element={
         <RoleBasedRoute allowedRoles={['staff']}>
-          <AddTask />
+          <NewTaskForm />
         </RoleBasedRoute>
       } />
-      <Route path="/edit-task/:id" element={
-        <RoleBasedRoute allowedRoles={['staff']}>
-          <EditTask />
-        </RoleBasedRoute>
-      } />
-      <Route path="/view-task/:id" element={
+      <Route path="/tasks/:id" element={
         <RoleBasedRoute allowedRoles={['staff']}>
           <ViewTask />
         </RoleBasedRoute>
       } />
+      <Route path="/tasks/:id/edit" element={
+        <RoleBasedRoute allowedRoles={['staff']}>
+          <EditTaskForm />
+        </RoleBasedRoute>
+      } />
+
     </>
   );
 }
@@ -166,8 +174,16 @@ function PublicRoutes() {
       <Route path="/terms" element={<TermsAndConditions />} />
       <Route path="/cookies" element={<CookiePolicy />} />
       <Route path="/demo" element={<SimpleModalDemo />} />
-      <Route path="/role-confirm" element={<RoleConfirmation />} />
-      <Route path="/job-title" element={<JobTitleConfirmation />} />
+      <Route path="/role-confirm" element={
+        <NewUserProtectedRoute>
+          <NewUserRoleConfirmation />
+        </NewUserProtectedRoute>
+      } />
+      <Route path="/job-confirm" element={
+        <NewUserProtectedRoute>
+          <NewUserJobConfirmation />
+        </NewUserProtectedRoute>
+      } />
     </>
   );
 }
@@ -200,8 +216,11 @@ function AppContent() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-gray-900 font-inter">
-      {/* Show navbar only when user is authenticated */}
-      {isAuthenticated && <Navbar />}
+      {/* Show navbar only when user is authenticated and not on confirmation pages */}
+      {isAuthenticated &&
+        !location.pathname.includes('/role-confirm') &&
+        !location.pathname.includes('/job-confirm') &&
+        <Navbar />}
 
       <main className="flex-1 p-4 md:max-w-6xl mx-auto w-full">
         <Routes>

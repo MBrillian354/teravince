@@ -89,7 +89,7 @@ exports.createTask = async (req, res) => {
       userId,
       title,
       description,
-      activity,
+      kpis,
       score,
       evidence,
       startDate,
@@ -99,9 +99,9 @@ exports.createTask = async (req, res) => {
       supervisorComment
     } = req.body;
 
-    // Validate required fields
-    if (!userId || !title || !description || !score || !evidence || !startDate || !endDate) {
-      return res.status(400).json({ msg: 'Missing required fields' });
+    // Validate required fields - make some fields optional for draft creation
+    if (!userId || !title || !description) {
+      return res.status(400).json({ msg: 'Missing required fields: userId, title, description' });
     }
 
     // Validate userId
@@ -109,14 +109,14 @@ exports.createTask = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid staff ID' });
     }
 
-    // Validate activity array if provided
-    if (activity && Array.isArray(activity)) {
-      for (let act of activity) {
-        if (!act.title || !act.amount || !act.operator) {
-          return res.status(400).json({ msg: 'Invalid activity structure. Each activity must have title, amount, and operator' });
+    // Validate kpis array if provided
+    if (kpis && Array.isArray(kpis)) {
+      for (let kpi of kpis) {
+        if (!kpi.kpiTitle || !kpi.amount || !kpi.operator) {
+          return res.status(400).json({ msg: 'Invalid KPI structure. Each KPI must have kpiTitle, amount, and operator' });
         }
-        if (!['lowerThan', 'greaterThan'].includes(act.operator)) {
-          return res.status(400).json({ msg: 'Invalid operator. Must be either "lowerThan" or "greaterThan"' });
+        if (!['lessThan', 'greaterThan'].includes(kpi.operator)) {
+          return res.status(400).json({ msg: 'Invalid operator. Must be either "lessThan" or "greaterThan"' });
         }
       }
     }
@@ -125,9 +125,9 @@ exports.createTask = async (req, res) => {
       userId,
       title,
       description,
-      activity: activity || [],
-      score,
-      evidence,
+      kpis: kpis || [],
+      score: score || 0,
+      evidence: evidence || '',
       startDate,
       endDate,
       approvalStatus: approvalStatus || 'pending',
@@ -164,14 +164,14 @@ exports.updateTask = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid staff ID' });
     }
 
-    // Validate activity array if provided
-    if (updateData.activity && Array.isArray(updateData.activity)) {
-      for (let act of updateData.activity) {
-        if (!act.title || !act.amount || !act.operator) {
-          return res.status(400).json({ msg: 'Invalid activity structure. Each activity must have title, amount, and operator' });
+    // Validate kpis array if provided
+    if (updateData.kpis && Array.isArray(updateData.kpis)) {
+      for (let kpi of updateData.kpis) {
+        if (!kpi.kpiTitle || !kpi.amount || !kpi.operator) {
+          return res.status(400).json({ msg: 'Invalid KPI structure. Each KPI must have kpiTitle, amount, and operator' });
         }
-        if (!['lowerThan', 'greaterThan'].includes(act.operator)) {
-          return res.status(400).json({ msg: 'Invalid operator. Must be either "lowerThan" or "greaterThan"' });
+        if (!['lessThan', 'greaterThan'].includes(kpi.operator)) {
+          return res.status(400).json({ msg: 'Invalid operator. Must be either "lessThan" or "greaterThan"' });
         }
       }
     }

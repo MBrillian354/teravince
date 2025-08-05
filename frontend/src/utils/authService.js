@@ -85,6 +85,16 @@ export const authService = {
     const userData = localStorage.getItem('user');
     return userData ? JSON.parse(userData) : null;
   },
+
+  // Update user profile
+  updateProfile: async (userId, profileData) => {
+    try {
+      const response = await api.patch(`/users/${userId}`, profileData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default authService;

@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import DynamicForm from '../components/DynamicForm';
-import { addJob } from '@/store/adminSlice';
-import { openModal } from '@/store/modalSlice';
+import { createJob } from '@/store/adminSlice';
+import { useModal } from '../hooks/useModal';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 const NewJobForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
-
     const dispatch = useDispatch();
+    const { showSuccess, showError } = useModal();
 
 
     const formFields = [
@@ -34,44 +34,35 @@ const NewJobForm = () => {
         setIsSubmitting(true);
 
         try {
-            // TODO: Replace with actual API call
-            console.log('Job form data:', formData);
-            const newJob = {
-                id: Date.now(), // Temporary ID generation
+            const jobData = {
                 title: formData.jobTitle,
-                description: formData.description,
-                employees: 0, // Default to 0 employees
-                status: 'Draft' // Default status
+                description: formData.description
             };
 
-            dispatch(addJob(newJob));
+            await dispatch(createJob(jobData)).unwrap();
 
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
             // Show success modal
-            dispatch(openModal({
-                type: 'SUCCESS',
-                data: {
-                    message: 'Job Created Successfully!',
-                    description: 'The job posting has been created and saved as draft.'
+            showSuccess(
+                'Job Created Successfully!',
+                'The job posting has been created and saved as draft.',
+                {
+                    onConfirm: () => {
+                        navigate('/jobs');
+                    },
+                    autoClose: true,
+                    timeout: 3000
                 }
-            }));
+            );
 
-            // Navigate back after showing success
-            setTimeout(() => {
-                navigate(-1);
-            }, 2000);
-
-        } catch (err) {
+        } catch (error) {
+            console.error('Job creation failed:', error);
             // Show error modal
-            dispatch(openModal({
-                type: 'ERROR',
-                data: {
-                    message: 'Creation Failed',
-                    description: 'Failed to create job posting. Please try again.'
-                }
-            }));
+            showError(
+                'Creation Failed',
+                error || 'Failed to create job posting. Please try again.',
+                'Error',
+                { timeout: 5000, autoClose: false }
+            );
         } finally {
             setIsSubmitting(false);
         }

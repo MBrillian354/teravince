@@ -1,8 +1,27 @@
 import PropTypes from 'prop-types';
 import { CircleCheck, XCircle } from 'lucide-react';
+import { useEffect } from 'react';
 
 const NotificationModal = ({ data, onClose }) => {
-  const { type = 'success', message, description } = data || {};
+  const { type = 'success', message, description, autoClose = false, timeout = 3000, onConfirm } = data || {};
+
+  // Auto-close the modal after timeout
+  useEffect(() => {
+    if (autoClose) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, timeout);
+
+      return () => clearTimeout(timer);
+    }
+  }, [autoClose, timeout, onClose]);
+
+  const handleOkClick = () => {
+    if (onConfirm) {
+      onConfirm();
+    }
+    onClose();
+  };
 
   const config = {
     success: {
@@ -40,7 +59,7 @@ const NotificationModal = ({ data, onClose }) => {
       )}
       
       <button
-        onClick={onClose}
+        onClick={handleOkClick}
         className={`btn-primary ${buttonColor}`}
       >
         OK
@@ -54,6 +73,9 @@ NotificationModal.propTypes = {
     type: PropTypes.oneOf(['success', 'error']),
     message: PropTypes.string,
     description: PropTypes.string,
+    autoClose: PropTypes.bool,
+    timeout: PropTypes.number,
+    onConfirm: PropTypes.func,
   }),
   onClose: PropTypes.func.isRequired,
 };

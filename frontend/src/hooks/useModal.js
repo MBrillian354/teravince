@@ -1,124 +1,131 @@
 import { useDispatch } from 'react-redux';
 import { openModal, closeModal, updateModalData } from '../store/modalSlice';
-import { MODAL_TYPES } from '../components/GlobalModal';
+import { MODAL_TYPES } from '../constants/modalTypes';
 
 /**
- * Custom hook for managing modals with Redux
- * Provides convenient methods to open different types of modals
+ * Custom hook for managing modals with Redux.
+ * Provides convenient methods to open different types of modals.
+ * 
+ * @returns {Object} Modal control methods
  */
 export const useModal = () => {
   const dispatch = useDispatch();
 
-  // Generic modal opener
+  /**
+   * Opens a modal with custom configuration
+   * @param {Object} modalConfig - Modal configuration object
+   */
   const open = (modalConfig) => {
     dispatch(openModal(modalConfig));
   };
 
-  // Close current modal
+  /**
+   * Closes the currently open modal
+   */
   const close = () => {
     dispatch(closeModal());
   };
 
-  // Update modal data without closing
+  /**
+   * Updates the data of the currently open modal
+   * @param {Object} newData - New data to merge with existing modal data
+   */
   const updateData = (newData) => {
     dispatch(updateModalData(newData));
   };
 
-  // Convenience methods for common modal types
+  /**
+   * Shows a confirmation dialog modal
+   * @param {Object} options - Confirmation modal options
+   * @param {string} [options.title='Confirmation'] - Modal title
+   * @param {string} [options.message='Are you sure?'] - Confirmation message
+   * @param {Function} options.onConfirm - Callback function when confirmed
+   * @param {string} [options.confirmText='Confirm'] - Confirm button text
+   * @param {string} [options.cancelText='Cancel'] - Cancel button text
+   * @param {string} [options.type='danger'] - Modal type ('danger' or 'warning')
+   */
   const showConfirm = ({
-    message = 'Are you sure you want to continue?',
     title = 'Confirmation',
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
-    type = 'danger', // 'danger' or 'warning'
-    actionType = null, // Redux action type to dispatch
-    actionPayload = null // Payload for the Redux action
+    message = 'Are you sure?',
+    onConfirm,
+    ...rest
   }) => {
     open({
       type: MODAL_TYPES.CONFIRM,
-      title: null, // Let the modal component handle the title
-      data: {
-        message,
-        title,
-        confirmText,
-        cancelText,
-        type,
-        actionType,
-        actionPayload
-      },
-      size: 'sm'
+      data: { title, message, onConfirm, ...rest },
+      size: 'sm',
     });
   };
 
+  /**
+   * Shows a notification modal
+   * @param {Object} options - Notification modal options
+   * @param {string} [options.type='success'] - Notification type ('success' or 'error')
+   * @param {string} options.message - Main notification message
+   * @param {string} [options.description] - Additional description text
+   * @param {boolean} [options.autoClose=true] - Whether to auto-close the modal
+   * @param {number} [options.timeout=3000] - Auto-close timeout in milliseconds
+   * @param {Function} [options.onConfirm] - Callback function when OK button is clicked
+   */
   const showNotification = ({
     type = 'success',
     message,
     description,
-    title
+    ...rest
   }) => {
     open({
       type: MODAL_TYPES.NOTIFICATION,
-      title: title || null,
-      data: {
-        type,
-        message,
-        description
-      },
+      data: { type, message, description, ...rest },
       size: 'sm',
-      showCloseButton: true
     });
   };
 
-  const showSuccess = (message, description, title) => {
-    showNotification({
-      type: 'success',
-      message,
-      description,
-      title
-    });
+  /**
+   * Shows a success notification modal
+   * @param {string} message - Success message
+   * @param {string} [description] - Additional description
+   * @param {Object} [options] - Additional options
+   * @param {Function} [options.onConfirm] - Callback function when OK button is clicked
+   */
+  const showSuccess = (message, description, options) => {
+    showNotification({ type: 'success', message, description, ...options });
   };
 
-  const showError = (message, description, title) => {
-    showNotification({
-      type: 'error',
-      message,
-      description,
-      title
-    });
+  /**
+   * Shows an error notification modal
+   * @param {string} message - Error message
+   * @param {string} [description] - Additional description
+   * @param {Object} [options] - Additional options
+   * @param {Function} [options.onConfirm] - Callback function when OK button is clicked
+   */
+  const showError = (message, description, options) => {
+    showNotification({ type: 'error', message, description, ...options });
   };
 
-  // Helper for creating delete confirmations
-  const showDeleteConfirm = (itemName, actionType, actionPayload) => {
+  /**
+   * Shows a delete confirmation dialog with pre-configured styling
+   * @param {string} itemName - Name of the item to be deleted
+   * @param {Function} onConfirm - Callback function when deletion is confirmed
+   */
+  const showDeleteConfirm = (itemName, onConfirm) => {
     showConfirm({
       title: 'Delete Confirmation',
       message: `Are you sure you want to delete "${itemName}"? This action cannot be undone.`,
       confirmText: 'Delete',
-      cancelText: 'Cancel',
       type: 'danger',
-      actionType,
-      actionPayload
+      onConfirm,
     });
   };
 
   return {
-    // Generic methods
     open,
     close,
     updateData,
-    
-    // Specific modal types
     showConfirm,
     showNotification,
-    
-    // Notification shortcuts
     showSuccess,
     showError,
-    
-    // Helper methods
     showDeleteConfirm,
-    
-    // Modal types for custom usage
-    MODAL_TYPES
   };
 };
 

@@ -5,6 +5,7 @@ const { getAllTasks, getTaskById, getTasksByUserId, getTaskByIdAnduserId, create
 
 
 router.get('/', getAllTasks);
+
 router.get('/:id', getTaskById);
 
 router.get('/:userId/tasks', getTasksByUserId);
@@ -14,7 +15,7 @@ router.get('/:userId/tasks/:taskId', getTaskByIdAnduserId);
 
 router.post('/', createTask);
 
-router.put('/:id', updateTask);
+router.patch('/:id', updateTask);
 
 router.delete('/:id', deleteTask);
 

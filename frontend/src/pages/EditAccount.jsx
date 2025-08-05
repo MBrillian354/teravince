@@ -1,16 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DynamicForm from '../components/DynamicForm';
-import { createAccount } from '@/store/adminSlice';
+import { updateAccount } from '@/store/adminSlice';
 import { useModal } from '../hooks/useModal';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { accountsAPI } from '../utils/api';
 
-const NewAccountForm = () => {
+const EditAccount = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [accountData, setAccountData] = useState(null);
+  const [loadingAccount, setLoadingAccount] = useState(true);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { id } = useParams();
   const { loading, error } = useSelector((state) => state.admin);
   const { showSuccess, showError } = useModal();
+
+  // Load account data
+  useEffect(() => {
+    const loadAccount = async () => {
+      try {
+        setLoadingAccount(true);
+        const response = await accountsAPI.getById(id);
+        console.log('Loaded account:', response.data);
+        setAccountData(response.data);
+
+      } catch (error) {
+        console.error('Error loading account:', error);
+        showError(
+          'Loading Failed',
+          'Failed to load account data. Please try again.'
+        );
+      } finally {
+        setLoadingAccount(false);
+      }
+    };
+
+    if (id) {
+      loadAccount();
+    }
+  }, [id, dispatch]);
 
   const formFields = [
     {
@@ -20,6 +49,7 @@ const NewAccountForm = () => {
       placeholder: 'Enter first name',
       required: true,
       group: 'name',
+      defaultValue: accountData?.firstName || '',
     },
     {
       type: 'text',
@@ -28,6 +58,7 @@ const NewAccountForm = () => {
       placeholder: 'Enter last name',
       required: true,
       group: 'name',
+      defaultValue: accountData?.lastName || '',
     },
     {
       type: 'email',
@@ -35,13 +66,7 @@ const NewAccountForm = () => {
       label: 'Email Address',
       placeholder: 'Enter email address',
       required: true,
-    },
-    {
-      type: 'password',
-      name: 'password',
-      label: 'Password',
-      placeholder: 'Enter password',
-      required: true,
+      defaultValue: accountData?.email || '',
     },
     {
       type: 'select',
@@ -54,6 +79,7 @@ const NewAccountForm = () => {
         { value: 'supervisor', label: 'Supervisor' },
         { value: 'staff', label: 'Staff' },
       ],
+      defaultValue: accountData?.role || '',
     },
     {
       type: 'select',
@@ -66,6 +92,7 @@ const NewAccountForm = () => {
         { value: 'terminated', label: 'Terminated' },
         { value: 'pip', label: 'Under Performance Improvement' },
       ],
+      defaultValue: accountData?.status || '',
     },
   ];
 
@@ -73,43 +100,62 @@ const NewAccountForm = () => {
     setIsSubmitting(true);
 
     try {
-      const result = await dispatch(createAccount(formData));
+      const result = await dispatch(updateAccount({ id, ...formData }));
 
-      if (createAccount.fulfilled.match(result)) {
+      if (updateAccount.fulfilled.match(result)) {
         // Show success modal
         showSuccess(
-          'Account Created Successfully!',
-          'The user account has been created and is ready to use.',
+          'Account Updated Successfully!',
+          'The user account has been updated successfully.',
           {
             onConfirm: () => {
               navigate('/accounts');
             },
             autoClose: true,
             timeout: 3000
-          }
+          },
         );
 
-        setTimeout(() => {
-          navigate('/accounts');
-        }, 3000);
       } else {
         // Show error modal
         showError(
-          'Creation Failed',
-          result.payload || 'Failed to create user account. Please try again.'
+          'Update Failed',
+          result.payload || 'Failed to update user account. Please try again.'
         );
       }
 
     } catch (err) {
       // Show generic error modal
       showError(
-        'Creation Failed',
+        'Update Failed',
         'An unexpected error occurred. Please try again.'
       );
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (loadingAccount) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-lg">Loading account...</div>
+      </div>
+    );
+  }
+
+  if (!accountData) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-red-500">Account not found</div>
+        <button
+          onClick={() => navigate('/accounts')}
+          className="ml-4 btn btn-primary"
+        >
+          Back to Accounts
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
@@ -120,11 +166,11 @@ const NewAccountForm = () => {
       )}
 
       <DynamicForm
-        title="Create New User Account"
-        subtitle="Fill in the details below to create a new user account"
+        title="Edit User Account"
+        subtitle="Update the account details below"
         fields={formFields}
         onSubmit={handleSubmit}
-        submitButtonText={isSubmitting || loading ? "Creating..." : "Create Account"}
+        submitButtonText={isSubmitting || loading ? "Updating..." : "Update Account"}
         disabled={isSubmitting || loading}
         className="space-y-6"
       />
@@ -132,4 +178,4 @@ const NewAccountForm = () => {
   );
 };
 
-export default NewAccountForm;
+export default EditAccount;

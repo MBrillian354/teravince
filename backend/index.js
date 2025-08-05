@@ -3,6 +3,12 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+const passport = require('passport');
+
+// Initialize passport configuration
+require('./config/passport');
 
 const taskRoutes = require('./routes/taskRoutes');
 const biasRoutes = require('./routes/biasRoutes');
@@ -11,6 +17,7 @@ const authRoutes = require('./routes/authRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -25,6 +32,18 @@ const isLocalDB = MONGO_URI.includes('127.0.0.1') || MONGO_URI.includes('localho
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Initialize passport
+app.use(passport.initialize());
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(uploadsDir));
 
 app.use((req, res, next) => {
     console.log('Received URL:', req.originalUrl);
@@ -44,6 +63,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/users', userRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TasksReportsTabs from '../components/TasksReportsTabs';
-import StatsCard        from '../components/StatsCard';
-import DataTable        from '../components/DataTable';
-import Pagination       from '../components/Pagination';
-import DynamicForm      from '../components/DynamicForm';
+import StatsCard from '../components/StatsCard';
+import DataTable from '../components/DataTable';
+import Pagination from '../components/Pagination';
 
 export default function Tasks() {
+  const navigate = useNavigate();
+
   // 1) Tab state
   const [activeTab, setActiveTab] = useState('tasks');
 
   // 2) Summary cards data
   const summary = [
     { label: 'Tasks to Approve', value: 2 },
-    { label: 'Task to Revise',   value: 0 },
-    { label: 'Task to Review',   value: 0 },
+    { label: 'Task to Revise', value: 0 },
+    { label: 'Task to Review', value: 0 },
   ];
 
   // 3) Dummy table data
@@ -48,162 +50,19 @@ export default function Tasks() {
 
   // 4) Selected row state
   const [selectedTaskId, setSelectedTaskId] = useState(tasks[0].id);
-  const selected = tasks.find((t) => t.id === selectedTaskId);
 
-  // 5) Supervisor comment state (editable)
-  const [supervisorComment, setSupervisorComment] = useState(
-    tasks.find((t) => t.id === selectedTaskId)?.supervisorComment || ''
-  );
-  useEffect(() => {
-    // reset only when the selected ID changes, not on every render
-    setSupervisorComment(
-      tasks.find((t) => t.id === selectedTaskId)?.supervisorComment || ''
-    );
-  }, [selectedTaskId]);
-
-  // 6) Form fields configuration for DynamicForm
-  const getFormFields = (selectedTask) => {
-    if (!selectedTask) return [];
-    
-    return [
-      {
-        type: 'text',
-        name: 'employeeId',
-        label: 'Employee ID',
-        defaultValue: selectedTask.employeeId,
-        disabled: true,
-        group: 'employee'
-      },
-      {
-        type: 'text',
-        name: 'employeeName',
-        label: 'Employee Name',
-        defaultValue: selectedTask.employeeName,
-        disabled: true,
-        group: 'employee'
-      },
-      {
-        type: 'text',
-        name: 'taskId',
-        label: 'Task ID',
-        defaultValue: selectedTask.id,
-        disabled: true,
-        group: 'task'
-      },
-      {
-        type: 'text',
-        name: 'taskStatus',
-        label: 'Task Status',
-        defaultValue: selectedTask.status,
-        disabled: true,
-        group: 'task'
-      },
-      {
-        type: 'text',
-        name: 'taskTitle',
-        label: 'Task Title',
-        defaultValue: selectedTask.title,
-        disabled: true,
-      },
-      {
-        type: 'textarea',
-        name: 'taskDescription',
-        label: 'Task Description',
-        defaultValue: selectedTask.description,
-        disabled: true,
-        rows: 4
-      },
-      {
-        type: 'text',
-        name: 'startDate',
-        label: 'Start Date',
-        defaultValue: selectedTask.start,
-        disabled: true,
-        group: 'dates'
-      },
-      {
-        type: 'text',
-        name: 'finishDate',
-        label: 'Finish Date',
-        defaultValue: selectedTask.end,
-        disabled: true,
-        group: 'dates'
-      },
-      {
-        type: 'textarea',
-        name: 'supervisorComment',
-        label: 'Supervisor Comment',
-        defaultValue: supervisorComment,
-        rows: 3
-      },
-      {
-        type: 'checkbox',
-        name: 'biasReviewCheck',
-        label: 'I have properly reviewed the employee\'s task without bias',
-        required: true
-      }
-    ];
+  // 5) Handle task view
+  const handleViewTask = (taskId) => {
+    navigate(`/reports/tasks/${taskId}`);
   };
 
-  // 7) Handle form submission for approval/revision
-  const handleFormSubmit = (formData, action = 'approve') => {
-    console.log('Form data:', formData);
-    console.log('Action:', action);
-    
-    // Update the supervisor comment in state
-    setSupervisorComment(formData.supervisorComment || '');
-    
-    // Validate required fields
-    if (action === 'approve' && !formData.biasReviewCheck) {
-      alert('Please confirm that you have reviewed the task without bias.');
-      return;
-    }
-    
-    // Here you would typically make an API call to update the task
-    // For now, just log the action
-    if (action === 'approve') {
-      alert('Task approved successfully!');
-    } else if (action === 'revise') {
-      alert('Revision requested successfully!');
-    }
-  };
-
-  // 8) Handle button actions with form reference
-  const handleButtonAction = (action) => {
-    const form = document.querySelector('form');
-    if (!form) return;
-    
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    
-    // Get textarea and checkbox values specifically
-    const supervisorCommentField = form.querySelector('[name="supervisorComment"]');
-    const biasCheckField = form.querySelector('[name="biasReviewCheck"]');
-    
-    data.supervisorComment = supervisorCommentField ? supervisorCommentField.value : '';
-    data.biasReviewCheck = biasCheckField ? biasCheckField.checked : false;
-    
-    handleFormSubmit(data, action);
-  };
-
-  // 9) Pagination state
+  // 6) Pagination state
   const [page, setPage] = useState(1);
   const totalPages = 11;
 
-  // 10) Table column definitions
+  // 7) Table column definitions
   const columns = [
-    {
-      header: '',
-      render: (row) => (
-        <input
-          type="checkbox"
-          checked={row.id === selectedTaskId}
-          onChange={() => setSelectedTaskId(row.id)}
-        />
-      ),
-      align: 'center',
-    },
-    { header: 'Task ID',    accessor: 'id'    },
+    { header: 'Task ID', accessor: 'id' },
     { header: 'Task Title', accessor: 'title' },
     {
       header: 'Task Status',
@@ -228,6 +87,20 @@ export default function Tasks() {
           {r.review}
         </span>
       ),
+    },
+    {
+      header: 'Actions',
+      render: (row) => (
+        <div className="flex space-x-2">
+          <button
+            onClick={() => handleViewTask(row.id)}
+            className="btn-secondary text-xs"
+          >
+            View Details
+          </button>
+        </div>
+      ),
+      align: 'center',
     },
   ];
 
@@ -261,35 +134,6 @@ export default function Tasks() {
         totalPages={totalPages}
         onPageChange={setPage}
       />
-
-      {/* Detail Card with DynamicForm */}
-      {selected && (
-        <div className="bg-white rounded shadow p-6 mt-6">
-          <DynamicForm
-            fields={getFormFields(selected)}
-            showSubmitButton={false}
-            className="space-y-6"
-            footer={
-              <div className="flex justify-end space-x-2 mt-6">
-                <button 
-                  type="button"
-                  onClick={() => handleButtonAction('revise')}
-                  className="btn-outline"
-                >
-                  Request Revision
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => handleButtonAction('approve')}
-                  className="btn-secondary"
-                >
-                  Approve Task
-                </button>
-              </div>
-            }
-          />
-        </div>
-      )}
     </div>
   );
 }

@@ -21,10 +21,7 @@ export default function Navbar() {
         supervisor: [
             { path: "/dashboard", label: "Dashboard" },
             { path: "/profile", label: "My Profile" },
-            { path: "/tasks", label: "Tasks" },
-            { path: "/reports", label: "Reports" },
-            { path: "/staffs", label: "My Staffs" },
-            { path: "/job-description", label: "Job Description" }
+            { path: "/reports/", label: "Tasks & Reports" },
         ],
         staff: [
             { path: "/dashboard", label: "Dashboard" },

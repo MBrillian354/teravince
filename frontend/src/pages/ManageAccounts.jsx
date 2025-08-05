@@ -1,5 +1,6 @@
 import StatsCard from "@/components/StatsCard"
 import DataTable from "@/components/DataTable"
+import StatusBadge from "@/components/StatusBadge"
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useModal } from '../hooks/useModal';
@@ -102,7 +103,14 @@ const ManageAccounts = () => {
     { header: 'ID', accessor: 'id' },
     { header: 'Job Title', accessor: 'jobId', render: row => capitalizeFirst(row.jobId?.title || 'Unassigned') },
     { header: 'Position', accessor: 'role', render: row => capitalizeFirst(row.role) },
-    { header: 'Status', accessor: 'status', render: row => capitalizeFirstWithFallback(row.status) },
+    { header: 'Status', accessor: 'status', render: row => (
+      <StatusBadge 
+        status={capitalizeFirstWithFallback(row.status)} 
+        type="approval" 
+        size="xs"
+        variant={row.status === 'active' ? 'default' : 'outline'}
+      />
+    )},
     {
       header: 'Actions',
       render: row => (

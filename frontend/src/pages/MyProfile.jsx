@@ -14,7 +14,7 @@ export default function MyProfile() {
   // Load user data when component mounts
   useEffect(() => {
     console.log('MyProfile: Loading user data...');
-    
+
     const userData = authService.getStoredUser();
     console.log('MyProfile: user object:', userData);
 
@@ -170,8 +170,11 @@ export default function MyProfile() {
     setSuccess('');
 
     try {
+      // Remove jobId from the data before sending to backend
+      const { jobId, ...dataToSend } = updatedFormData;
+
       // Update user profile via API
-      const response = await accountsAPI.update(userId, updatedFormData);
+      const response = await accountsAPI.update(userId, dataToSend);
       console.log('API update response:', response);
 
       // Update local state and localStorage

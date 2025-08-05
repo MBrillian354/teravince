@@ -77,7 +77,7 @@ ${review}
       data: result
     });
   } catch (err) {
-    console.error('Bias check error (task):', err.message);
+    console.error('Bias check error (task):', err);
     res.status(500).json({ error: 'Bias check failed', details: err.message });
   }
 };

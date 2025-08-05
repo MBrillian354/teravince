@@ -83,9 +83,8 @@ export default function NewTaskForm() {
         })),
         score: 0, // Default score
         evidence: '', // Default empty evidence
-        startDate: new Date().toISOString(), // Current date as start
         taskStatus: 'draft',
-        approvalStatus: 'pending'
+        approvalStatus: 'draft'
       };
 
       console.log('Task Data:', taskData);

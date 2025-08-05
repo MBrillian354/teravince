@@ -81,10 +81,10 @@ const DynamicForm = ({
   }, [fields]);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type, checked, files } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value
     }));
     if (localError) setLocalError('');
   };
@@ -189,8 +189,8 @@ const DynamicForm = ({
     };
 
     const handleChange = (e) => {
-      const { value, type, checked } = e.target;
-      const finalValue = type === 'checkbox' ? checked : value;
+      const { value, type, checked, files } = e.target;
+      const finalValue = type === 'checkbox' ? checked : type === 'file' ? files[0] : value;
 
       if (isDynamic && groupIndex !== null) {
         handleDynamicInputChange(field.group, groupIndex, name, finalValue);
@@ -204,9 +204,15 @@ const DynamicForm = ({
       required,
       disabled,
       className: `form-input ${fieldClassName} ${disabled ? 'disabled' : ''}`,
-      value: getValue(),
-      onChange: handleChange
     };
+
+    // Only add value prop for non-file inputs
+    if (type !== 'file') {
+      inputProps.value = getValue();
+      inputProps.onChange = handleChange;
+    } else {
+      inputProps.onChange = handleChange;
+    }
 
     switch (type) {
       case 'title':
@@ -225,6 +231,8 @@ const DynamicForm = ({
               placeholder={placeholder}
               rows={rows}
               className={`form-input ${fieldClassName} ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
+              value={getValue()}
+              onChange={handleChange}
             />
             {hint && <p className="form-hint">{hint}</p>}
           </>
@@ -234,7 +242,12 @@ const DynamicForm = ({
         return (
           <>
             <label className="form-label">{label}</label>
-            <select {...inputProps} className={`form-input ${fieldClassName} ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}>
+            <select
+              {...inputProps}
+              className={`form-input ${fieldClassName} ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
+              value={getValue()}
+              onChange={handleChange}
+            >
               <option value="">{placeholder || `Select ${label}`}</option>
               {options.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -297,6 +310,36 @@ const DynamicForm = ({
           </div>
         );
 
+      case 'file':
+        return (
+          <>
+            <label className="form-label">{label}</label>
+            <input
+              type="file"
+              name={inputProps.name}
+              required={required}
+              disabled={disabled}
+              className={`form-input  ${fieldClassName} ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
+              onChange={handleChange}
+              accept={field.accept || "*/*"}
+            />
+            {getValue() && typeof getValue() === 'object' && getValue().name && (
+              <div className="text-sm text-green-600 mt-2 p-2 bg-green-50 rounded border border-green-200">
+                ✓ Selected: {getValue().name}
+              </div>
+            )}
+            {getValue() && typeof getValue() === 'string' && getValue().startsWith('uploads/') && (
+              <div className="text-sm text-blue-600 mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                📎 Current file:
+                <a href={`/${getValue()}`} target="_blank" rel="noopener noreferrer" className="ml-1 underline hover:text-blue-800">
+                  View/Download
+                </a>
+              </div>
+            )}
+            {hint && <p className="form-hint">{hint}</p>}
+          </>
+        );
+
       default:
         return (
           <>
@@ -306,6 +349,8 @@ const DynamicForm = ({
               type={type}
               placeholder={placeholder}
               className={`form-input ${fieldClassName} ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
+              value={getValue()}
+              onChange={handleChange}
             />
             {hint && <p className="form-hint">{hint}</p>}
           </>
@@ -522,7 +567,7 @@ DynamicForm.propTypes = {
   subtitle: PropTypes.string,
   fields: PropTypes.arrayOf(
     PropTypes.shape({
-      type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'date', 'textarea', 'select', 'checkbox', 'radio', 'link', 'title']),
+      type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'date', 'textarea', 'select', 'checkbox', 'radio', 'link', 'title', 'file']),
       name: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
       placeholder: PropTypes.string,
@@ -541,7 +586,8 @@ DynamicForm.propTypes = {
       group: PropTypes.string,
       isDynamic: PropTypes.bool,
       position: PropTypes.oneOf(['top', 'center', 'bottom']),
-      href: PropTypes.string
+      href: PropTypes.string,
+      accept: PropTypes.string
     })
   ).isRequired,
   onSubmit: PropTypes.func,

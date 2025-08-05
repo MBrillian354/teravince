@@ -1,6 +1,6 @@
 import React from 'react';
 import { RoleBasedContent } from '../components/RoleBasedRoute';
-import Tasks from './Tasks';
+import Tasks from './TeamTasks';
 import ManageTasks from './ManageTasks';
 
 const TasksPage = () => {

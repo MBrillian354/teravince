@@ -25,6 +25,7 @@ import MyStaffs from './pages/MyStaffs.jsx';
 import Reports from './pages/Reports.jsx';
 import JobDescription from './pages/JobDescription';
 import StaffReport from './pages/StaffReport.jsx';
+import StaffDetail from './pages/StaffDetail.jsx';
 import NewTaskForm from './pages/NewTaskForm';
 import EditTaskForm from './pages/EditTaskForm';
 import ViewTask from './pages/ViewTask.jsx';
@@ -36,6 +37,11 @@ import SimpleModalDemo from './components/SimpleModalDemo';
 
 import NewUserRoleConfirmation from './pages/NewUserRoleConfirmation';
 import NewUserJobConfirmation from './pages/NewUserJobConfirmation';
+import ManageTasks from './pages/ManageTasks';
+import SupervisorReviewingAndApprovalOfTask from './pages/SupervisorReviewingAndApprovalOfTask';
+import JobDetails from './pages/JobDetails';
+import TeamTasks from './pages/TeamTasks';
+import StatusBadgeDemo from './components/StatusBadgeDemo';
 
 // Auth Routes Component
 function AuthRoutes() {
@@ -63,8 +69,8 @@ function ProtectedRoutes() {
         </RoleBasedRoute>
       } />
       <Route path="/tasks" element={
-        <RoleBasedRoute allowedRoles={['supervisor', 'staff']}>
-          <TasksPage />
+        <RoleBasedRoute allowedRoles={['staff']}>
+          <ManageTasks />
         </RoleBasedRoute>
       } />
     </>
@@ -118,19 +124,39 @@ function AdminRoutes() {
 function SupervisorRoutes() {
   return (
     <>
-      <Route path="/staffs" element={
+      <Route path="/dashboard/staffs" element={
         <RoleBasedRoute allowedRoles={['supervisor']}>
           <MyStaffs />
         </RoleBasedRoute>
       } />
-      <Route path="/reports" element={
+      <Route path="/dashboard/staffs/:id" element={
+        <RoleBasedRoute allowedRoles={['supervisor']}>
+          <StaffDetail />
+        </RoleBasedRoute>
+      } />
+      <Route path="/reports/" element={
         <RoleBasedRoute allowedRoles={['supervisor']}>
           <Reports />
         </RoleBasedRoute>
       } />
-      <Route path="/job-description" element={
+      <Route path="/reports/job-description" element={
         <RoleBasedRoute allowedRoles={['supervisor']}>
           <JobDescription />
+        </RoleBasedRoute>
+      } />
+      <Route path="/reports/job-description/:jobId" element={
+        <RoleBasedRoute allowedRoles={['supervisor']}>
+          <JobDetails />
+        </RoleBasedRoute>
+      } />
+      <Route path="/reports/tasks" element={
+        <RoleBasedRoute allowedRoles={['supervisor']}>
+          <TeamTasks />
+        </RoleBasedRoute>
+      } />
+      <Route path="/reports/tasks/:taskId" element={
+        <RoleBasedRoute allowedRoles={['supervisor']}>
+          <SupervisorReviewingAndApprovalOfTask />
         </RoleBasedRoute>
       } />
       <Route path="/report/:reportId" element={
@@ -173,7 +199,7 @@ function PublicRoutes() {
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsAndConditions />} />
       <Route path="/cookies" element={<CookiePolicy />} />
-      <Route path="/demo" element={<SimpleModalDemo />} />
+      <Route path="/demo" element={<StatusBadgeDemo />} />
       <Route path="/role-confirm" element={
         <NewUserProtectedRoute>
           <NewUserRoleConfirmation />

@@ -1,97 +1,139 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import DataTable from '../components/DataTable';
+import { accountsAPI } from '../utils/api';
 
 export default function MyStaffs() {
-const navigate = useNavigate();
-const today    = new Date().toISOString().slice(0, 10);
+  const navigate = useNavigate();
+  const today = new Date().toISOString().slice(0, 10);
 
-// date‐range state
-const [startDate, setStartDate] = useState('');
-const [endDate,   setEndDate]   = useState('');
+  // State for data and UI
+  const [staffList, setStaffList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [selectedId, setSelectedId] = useState('');
 
-// dummy columns
-const staffColumns = [
-  {
-    header: '',
-    render: (s) => (
-      <input
-        type="checkbox"
-        checked={s.id === selectedId}
-        readOnly
-      />
-    ),
-    align: 'center'
-  },
-  { header: 'Employee Name', accessor: 'name' },
-  { header: 'Employee ID',   accessor: 'id'   },
-  { header: 'Job Title',     accessor: 'title'},
-  { header: 'Contract Term', accessor: 'contract' },
-];
+  // date‐range state
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
-// dummy staff data
-const staffList = [
- {
-   id:       '3210001',
-   name:     'Jane Doe',
-   title:    'Social Media Trainee',
-   contract: '12/01/2025 – 12/01/2026',
-   email:    'jane@teravince.com',
-   phone:    '+62 8123 4567 8901',
-   address:  'Jl. Jababeka Jauh Disana XII, Kab. Bekasi, Jawa Barat 12345',
- },
- {
-   id:       '3210002',
-   name:     'Mark Wiens',
-   title:    'Marketing Specialist',
-   contract: '12/01/2025 – 12/01/2026',
-   email:    'mark@teravince.com',
-   phone:    '+62 8123 4567 8902',
-   address:  'Jl. Jababeka Jauh Disana XII, Kab. Bekasi, Jawa Barat',
- },
- {
-   id:       '3210003',
-   name:     'Max Verstappen',
-   title:    'Communications Officer',
-   contract: '12/01/2025 – 12/01/2026',
-   email:    'max@teravince.com',
-   phone:    '+62 8123 4567 8903',
-   address:  'Jl. Jababeka Jauh Disana XII, Kab. Bekasi, Jawa Barat',
- },
-];
+  // Staff columns configuration
+  const staffColumns = [
+    {
+      header: '',
+      render: (s) => (
+        <input
+          type="checkbox"
+          checked={s._id === selectedId}
+          readOnly
+        />
+      ),
+      align: 'center'
+    },
+    { header: 'Employee Name', accessor: 'name' },
+    { header: 'Employee ID', accessor: '_id' },
+    { header: 'Job Title', accessor: 'jobTitle' },
+  ];
 
-const [selectedId, setSelectedId] = useState(staffList[0].id);
-const selected = staffList.find((s) => s.id === selectedId);
+  // Fetch staff data from backend
+  const fetchStaffData = async () => {
+    try {
+      setLoading(true);
+      setError('');
 
-return (
+      const response = await accountsAPI.getAll();
+      const allUsers = response.data;
+
+      // Filter for staff members only and format the data
+      const staffMembers = allUsers
+        .filter(user => user.role === 'staff')
+        .map(user => ({
+          _id: user._id,
+          name: `${user.firstName} ${user.lastName}`,
+          email: user.email,
+          contactInfo: user.contactInfo || '',
+          address: user.address || '',
+          jobTitle: user.jobId?.title || 'Unassigned',
+          position: user.position || '',
+          profilePicture: user.profilePicture || '',
+          contractStartDate: user.contractStartDate,
+          contractEndDate: user.contractEndDate,
+          status: user.status
+        }));
+
+      setStaffList(staffMembers);
+
+      // Set first staff member as selected if available
+      if (staffMembers.length > 0) {
+        setSelectedId(staffMembers[0]._id);
+      }
+
+    } catch (err) {
+      console.error('Error fetching staff data:', err);
+      setError('Failed to load staff data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchStaffData();
+  }, []);
+
+  // Filter staff based on date range
+  const filteredStaffList = React.useMemo(() => {
+    if (!startDate && !endDate) return staffList;
+
+    return staffList.filter(staff => {
+      const contractStart = staff.contractStartDate ? new Date(staff.contractStartDate) : null;
+      const contractEnd = staff.contractEndDate ? new Date(staff.contractEndDate) : null;
+
+      let passesFilter = true;
+
+      if (startDate) {
+        const filterStart = new Date(startDate);
+        passesFilter = passesFilter && contractStart && contractStart >= filterStart;
+      }
+
+      if (endDate) {
+        const filterEnd = new Date(endDate);
+        passesFilter = passesFilter && contractEnd && contractEnd <= filterEnd;
+      }
+
+      return passesFilter;
+    });
+  }, [staffList, startDate, endDate]);
+
+  const selected = filteredStaffList.find((s) => s._id === selectedId);
+
+  return (
     <div className="container mx-auto px-4">
       {/* Big header */}
       <h1 className="text-3xl font-bold mb-6">
         Welcome back, <span className="underline">Supervisor</span>.
       </h1>
-      
+
       {/* 1. Underline-only tab bar */}
       <nav className="flex space-x-6 border-b border-gray-200 mb-4">
         <NavLink
           to="/dashboard"
           end
           className={({ isActive }) =>
-            `pb-2 ${
-              isActive
-                ? 'text-indigo-600 border-b-2 border-indigo-600'
-                : 'text-gray-600 hover:text-gray-800'
+            `pb-2 ${isActive
+              ? 'text-indigo-600 border-b-2 border-indigo-600'
+              : 'text-gray-600 hover:text-gray-800'
             }`
           }
         >
           Overview
         </NavLink>
         <NavLink
-          to="/staffs"
+          to="/dashboard/staffs"
           className={({ isActive }) =>
-            `pb-2 ${
-              isActive
-                ? 'text-indigo-600 border-b-2 border-indigo-600'
-                : 'text-gray-600 hover:text-gray-800'
+            `pb-2 ${isActive
+              ? 'text-indigo-600 border-b-2 border-indigo-600'
+              : 'text-gray-600 hover:text-gray-800'
             }`
           }
         >
@@ -99,70 +141,122 @@ return (
         </NavLink>
       </nav>
 
+      {/* Error message */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+
       {/* 2–4. Sleek date‐range row (no shadows, white inputs, gray borders, right-aligned) */}
-      {/* My Staff’s Profile + Labeled Date Range */}
-<div className="flex justify-between items-end mb-4">
-  {/* Left label */}
-  <div className="text-lg font-medium text-gray-700">
-    My Staff’s Profile
-  </div>
+      {/* My Staff's Profile + Labeled Date Range */}
+      <div className="flex justify-between items-end mb-4">
+        {/* Left label */}
+        <div className="text-lg font-medium text-gray-700">
+          My Staff's Profile
+        </div>
 
-  {/* Right: two date inputs, each with its own label */}
-  <div className="flex space-x-6">
-    {/* Start Date */}
-    <div className="flex flex-col">
-      <label htmlFor="start-date" className="text-sm text-gray-600 mb-1">
-        Start Date
-      </label>
-      <input
-        id="start-date"
-        type="date"
-        value={startDate}
-        onChange={e => setStartDate(e.target.value)}
-        className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-      />
+        {/* Right: two date inputs, each with its own label */}
+        <div className="flex space-x-6">
+          {/* Start Date */}
+          <div className="flex flex-col">
+            <label htmlFor="start-date" className="text-sm text-gray-600 mb-1">
+              Contract Start Date
+            </label>
+            <input
+              id="start-date"
+              type="date"
+              value={startDate}
+              onChange={e => setStartDate(e.target.value)}
+              className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          {/* End Date */}
+          <div className="flex flex-col">
+            <label htmlFor="end-date" className="text-sm text-gray-600 mb-1">
+              Contract End Date
+            </label>
+            <input
+              id="end-date"
+              type="date"
+              value={endDate}
+              onChange={e => setEndDate(e.target.value)}
+              max={today}
+              className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Loading state */}
+      {loading ? (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <p className="mt-2 text-gray-600">Loading staff data...</p>
+        </div>
+      ) : (
+        <>
+          {/* Staff Table */}
+          <DataTable
+            columns={staffColumns}
+            data={filteredStaffList}
+            rowKey="_id"
+            onRowClick={({ _id }) => setSelectedId(_id)}
+          />
+
+          {/* Selected Staff Profile */}
+          {selected && (
+            <div className="bg-white rounded shadow p-6 flex items-center space-x-6 mt-4">
+              <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                {selected.profilePicture ? (
+                  <img
+                    src={`/api/${selected.profilePicture}`}
+                    alt={selected.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-gray-400 text-2xl">👤</span>
+                )}
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">{selected.name}</h3>
+                <p className="text-gray-600">{selected.jobTitle}</p>
+                {selected.position && (
+                  <p className="text-gray-600">{selected.position}</p>
+                )}
+                <p className="text-gray-500 mt-1">{selected.email}</p>
+                {selected.address && (
+                  <p className="text-gray-500">{selected.address}</p>
+                )}
+                {selected.contactInfo && (
+                  <p className="text-gray-500">{selected.contactInfo}</p>
+                )}
+                <div className="mt-2 text-sm text-gray-500">
+                  {selected.contractStartDate && (
+                    <p>Contract Start: {new Date(selected.contractStartDate).toLocaleDateString()}</p>
+                  )}
+                  {selected.contractEndDate && (
+                    <p>Contract End: {new Date(selected.contractEndDate).toLocaleDateString()}</p>
+                  )}
+                  {selected.status && (
+                    <p>Status: <span className="capitalize">{selected.status}</span></p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* No staff message */}
+          {!loading && filteredStaffList.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              {staffList.length === 0
+                ? "No staff members found."
+                : "No staff members match the selected date range."
+              }
+            </div>
+          )}
+        </>
+      )}
     </div>
-    {/* End Date */}
-    <div className="flex flex-col">
-      <label htmlFor="end-date" className="text-sm text-gray-600 mb-1">
-        End Date
-      </label>
-      <input
-        id="end-date"
-        type="date"
-        value={endDate}
-        onChange={e => setEndDate(e.target.value)}
-        max={today}
-        className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-      />
-    </div>
-  </div>
-</div>
-
-
-   {/* Staff Table */}
-     <DataTable
-      columns={staffColumns}
-      data={staffList}
-      rowKey="id"
-      onRowClick={({ id })=> setSelectedId(id)}
-     />
-   {/* Selected Staff Profile */}
-   {selected && (
-     <div className="bg-white rounded shadow p-6 flex items-center space-x-6">
-       <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
-         {/* avatar placeholder */}
-         <span className="text-gray-400 text-2xl">👤</span>
-       </div>
-       <div>
-         <h3 className="text-xl font-semibold">{selected.name}</h3>
-         <p className="text-gray-600">{selected.title}</p>
-         <p className="text-gray-500 mt-1">{selected.email}</p>
-         <p className="text-gray-500">{selected.address}</p>
-         <p className="text-gray-500">{selected.phone}</p>
-       </div>
-     </div>
-   )}
- </div>
-);
+  );
 }

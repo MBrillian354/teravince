@@ -4,7 +4,13 @@ import TasksReportsTabs from '../components/TasksReportsTabs';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
+import StatusBadge from '../components/StatusBadge';
 import { tasksAPI } from '../utils/api';
+import { 
+  getDisplayTaskStatus, 
+  getDisplayApprovalStatus, 
+  getReviewStatus 
+} from '../utils/statusStyles';
 
 export default function TeamTasks() {
   const navigate = useNavigate();
@@ -32,7 +38,7 @@ export default function TeamTasks() {
             .map(task => ({
               id: task._id,
               title: task.title,
-              status: getDisplayStatus(task.taskStatus),
+              status: getDisplayTaskStatus(task.taskStatus),
               approval: getDisplayApprovalStatus(task.approvalStatus),
               review: getReviewStatus(task.taskStatus, task.approvalStatus),
               employeeName: task.userId ? `${task.userId.firstName} ${task.userId.lastName}` : 'Unknown',
@@ -60,67 +66,29 @@ export default function TeamTasks() {
     fetchTasks();
   }, []);
 
-  // Helper functions to transform backend status to display format
-  const getDisplayStatus = (taskStatus) => {
-    const statusMap = {
-      'draft': 'Draft',
-      'inProgress': 'In Progress',
-      'submitted': 'Submitted',
-      'rejected': 'Rejected',
-      'completed': 'Completed',
-      'cancelled': 'Cancelled'
-    };
-    return statusMap[taskStatus] || taskStatus;
-  };
-
-  const getDisplayApprovalStatus = (approvalStatus) => {
-    const statusMap = {
-      'pending': 'Awaiting Approval',
-      'approved': 'Approved',
-      'rejected': 'Rejected'
-    };
-    return statusMap[approvalStatus] || approvalStatus;
-  };
-
-  const getReviewStatus = (taskStatus, approvalStatus) => {
-
-    console.log('Calculating review status for:', { taskStatus, approvalStatus });
-    if (taskStatus === 'submitted' && approvalStatus === 'pending') {
-      return 'Awaiting Approval';
-    }
-    if (taskStatus === 'submitted' && approvalStatus === 'approved') {
-      return 'Awaiting Review';
-    }
-    if (taskStatus === 'inProgress' && approvalStatus === 'approved') {
-      return 'Awaiting Submission';
-    }
-    if (approvalStatus === 'rejected' && taskStatus === 'inProgress') {
-      return 'Awaiting Revision';
-    }
-    if (approvalStatus === 'rejected' && taskStatus === 'submitted') {
-      return 'Awaiting Review';
-    }
-    return 'Undetermined';
-  };
-
   // 4) Calculate summary statistics based on real data
   const calculateSummary = () => {
     const tasksToApprove = tasks.filter(task =>
       task.originalTask.approvalStatus === 'pending'
     ).length;
 
-    const tasksToRevise = tasks.filter(task =>
-      task.originalTask.approvalStatus === 'rejected'
+    const taskOngoing = tasks.filter(task =>
+      task.originalTask.taskStatus === 'inProgress'
     ).length;
 
     const tasksToReview = tasks.filter(task =>
       task.originalTask.taskStatus === 'submitted'
     ).length;
 
+    const taskCompleted = tasks.filter(task =>
+      task.originalTask.taskStatus === 'completed'
+    ).length;
+
     return [
+      { label: 'Task Ongoing', value: taskOngoing },
       { label: 'Tasks to Approve', value: tasksToApprove },
-      { label: 'Task to Revise', value: tasksToRevise },
       { label: 'Task to Review', value: tasksToReview },
+      { label: 'Task Completed', value: taskCompleted },
     ];
   };
 
@@ -159,117 +127,128 @@ export default function TeamTasks() {
     {
       header: 'Submission Status',
       render: (r) => (
-        <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">
-          {r.status}
-        </span>
+        <StatusBadge 
+          status={r.status} 
+          type="task" 
+          size="xs"
+          showIcon={false}
+        />
       ),
     },
     {
       header: 'Approval Status',
       render: (r) => (
-        <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">
-          {r.approval}
-        </span>
+        <StatusBadge 
+          status={r.approval} 
+          type="approval" 
+          size="xs"
+          showIcon={false}
+        />
       ),
     },
     {
       header: 'Task Status',
       render: (r) => (
-        <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">
-          {r.review}
-        </span>
+        <StatusBadge 
+          status={r.review} 
+          type="review" 
+          size="xs"
+          showIcon={false}
+        />
       ),
     },
-{
-  header: 'Actions',
-  render: (row) => (
-    row.originalTask.taskStatus === 'submitted' ? (
-      <div className="flex space-x-2">
-        <button
-          onClick={() => handleViewTask(row.id)}
-          className="btn-secondary text-xs"
-        >
-          Review
-        </button>
-      </div>
-    ) : row.originalTask.taskStatus === 'inProgress' ? (
-      <div className="flex space-x-2">
-        <button
-          onClick={() => handleViewTask(row.id)}
-          className="btn-secondary text-xs"
-        >
-          View
-        </button>
-      </div>
-    ) : null
-  ),
-  align: 'center'
-},
+    {
+      header: 'Actions',
+      render: (row) => (
+        row.originalTask.taskStatus === 'submitted' ? (
+          <div className="flex space-x-2">
+            <button
+              onClick={() => handleViewTask(row.id)}
+              className="btn-secondary text-xs"
+            >
+              Review
+            </button>
+          </div>
+        ) : row.originalTask.taskStatus === 'inProgress' ? (
+          <div className="flex space-x-2">
+            <button
+              onClick={() => handleViewTask(row.id)}
+              className="btn-secondary text-xs"
+            >
+              View
+            </button>
+          </div>
+        ) : null
+      ),
+      align: 'center'
+    },
   ];
 
-// Loading state
-if (loading) {
+  // Loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold mb-4">Reports, Jobs, and Tasks</h1>
+        <div className="flex justify-center items-center py-8">
+          <div className="text-gray-600">Loading tasks...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold mb-4">Reports, Jobs, and Tasks</h1>
+        <div className="flex justify-center items-center py-8">
+          <div className="text-red-600">Error: {error}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4">
+      {/* Page title */}
       <h1 className="text-3xl font-bold mb-4">Reports, Jobs, and Tasks</h1>
-      <div className="flex justify-center items-center py-8">
-        <div className="text-gray-600">Loading tasks...</div>
+
+      {/* Tabs */}
+      <TasksReportsTabs active={activeTab} onChange={setActiveTab} />
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {summary.map((c) => (
+          <StatsCard key={c.label} label={c.label} value={c.value} />
+        ))}
       </div>
-    </div>
-  );
-}
 
-// Error state
-if (error) {
-  return (
-    <div className="container mx-auto px-4">
-      <h1 className="text-3xl font-bold mb-4">Reports, Jobs, and Tasks</h1>
-      <div className="flex justify-center items-center py-8">
-        <div className="text-red-600">Error: {error}</div>
-      </div>
-    </div>
-  );
-}
-
-return (
-  <div className="container mx-auto px-4">
-    {/* Page title */}
-    <h1 className="text-3xl font-bold mb-4">Reports, Jobs, and Tasks</h1>
-
-    {/* Tabs */}
-    <TasksReportsTabs active={activeTab} onChange={setActiveTab} />
-
-    {/* Summary Cards */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      {summary.map((c) => (
-        <StatsCard key={c.label} label={c.label} value={c.value} />
-      ))}
-    </div>
-
-    {/* Tasks Table */}
-    <DataTable
-      columns={columns}
-      data={paginatedTasks}
-      rowKey="id"
-      onRowClick={({ id }) => setSelectedTaskId(id)}
-      containerClass="bg-white rounded mb-4"
-    />
-
-    {/* Pagination */}
-    {totalPages > 1 && (
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
+      {/* Tasks Table */}
+      <DataTable
+        title={"Team Tasks"}
+        columns={columns}
+        data={paginatedTasks}
+        rowKey="id"
+        onRowClick={({ id }) => setSelectedTaskId(id)}
+        containerClass="bg-white rounded mb-4"
+        variant='gradient'
       />
-    )}
 
-    {/* Show message if no tasks */}
-    {tasks.length === 0 && !loading && (
-      <div className="bg-white rounded shadow p-6 text-center">
-        <p className="text-gray-600">No tasks found.</p>
-      </div>
-    )}
-  </div>
-);
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      )}
+
+      {/* Show message if no tasks */}
+      {tasks.length === 0 && !loading && (
+        <div className="bg-white rounded shadow p-6 text-center">
+          <p className="text-gray-600">No tasks found.</p>
+        </div>
+      )}
+    </div>
+  );
 }

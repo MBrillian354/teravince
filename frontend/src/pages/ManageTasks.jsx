@@ -3,9 +3,11 @@ import { Edit2, Trash2, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import DataTable from "../components/DataTable";
+import StatusBadge from "../components/StatusBadge";
 import { tasksAPI } from "../utils/api";
 import authService from "../utils/authService";
 import { fetchTasksByUserId, clearError } from '../store/staffSlice';
+import { getDisplayTaskStatus, getDisplayApprovalStatus } from '../utils/statusStyles';
 
 export default function ManageTasks() {
   const dispatch = useDispatch();
@@ -29,38 +31,6 @@ export default function ManageTasks() {
       dispatch(clearError());
     };
   }, [dispatch]);
-
-
-
-  const getDisplayTaskStatus = (taskStatus) => {
-    switch (taskStatus) {
-      case 'inProgress':
-        return 'Ongoing';
-      case 'submitted':
-        return 'Under Review';
-      case 'completed':
-        return 'Completed';
-      case 'rejected':
-        return 'Rejected';
-      case 'cancelled':
-        return 'Cancelled';
-      default:
-        return 'Draft';
-    }
-  };
-
-  const getDisplayApprovalStatus = (approvalStatus) => {
-    switch (approvalStatus) {
-      case 'pending':
-        return 'Under Review';
-      case 'approved':
-        return 'Approved';
-      case 'rejected':
-        return 'Rejected';
-      default:
-        return 'Waiting Submission';
-    }
-  };
 
   // Transform tasks data for display
   const transformedTasks = Array.isArray(tasks) ? tasks.map(task => ({
@@ -105,27 +75,6 @@ export default function ManageTasks() {
     navigate(`/tasks/${taskId}?mode=submit`);
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Completed":
-        return "text-green-700 bg-green-100 border-green-400";
-      case "Ongoing":
-        return "text-yellow-700 bg-yellow-100 border-yellow-400";
-      case "Draft":
-        return "text-gray-700 bg-gray-100 border-gray-400";
-      case "Under Review":
-        return "text-blue-600 bg-blue-100 border-blue-300";
-      case "Approved":
-        return "text-green-600 bg-green-100 border-green-300";
-      case "Rejected":
-        return "text-red-600 bg-red-100 border-red-300";
-      case "Cancelled":
-        return "text-gray-600 bg-gray-100 border-gray-300";
-      default:
-        return "text-neutral-700 bg-neutral-100 border-neutral-400";
-    }
-  };
-
   const columns = [
     {
       header: "Task ID",
@@ -159,17 +108,23 @@ export default function ManageTasks() {
       header: "Status",
       accessor: "taskStatus",
       render: (task) => (
-        <span className={`inline-block whitespace-nowrap text-xs font-medium px-3 py-1 rounded-full border ${getStatusColor(task.taskStatus)}`}>
-          {task.taskStatus}
-        </span>
+        <StatusBadge 
+          status={task.taskStatus} 
+          type="task" 
+          size="xs"
+          showIcon={false}
+        />
       )
     }, {
       header: "Approval Status",
       accessor: "approvalStatus",
       render: (task) => (
-        <span className={`inline-block whitespace-nowrap text-xs font-medium px-3 py-1 rounded-full border ${getStatusColor(task.approvalStatus)}`}>
-          {task.approvalStatus}
-        </span>
+        <StatusBadge 
+          status={task.approvalStatus} 
+          type="approval" 
+          size="xs"
+          showIcon={false}
+        />
       )
     },
     {

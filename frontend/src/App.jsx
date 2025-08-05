@@ -41,6 +41,7 @@ import ManageTasks from './pages/ManageTasks';
 import SupervisorReviewingAndApprovalOfTask from './pages/SupervisorReviewingAndApprovalOfTask';
 import JobDetails from './pages/JobDetails';
 import TeamTasks from './pages/TeamTasks';
+import StatusBadgeDemo from './components/StatusBadgeDemo';
 
 // Auth Routes Component
 function AuthRoutes() {
@@ -198,7 +199,7 @@ function PublicRoutes() {
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsAndConditions />} />
       <Route path="/cookies" element={<CookiePolicy />} />
-      <Route path="/demo" element={<SimpleModalDemo />} />
+      <Route path="/demo" element={<StatusBadgeDemo />} />
       <Route path="/role-confirm" element={
         <NewUserProtectedRoute>
           <NewUserRoleConfirmation />

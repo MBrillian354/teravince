@@ -85,7 +85,7 @@ export default function NewTaskForm() {
         evidence: '', // Default empty evidence
         startDate: new Date().toISOString(), // Current date as start
         taskStatus: 'draft',
-        approvalStatus: 'pending'
+        approvalStatus: 'draft'
       };
 
       console.log('Task Data:', taskData);

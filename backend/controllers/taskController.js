@@ -130,7 +130,7 @@ exports.createTask = async (req, res) => {
       evidence: evidence || '',
       startDate,
       endDate,
-      approvalStatus: approvalStatus || 'pending',
+      approvalStatus: approvalStatus || 'draft',
       taskStatus: taskStatus || 'draft',
       supervisorComment
     });

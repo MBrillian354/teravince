@@ -1,13 +1,13 @@
 import React from 'react';
 import { RoleBasedContent } from '../components/RoleBasedRoute';
 import Tasks from './Tasks';
-import StaffTasks from './StaffTasks';
+import ManageTasks from './ManageTasks';
 
 const TasksPage = () => {
   return (
     <RoleBasedContent
       supervisorContent={<Tasks />}
-      staffContent={<StaffTasks />}
+      staffContent={<ManageTasks />}
     />
   );
 };

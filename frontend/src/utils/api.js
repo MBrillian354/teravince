@@ -121,4 +121,13 @@ export const dashboardAPI = {
   getStaffDashboard: (params) => api.get('/dashboard/staff', { params })
 };
 
+// Bias checking API functions
+export const biasAPI = {
+  // Check bias in task review
+  checkTaskReviewBias: (taskId, reviewData) => api.post(`/bias/task/${taskId}`, reviewData),
+  
+  // Check bias in report review
+  checkReportReviewBias: (reportId, reviewData) => api.post(`/bias/report/${reportId}`, reviewData)
+};
+
 export default api;

@@ -16,6 +16,8 @@ const taskSchema = new Schema({
   createdDate: { type: Date, default: Date.now },
   deadline: { type: Date, required: false },
   startDate: { type: Date, required: false },
+  submittedDate: { type: Date, required: false },
+  completedDate: { type: Date, required: false },
   endDate: { type: Date, required: false },
   approvalStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'draft' },
   taskStatus: { type: String, enum: ['draft', 'inProgress', 'submitted', 'rejected', 'completed', 'cancelled'], default: 'draft' },

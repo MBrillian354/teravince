@@ -185,6 +185,7 @@ exports.updateTask = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid task status' });
     }
 
+    console.log('Update Data:', updateData);
     const updatedTask = await Task.findByIdAndUpdate(
       id,
       updateData,

@@ -67,7 +67,7 @@ export default function ManageTasks() {
     taskId: task._id,
     taskTitle: task.title,
     taskDescription: task.description,
-    deadline: task.deadline ? new Date(task.deadline).toLocaleDateString() : "No deadline",
+    deadline: task.deadline ? new Date(task.deadline).toLocaleDateString() : "Waiting Approval",
     taskStatus: getDisplayTaskStatus(task.taskStatus),
     approvalStatus: getDisplayApprovalStatus(task.approvalStatus),
     submitted: task.taskStatus === 'submitted' || task.taskStatus === 'completed',
@@ -103,7 +103,12 @@ export default function ManageTasks() {
   const handleSubmit = async (taskId) => {
     try {
       // Update task status to 'submitted'
-      await tasksAPI.update(taskId, { taskStatus: 'submitted', approvalStatus: 'pending' });
+      const task = tasks.find(t => t._id === taskId);
+      const updateData = { taskStatus: 'submitted' };
+      if (task?.approvalStatus === 'draft') {
+        updateData.approvalStatus = 'pending';
+      }
+      await tasksAPI.update(taskId, updateData);
       // Refresh tasks after submission
       if (user?.id) {
         dispatch(fetchTasksByUserId(user.id));
@@ -187,8 +192,7 @@ export default function ManageTasks() {
       accessor: "manage",
       render: (task) => (
         <div className="flex gap-2">
-          {console.log("Task status:", task)}
-          {task.status !== "Completed" && task.status !== "Approved" && !task.submitted && (
+          {(task.status === "Draft" || task.status === "Rejected") && !task.submitted && (
             <>
               <button
                 onClick={() => handleEdit(task.taskId)}
@@ -204,7 +208,7 @@ export default function ManageTasks() {
               </button>
             </>
           )}
-          {task.submitted && (
+          {(task.taskStatus === "Ongoing" || task.taskStatus === "Under Review") && (
             <button
               onClick={() => handleView(task.taskId)}
               className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"

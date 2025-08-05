@@ -6,22 +6,31 @@ import { fetchTaskById, fetchTasks } from '../store/staffSlice';
 import { useModal } from '../hooks/useModal';
 
 export default function ViewTask() {
-  const { id } = useParams();
+  const { id, taskId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showError } = useModal();
 
   const { currentTask, tasks, isLoading } = useSelector(state => state.staff);
 
+  let task;
   // Get task from current task or tasks array
-  const task = currentTask || tasks.find(t => t._id === id);
+  if (taskId) {
+    // If taskId is provided, find the task in the tasks array
+    console.log('Finding task by TaskID:', taskId);
+    task = currentTask || tasks.find(t => t._id === taskId);
+  } else {
+    // If no taskId, use currentTask
+    console.log('Finding task by ID:', id);
+    task = currentTask || tasks.find(t => t._id === id);
+  }
 
   // Fetch task if not loaded
   useEffect(() => {
     if (!task && !isLoading) {
-      dispatch(fetchTaskById(id));
+      taskId ? dispatch(fetchTaskById(taskId)) : dispatch(fetchTasks(id));
     }
-  }, [dispatch, task, isLoading, id]);
+  }, [dispatch, task, isLoading, id, taskId]);
 
   // Fetch all tasks if tasks array is empty and no current task
   useEffect(() => {

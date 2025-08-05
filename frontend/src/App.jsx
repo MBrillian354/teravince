@@ -38,9 +38,9 @@ import SimpleModalDemo from './components/SimpleModalDemo';
 import NewUserRoleConfirmation from './pages/NewUserRoleConfirmation';
 import NewUserJobConfirmation from './pages/NewUserJobConfirmation';
 import ManageTasks from './pages/ManageTasks';
-import Tasks from './pages/Tasks';
-import TaskDetails from './pages/TaskDetails';
+import SupervisorReviewingAndApprovalOfTask from './pages/SupervisorReviewingAndApprovalOfTask';
 import JobDetails from './pages/JobDetails';
+import TeamTasks from './pages/TeamTasks';
 
 // Auth Routes Component
 function AuthRoutes() {
@@ -150,12 +150,12 @@ function SupervisorRoutes() {
       } />
       <Route path="/reports/tasks" element={
         <RoleBasedRoute allowedRoles={['supervisor']}>
-          <Tasks />
+          <TeamTasks />
         </RoleBasedRoute>
       } />
       <Route path="/reports/tasks/:taskId" element={
         <RoleBasedRoute allowedRoles={['supervisor']}>
-          <TaskDetails />
+          <SupervisorReviewingAndApprovalOfTask />
         </RoleBasedRoute>
       } />
       <Route path="/report/:reportId" element={

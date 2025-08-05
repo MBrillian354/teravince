@@ -40,6 +40,7 @@ import NewUserJobConfirmation from './pages/NewUserJobConfirmation';
 import ManageTasks from './pages/ManageTasks';
 import Tasks from './pages/Tasks';
 import TaskDetails from './pages/TaskDetails';
+import JobDetails from './pages/JobDetails';
 
 // Auth Routes Component
 function AuthRoutes() {
@@ -132,7 +133,7 @@ function SupervisorRoutes() {
           <StaffDetail />
         </RoleBasedRoute>
       } />
-      <Route path="/reports/overview" element={
+      <Route path="/reports/" element={
         <RoleBasedRoute allowedRoles={['supervisor']}>
           <Reports />
         </RoleBasedRoute>
@@ -140,6 +141,11 @@ function SupervisorRoutes() {
       <Route path="/reports/job-description" element={
         <RoleBasedRoute allowedRoles={['supervisor']}>
           <JobDescription />
+        </RoleBasedRoute>
+      } />
+      <Route path="/reports/job-description/:jobId" element={
+        <RoleBasedRoute allowedRoles={['supervisor']}>
+          <JobDetails />
         </RoleBasedRoute>
       } />
       <Route path="/reports/tasks" element={

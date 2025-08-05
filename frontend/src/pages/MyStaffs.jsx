@@ -19,20 +19,24 @@ export default function MyStaffs() {
 
   // Staff columns configuration
   const staffColumns = [
-    {
-      header: '',
-      render: (s) => (
-        <input
-          type="checkbox"
-          checked={s._id === selectedId}
-          readOnly
-        />
-      ),
-      align: 'center'
-    },
     { header: 'Employee Name', accessor: 'name' },
     { header: 'Employee ID', accessor: '_id' },
     { header: 'Job Title', accessor: 'jobTitle' },
+    {
+      header: 'Actions',
+      render: (staff) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/dashboard/staffs/${staff._id}`);
+          }}
+          className="btn-secondary text-xs"
+        >
+          View Details
+        </button>
+      ),
+      align: 'center'
+    }
   ];
 
   // Fetch staff data from backend
@@ -105,8 +109,6 @@ export default function MyStaffs() {
     });
   }, [staffList, startDate, endDate]);
 
-  const selected = filteredStaffList.find((s) => s._id === selectedId);
-
   return (
     <div className="container mx-auto px-4">
       {/* Big header */}
@@ -149,11 +151,11 @@ export default function MyStaffs() {
       )}
 
       {/* 2–4. Sleek date‐range row (no shadows, white inputs, gray borders, right-aligned) */}
-      {/* My Staff's Profile + Labeled Date Range */}
+      {/* My Staff's List + Labeled Date Range */}
       <div className="flex justify-between items-end mb-4">
         {/* Left label */}
         <div className="text-lg font-medium text-gray-700">
-          My Staff's Profile
+          My Staff's List
         </div>
 
         {/* Right: two date inputs, each with its own label */}
@@ -203,48 +205,6 @@ export default function MyStaffs() {
             rowKey="_id"
             onRowClick={({ _id }) => setSelectedId(_id)}
           />
-
-          {/* Selected Staff Profile */}
-          {selected && (
-            <div className="bg-white rounded shadow p-6 flex items-center space-x-6 mt-4">
-              <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
-                {selected.profilePicture ? (
-                  <img
-                    src={`/api/${selected.profilePicture}`}
-                    alt={selected.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-gray-400 text-2xl">👤</span>
-                )}
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold">{selected.name}</h3>
-                <p className="text-gray-600">{selected.jobTitle}</p>
-                {selected.position && (
-                  <p className="text-gray-600">{selected.position}</p>
-                )}
-                <p className="text-gray-500 mt-1">{selected.email}</p>
-                {selected.address && (
-                  <p className="text-gray-500">{selected.address}</p>
-                )}
-                {selected.contactInfo && (
-                  <p className="text-gray-500">{selected.contactInfo}</p>
-                )}
-                <div className="mt-2 text-sm text-gray-500">
-                  {selected.contractStartDate && (
-                    <p>Contract Start: {new Date(selected.contractStartDate).toLocaleDateString()}</p>
-                  )}
-                  {selected.contractEndDate && (
-                    <p>Contract End: {new Date(selected.contractEndDate).toLocaleDateString()}</p>
-                  )}
-                  {selected.status && (
-                    <p>Status: <span className="capitalize">{selected.status}</span></p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* No staff message */}
           {!loading && filteredStaffList.length === 0 && (

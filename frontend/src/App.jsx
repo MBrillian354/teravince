@@ -25,6 +25,7 @@ import MyStaffs from './pages/MyStaffs.jsx';
 import Reports from './pages/Reports.jsx';
 import JobDescription from './pages/JobDescription';
 import StaffReport from './pages/StaffReport.jsx';
+import StaffDetail from './pages/StaffDetail.jsx';
 import NewTaskForm from './pages/NewTaskForm';
 import EditTaskForm from './pages/EditTaskForm';
 import ViewTask from './pages/ViewTask.jsx';
@@ -123,6 +124,11 @@ function SupervisorRoutes() {
       <Route path="/dashboard/staffs" element={
         <RoleBasedRoute allowedRoles={['supervisor']}>
           <MyStaffs />
+        </RoleBasedRoute>
+      } />
+      <Route path="/dashboard/staffs/:id" element={
+        <RoleBasedRoute allowedRoles={['supervisor']}>
+          <StaffDetail />
         </RoleBasedRoute>
       } />
       <Route path="/reports/overview" element={

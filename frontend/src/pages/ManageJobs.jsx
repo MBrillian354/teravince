@@ -140,7 +140,7 @@ const ManageJobs = () => {
       render: row => (
         <div className="flex space-x-2">
           <Link
-            to={`/jobs/edit/${row.id}`}
+            to={`/jobs/${row.id}/edit`}
             className="btn-primary"
             onClick={e => e.stopPropagation()}
           >

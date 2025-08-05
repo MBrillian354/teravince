@@ -25,7 +25,7 @@ import MyStaffs from './pages/MyStaffs.jsx';
 import Reports from './pages/Reports.jsx';
 import JobDescription from './pages/JobDescription';
 import StaffReport from './pages/StaffReport.jsx';
-import AddTask from './pages/AddTask';
+import NewTaskForm from './pages/NewTaskForm';
 import EditTask from './pages/EditTask';
 import ViewTask from './pages/ViewTask.jsx';
 
@@ -85,7 +85,7 @@ function AdminRoutes() {
           <NewJobForm />
         </RoleBasedRoute>
       } />
-      <Route path="/jobs/edit/:id" element={
+      <Route path="/jobs/:id/edit" element={
         <RoleBasedRoute allowedRoles={['admin']}>
           <EditJobForm />
         </RoleBasedRoute>
@@ -105,7 +105,7 @@ function AdminRoutes() {
           <NewAccountForm />
         </RoleBasedRoute>
       } />
-      <Route path="/accounts/edit/:id" element={
+      <Route path="/accounts/:id/edit" element={
         <RoleBasedRoute allowedRoles={['admin']}>
           <EditAccount />
         </RoleBasedRoute>
@@ -146,21 +146,22 @@ function SupervisorRoutes() {
 function StaffRoutes() {
   return (
     <>
-      <Route path="/add-task" element={
+      <Route path="/tasks/new" element={
         <RoleBasedRoute allowedRoles={['staff']}>
-          <AddTask />
+          <NewTaskForm />
         </RoleBasedRoute>
       } />
-      <Route path="/edit-task/:id" element={
-        <RoleBasedRoute allowedRoles={['staff']}>
-          <EditTask />
-        </RoleBasedRoute>
-      } />
-      <Route path="/view-task/:id" element={
+      <Route path="/tasks/:id" element={
         <RoleBasedRoute allowedRoles={['staff']}>
           <ViewTask />
         </RoleBasedRoute>
       } />
+      <Route path="/tasks/:id/edit" element={
+        <RoleBasedRoute allowedRoles={['staff']}>
+          <EditTask />
+        </RoleBasedRoute>
+      } />
+
     </>
   );
 }
@@ -216,10 +217,10 @@ function AppContent() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-gray-900 font-inter">
       {/* Show navbar only when user is authenticated and not on confirmation pages */}
-      {isAuthenticated && 
-       !location.pathname.includes('/role-confirm') && 
-       !location.pathname.includes('/job-confirm') && 
-       <Navbar />}
+      {isAuthenticated &&
+        !location.pathname.includes('/role-confirm') &&
+        !location.pathname.includes('/job-confirm') &&
+        <Navbar />}
 
       <main className="flex-1 p-4 md:max-w-6xl mx-auto w-full">
         <Routes>

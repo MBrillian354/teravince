@@ -108,7 +108,7 @@ const ManageAccounts = () => {
       render: row => (
         <div className="flex space-x-2">
           <Link
-            to={`/accounts/edit/${row.id}`}
+            to={`/accounts/${row.id}/edit`}
             className="btn-primary"
             onClick={e => e.stopPropagation()}
           >

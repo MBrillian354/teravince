@@ -152,7 +152,7 @@ export default function StaffTask() {
               { title: "Ongoing", count: tasks.filter((t) => t.status === "Ongoing").length, color: "text-[#CE1212]" },
               { title: "Completed", count: tasks.filter((t) => t.status === "Completed").length, color: "text-[#810000]" },
             ].map((card, i) => (
-              <div key={i} className="bg-[#EEEBDD] rounded-lg p-4 shadow-sm border border-[#1B1717] transition-transform hover:scale-105 hover:shadow-md">
+              <div key={i} className="card-outline">
                 <h3 className="text-xs font-medium text-[#1B1717] opacity-75">{card.title}</h3>
                 <p className={`text-xl font-bold mt-1 ${card.color}`}>{card.count}</p>
               </div>
@@ -163,8 +163,8 @@ export default function StaffTask() {
         {/* Add Task Button */}
         <div className="flex justify-end mb-2">
           <button
-            onClick={() => navigate("/add-task")}
-            className="bg-[#5A0000] hover:bg-[#400000] text-white px-4 py-2 text-sm rounded shadow"
+            onClick={() => navigate("/tasks/new")}
+            className="btn-primary"
           >
             + Add Task
           </button>

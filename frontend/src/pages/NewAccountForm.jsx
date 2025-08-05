@@ -93,16 +93,15 @@ const NewAccountForm = () => {
           {
             onConfirm: () => {
               if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current); // batalkan auto redirect
+                clearTimeout(timeoutRef.current); 
               }
-              navigate('/accounts'); // langsung redirect jika tekan OK
+              navigate('/accounts'); 
             },
             autoClose: true,
             timeout: 3000,
           }
         );
 
-        // Jika user tidak menekan tombol OK, auto redirect setelah 3 detik
         timeoutRef.current = setTimeout(() => {
           navigate('/accounts');
         }, 3000);

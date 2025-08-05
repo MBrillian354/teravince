@@ -26,7 +26,7 @@ import Reports from './pages/Reports.jsx';
 import JobDescription from './pages/JobDescription';
 import StaffReport from './pages/StaffReport.jsx';
 import NewTaskForm from './pages/NewTaskForm';
-import EditTask from './pages/EditTask';
+import EditTaskForm from './pages/EditTaskForm';
 import ViewTask from './pages/ViewTask.jsx';
 
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
@@ -158,7 +158,7 @@ function StaffRoutes() {
       } />
       <Route path="/tasks/:id/edit" element={
         <RoleBasedRoute allowedRoles={['staff']}>
-          <EditTask />
+          <EditTaskForm />
         </RoleBasedRoute>
       } />
 

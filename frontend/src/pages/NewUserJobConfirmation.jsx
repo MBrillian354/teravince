@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useAuth } from "../contexts/AuthContext";
+import authService from "../utils/authService";
 import { fetchJobs } from "../store/adminSlice";
 import { updateCurrentUser } from "../store/userSlice";
 
@@ -10,7 +10,7 @@ export default function NewUserJobConfirmation() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user } = useAuth();
+  const user = authService.getStoredUser();
   console.log("NewUserJobConfirmation: Current user:", user);
 
   const { jobsData, isLoading: jobsLoading } = useSelector((state) => state.admin);

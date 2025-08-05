@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import DynamicForm from "../components/DynamicForm";
 import { useModal } from '../hooks/useModal';
 import { useDispatch } from "react-redux";
+import { createTask } from '../store/staffSlice';
+import authService from '../utils/authService';
 
 export default function NewTaskForm() {
   const navigate = useNavigate();
@@ -65,7 +67,13 @@ export default function NewTaskForm() {
     setIsSubmitting(true);
 
     try {
+      const user = authService.getStoredUser();
+      if (!user?._id) {
+        throw new Error('User not authenticated');
+      }
+
       const taskData = {
+        userId: user._id,
         title: formData.taskTitle,
         description: formData.taskDescription,
         kpis: formData.amounts.map(activity => ({
@@ -73,10 +81,18 @@ export default function NewTaskForm() {
           amount: activity.amount,
           operator: activity.operator
         })),
+        score: 0, // Default score
+        evidence: '', // Default empty evidence
+        startDate: new Date().toISOString(), // Current date as start
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+        taskStatus: 'inProgress',
+        approvalStatus: 'pending'
       };
 
       console.log('Task Data:', taskData);
-      // dispatch here to create the task
+      
+      // Dispatch action to create the task
+      const result = await dispatch(createTask(taskData)).unwrap();
 
       // Show success modal
       showSuccess(
@@ -98,7 +114,7 @@ export default function NewTaskForm() {
       // Show error modal
       showError(
         'Creation Failed',
-        error || 'Failed to create task. Please try again.',
+        error.message || 'Failed to create task. Please try again.',
         'Error',
         { timeout: 5000, autoClose: false }
       );

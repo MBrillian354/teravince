@@ -11,8 +11,8 @@ const taskSchema = new Schema({
     amount: { type: Number, required: true },
     operator: { type: String, enum: ['lessThan', 'greaterThan'], required: true }
   }],
-  score: { type: Number, required: true },
-  evidence: { type: String, required: true },
+  score: { type: Number, required: false },
+  evidence: { type: String, required: false },
   createdDate: { type: Date, default: Date.now },
   deadline: { type: Date, required: false },
   startDate: { type: Date, required: false },

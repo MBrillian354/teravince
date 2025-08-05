@@ -85,6 +85,30 @@ export const jobsAPI = {
   delete: (id) => api.delete(`/jobs/${id}`)
 };
 
+// Tasks API functions
+export const tasksAPI = {
+  // Get all tasks
+  getAll: () => api.get('/tasks'),
+  
+  // Get task by ID
+  getById: (id) => api.get(`/tasks/${id}`),
+  
+  // Get tasks by user ID
+  getByUserId: (userId) => api.get(`/tasks/${userId}/tasks`),
+  
+  // Get specific task by user ID and task ID
+  getByUserIdAndTaskId: (userId, taskId) => api.get(`/tasks/${userId}/tasks/${taskId}`),
+  
+  // Create new task
+  create: (taskData) => api.post('/tasks', taskData),
+  
+  // Update task
+  update: (id, taskData) => api.patch(`/tasks/${id}`, taskData),
+  
+  // Delete task
+  delete: (id) => api.delete(`/tasks/${id}`)
+};
+
 // Dashboard API functions
 export const dashboardAPI = {
   // Get admin dashboard data

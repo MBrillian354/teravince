@@ -6,7 +6,23 @@ const fs = require('fs');
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.find().populate('userId');
+    const { jobId } = req.query;
+    
+    let tasks;
+    if (jobId) {
+      // If jobId is provided, get the job and find tasks for users assigned to that job
+      const Job = require('../models/Job');
+      const job = await Job.findById(jobId);
+      if (!job) {
+        return res.status(404).json({ msg: 'Job not found' });
+      }
+      
+      // Find tasks for users assigned to this job
+      tasks = await Task.find({ userId: { $in: job.assignedTo } }).populate('userId');
+    } else {
+      tasks = await Task.find().populate('userId');
+    }
+    
     res.status(200).json({
       success: true,
       count: tasks.length,

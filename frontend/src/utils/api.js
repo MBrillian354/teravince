@@ -99,6 +99,9 @@ export const tasksAPI = {
   // Get specific task by user ID and task ID
   getByUserIdAndTaskId: (userId, taskId) => api.get(`/tasks/${userId}/tasks/${taskId}`),
   
+  // Get tasks by job ID (filter all tasks by jobId)
+  getByJobId: (jobId) => api.get(`/tasks?jobId=${jobId}`),
+  
   // Create new task
   create: (taskData) => api.post('/tasks', taskData),
   

@@ -1,53 +1,71 @@
 // src/pages/JobDescription.jsx
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
 import TasksReportsTabs from '../components/TasksReportsTabs'
-import DataTable        from '../components/DataTable'
-import Pagination       from '../components/Pagination'
+import DataTable from '../components/DataTable'
+import { fetchJobs } from '../store/adminSlice'
 
 export default function JobDescription() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  // list of job descriptions
-  const jobList = [
-    { id: '1230001', employeeId: '3210001', employeeName: 'Jane Doe',       description: 'Proofreading',      activeTasks: 2 },
-    { id: '1230002', employeeId: '3210001', employeeName: 'Jane Doe',       description: 'Content Creation',  activeTasks: 1 },
-    { id: '1230003', employeeId: '3210002', employeeName: 'Mark Wiens',     description: 'KOL Partnership',   activeTasks: 3 },
-    { id: '1230004', employeeId: '3210002', employeeName: 'Mark Wiens',     description: 'Get new clients',   activeTasks: 2 },
-    { id: '1230005', employeeId: '3210003', employeeName: 'Max Verstappen', description: 'Sign partnerships', activeTasks: 1 },
-  ]
+  // Get data from Redux store
+  const { jobsData, isLoading, error } = useSelector((state) => state.admin);
+  console.log('Jobs Data:', jobsData);
 
-  // currently selected job description
-  const [selectedJobId, setSelectedJobId] = useState(jobList[0].id)
+  // Selected job state
+  const [selectedJobId, setSelectedJobId] = useState(null);
+
+  // Fetch jobs on component mount
+  useEffect(() => {
+    dispatch(fetchJobs());
+  }, [dispatch]);
+
+  // Set first job as selected when jobs are loaded
+  useEffect(() => {
+    if (jobsData.length > 0 && !selectedJobId) {
+      setSelectedJobId(jobsData[0].id);
+    }
+  }, [jobsData, selectedJobId]);
 
   // Handle job view
   const handleViewJob = (jobId) => {
     navigate(`/reports/job-description/${jobId}`);
   };
 
-  // pagination
-  const [page, setPage] = useState(1)
-  const totalPages = 11
-
-  // top‐table columns (employeeId removed)
+  // top‐table columns
   const jobColumns = [
+    { header: 'Job ID', accessor: 'id', render: (row) => row.id?.toString().slice(0, 5) || 'N/A' },
+    { header: 'Job Title', accessor: 'title' },
     {
-      header: '',
-      render: () => <input type="checkbox" className="form-checkbox" />,
-      align: 'center',
+      header: 'Active Tasks',
+      render: (row) => {
+        const count = row.taskCounts?.inProgress;
+        // Handle both number and array cases for robustness
+        if (Array.isArray(count)) {
+          return count.reduce((sum, val) => sum + val, 0);
+        }
+        return count || 0;
+      }
     },
-    { header: 'Job Description ID', accessor: 'id' },
-    { header: 'Job Description',    accessor: 'description' },
     {
-      header: 'Number of Active Task',
-      accessor: 'activeTasks'
+      header: 'Completed Tasks',
+      render: (row) => {
+        const count = row.taskCounts?.completed;
+        // Handle both number and array cases for robustness
+        if (Array.isArray(count)) {
+          return count.reduce((sum, val) => sum + val, 0);
+        }
+        return count || 0;
+      }
     },
     {
       header: 'Actions',
       render: (row) => (
         <div className="flex space-x-2">
-          <button 
+          <button
             onClick={() => handleViewJob(row.id)}
             className="btn-secondary text-xs"
           >
@@ -58,6 +76,32 @@ export default function JobDescription() {
       align: 'center',
     },
   ]
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold mb-4">Reports, Jobs, and Tasks</h1>
+        <TasksReportsTabs />
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Loading jobs...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold mb-4">Reports, Jobs, and Tasks</h1>
+        <TasksReportsTabs />
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          Error loading jobs: {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4">
@@ -70,17 +114,10 @@ export default function JobDescription() {
       {/* Job Description table */}
       <DataTable
         columns={jobColumns}
-        data={jobList}
+        data={jobsData}
         rowKey="id"
         onRowClick={({ id }) => setSelectedJobId(id)}
         containerClass="bg-white rounded mb-4"
-      />
-
-      {/* Pagination */}
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
       />
     </div>
   )

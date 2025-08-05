@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { accountsAPI, jobsAPI, dashboardAPI } from "../utils/api";
+import { accountsAPI, jobsAPI, dashboardAPI, tasksAPI } from "../utils/api";
 
 // Async thunks for API calls
 export const fetchDashboardData = createAsyncThunk(
@@ -120,6 +120,26 @@ export const deleteJob = createAsyncThunk(
     }
 );
 
+// Fetch job details with tasks
+export const fetchJobDetails = createAsyncThunk(
+    'admin/fetchJobDetails',
+    async (jobId, { rejectWithValue }) => {
+        try {
+            const [jobResponse, tasksResponse] = await Promise.all([
+                jobsAPI.getById(jobId),
+                tasksAPI.getByJobId(jobId) // Use the job-specific API
+            ]);
+            
+            return {
+                job: jobResponse.data,
+                tasks: tasksResponse.data.data || tasksResponse.data || []
+            };
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.msg || 'Failed to fetch job details');
+        }
+    }
+);
+
 const initialState = {
     dashboardData: [
         { label: "Supervisors", value: 0 },
@@ -131,6 +151,8 @@ const initialState = {
     ],
     accountsData: [],
     jobsData: [],
+    currentJob: null,
+    currentJobTasks: [],
     isLoading: false,
     error: null
 };
@@ -141,6 +163,10 @@ const adminSlice = createSlice({
     reducers: {
         clearError: (state) => {
             state.error = null;
+        },
+        clearCurrentJob: (state) => {
+            state.currentJob = null;
+            state.currentJobTasks = [];
         }
     },
     extraReducers: (builder) => {
@@ -257,7 +283,8 @@ const adminSlice = createSlice({
                     description: job.description || '',
                     employees: job.assignedTo ? job.assignedTo.length : 0,
                     status: job.status,
-                    assignedTo: job.assignedTo || []
+                    assignedTo: job.assignedTo || [],
+                    taskCounts: job.taskCounts || { inProgress: 0, completed: 0, total: 0 }
                 }));
             })
             .addCase(fetchJobs.rejected, (state, action) => {
@@ -278,7 +305,8 @@ const adminSlice = createSlice({
                     description: job.description || '',
                     employees: job.assignedTo ? job.assignedTo.length : 0,
                     status: job.status,
-                    assignedTo: job.assignedTo || []
+                    assignedTo: job.assignedTo || [],
+                    taskCounts: job.taskCounts || { inProgress: 0, completed: 0, total: 0 }
                 });
             })
             .addCase(createJob.rejected, (state, action) => {
@@ -300,7 +328,8 @@ const adminSlice = createSlice({
                         description: updated.description || '',
                         employees: updated.assignedTo ? updated.assignedTo.length : 0,
                         status: updated.status,
-                        assignedTo: updated.assignedTo || []
+                        assignedTo: updated.assignedTo || [],
+                        taskCounts: updated.taskCounts || { inProgress: 0, completed: 0, total: 0 }
                     } : job
                 );
             })
@@ -321,10 +350,49 @@ const adminSlice = createSlice({
             .addCase(deleteJob.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
+            })
+            // Fetch job details
+            .addCase(fetchJobDetails.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchJobDetails.fulfilled, (state, action) => {
+                state.isLoading = false;
+                const { job, tasks } = action.payload;
+                
+                // Transform job data
+                state.currentJob = {
+                    id: job._id,
+                    title: job.title,
+                    description: job.description || '',
+                    employees: job.assignedTo ? job.assignedTo.length : 0,
+                    status: job.status,
+                    assignedTo: job.assignedTo || [],
+                    taskCounts: job.taskCounts || { inProgress: 0, completed: 0, total: 0 }
+                };
+                
+                // Transform and get tasks for this job (backend already filtered)
+                state.currentJobTasks = tasks.map(task => ({
+                    id: task._id,
+                    userId: task.userId?._id || task.userId,
+                    employeeName: task.userId?.firstName && task.userId?.lastName 
+                        ? `${task.userId.firstName} ${task.userId.lastName}` 
+                        : 'Unknown Employee',
+                    title: task.title,
+                    description: task.description,
+                    startDate: task.startDate ? new Date(task.startDate).toLocaleDateString('en-GB') : '',
+                    endDate: task.endDate ? new Date(task.endDate).toLocaleDateString('en-GB') : '',
+                    taskStatus: task.taskStatus,
+                    approvalStatus: task.approvalStatus
+                }));
+            })
+            .addCase(fetchJobDetails.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
             });
     }
 });
 
-export const { clearError } = adminSlice.actions;
+export const { clearError, clearCurrentJob } = adminSlice.actions;
 
 export default adminSlice.reducer;

@@ -1,64 +1,106 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import DataTable from '../components/DataTable';
+import StatusBadge from '../components/StatusBadge';
+import { fetchJobDetails, clearCurrentJob } from '../store/adminSlice';
+import { 
+  getDisplayTaskStatus, 
+  getDisplayApprovalStatus,
+  getReviewStatus 
+} from '../utils/statusStyles';
 
 export default function JobDetails() {
     const { jobId } = useParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    // Dummy job data - matches the structure from JobDescription.jsx
-    const [job, setJob] = useState(null);
+    // Get data from Redux store
+    const { currentJob, currentJobTasks, isLoading, error } = useSelector((state) => state.admin);
 
-    // Dummy jobs data
-    const jobsData = [
-        { id: '1230001', employeeId: '3210001', employeeName: 'Jane Doe', description: 'Proofreading', activeTasks: 2 },
-        { id: '1230002', employeeId: '3210001', employeeName: 'Jane Doe', description: 'Content Creation', activeTasks: 1 },
-        { id: '1230003', employeeId: '3210002', employeeName: 'Mark Wiens', description: 'KOL Partnership', activeTasks: 3 },
-        { id: '1230004', employeeId: '3210002', employeeName: 'Mark Wiens', description: 'Get new clients', activeTasks: 2 },
-        { id: '1230005', employeeId: '3210003', employeeName: 'Max Verstappen', description: 'Sign partnerships', activeTasks: 1 },
-    ];
-
-    // All tasks, filtered by selected job
-    const allTasks = [
-        { id: '32100010001', jobId: '1230001', employeeId: '3210001', employeeName: 'Jane Doe', title: 'Proofreading', start: '01/03/2025', end: '07/10/2025', status: 'Awaiting Review' },
-        { id: '32100010002', jobId: '1230001', employeeId: '3210001', employeeName: 'Jane Doe', title: 'Proofreading', start: '01/03/2025', end: '07/10/2025', status: 'Awaiting Review' },
-        { id: '32100020001', jobId: '1230002', employeeId: '3210001', employeeName: 'Jane Doe', title: 'Content Creation', start: '05/03/2025', end: '10/10/2025', status: 'Done' },
-        { id: '32100030001', jobId: '1230003', employeeId: '3210002', employeeName: 'Mark Wiens', title: 'KOL Partnership', start: '10/03/2025', end: '15/10/2025', status: 'Done' },
-        { id: '32100030002', jobId: '1230003', employeeId: '3210002', employeeName: 'Mark Wiens', title: 'Partnership Meeting', start: '12/03/2025', end: '18/10/2025', status: 'In Progress' },
-        { id: '32100030003', jobId: '1230003', employeeId: '3210002', employeeName: 'Mark Wiens', title: 'Contract Review', start: '15/03/2025', end: '20/10/2025', status: 'Pending' },
-        { id: '32100040001', jobId: '1230004', employeeId: '3210002', employeeName: 'Mark Wiens', title: 'Client Outreach', start: '20/03/2025', end: '25/10/2025', status: 'In Progress' },
-        { id: '32100040002', jobId: '1230004', employeeId: '3210002', employeeName: 'Mark Wiens', title: 'Lead Follow-up', start: '22/03/2025', end: '27/10/2025', status: 'Pending' },
-        { id: '32100050001', jobId: '1230005', employeeId: '3210003', employeeName: 'Max Verstappen', title: 'Contract Signing', start: '25/03/2025', end: '30/10/2025', status: 'Done' },
-    ];
-
-    const [tasksForJob, setTasksForJob] = useState([]);
-
+    // Fetch job details when component mounts
     useEffect(() => {
-        const foundJob = jobsData.find(j => j.id === jobId);
-        if (foundJob) {
-            setJob(foundJob);
-            setTasksForJob(allTasks.filter(t => t.jobId === jobId));
+        if (jobId) {
+            dispatch(fetchJobDetails(jobId));
         }
-    }, [jobId]);
+
+        // Cleanup when component unmounts
+        return () => {
+            dispatch(clearCurrentJob());
+        };
+    }, [dispatch, jobId]);
 
     // Task table columns
     const taskColumns = [
         { header: 'Employee Name', accessor: 'employeeName' },
-        { header: 'Task ID', accessor: 'id' },
+        { header: 'Task ID', accessor: 'id', render: (row) => row.id?.toString().slice(-8) || 'N/A' },
         { header: 'Task Title', accessor: 'title' },
-        { header: 'Start Date', accessor: 'start' },
-        { header: 'Finish Date', accessor: 'end' },
+        { header: 'Start Date', accessor: 'startDate' },
+        { header: 'Finish Date', accessor: 'endDate' },
+        {
+            header: 'Submission Status',
+            render: (r) => (
+                <StatusBadge 
+                    status={getDisplayTaskStatus(r.taskStatus)} 
+                    type="task" 
+                    size="xs"
+                    showIcon={false}
+                />
+            ),
+        },
+        {
+            header: 'Approval Status',
+            render: (r) => (
+                <StatusBadge 
+                    status={getDisplayApprovalStatus(r.approvalStatus)} 
+                    type="approval" 
+                    size="xs"
+                    showIcon={false}
+                />
+            ),
+        },
         {
             header: 'Task Status',
-            render: r => (
-                <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">
-                    {r.status}
-                </span>
+            render: (r) => (
+                <StatusBadge 
+                    status={getReviewStatus(r.taskStatus, r.approvalStatus)} 
+                    type="review" 
+                    size="xs"
+                    showIcon={false}
+                />
             ),
         },
     ];
 
-    if (!job) {
+    // Loading state
+    if (isLoading) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="flex justify-center items-center h-64">
+                    <div className="text-lg">Loading job details...</div>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    Error loading job details: {error}
+                </div>
+                <button
+                    onClick={() => navigate('/reports/job-description')}
+                    className="btn-secondary mt-4"
+                >
+                    Back to Job Descriptions
+                </button>
+            </div>
+        );
+    }
+
+    if (!currentJob) {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="text-center">
@@ -81,7 +123,7 @@ export default function JobDetails() {
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="text-3xl font-bold">Job Description Details</h1>
-                    <p className="text-gray-600">View tasks for: {job.description}</p>
+                    <p className="text-gray-600">View tasks for: {currentJob.title}</p>
                 </div>
                 <button
                     onClick={() => navigate('/reports/job-description')}
@@ -94,22 +136,33 @@ export default function JobDetails() {
             {/* Job and Employee Information */}
             <div className="bg-white rounded shadow p-6 mb-6">
                 <h2 className="text-xl font-bold mb-4">Job Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                <div className="flex flex-col gap-6">
                     <div>
-                        <p className="font-medium text-gray-600">Employee Name</p>
-                        <p className="text-lg font-semibold">{job.employeeName}</p>
+                        <p className="font-medium text-gray-600">Job ID</p>
+                        <p className="text-lg font-semibold">{currentJob.id?.toString().slice(-8) || 'N/A'}</p>
                     </div>
                     <div>
-                        <p className="font-medium text-gray-600">Job Description ID</p>
-                        <p className="text-lg font-semibold">{job.id}</p>
+                        <p className="font-medium text-gray-600">Job Title</p>
+                        <p className="text-lg font-semibold">{currentJob.title}</p>
                     </div>
                     <div>
-                        <p className="font-medium text-gray-600">Job Description</p>
-                        <p className="text-lg font-semibold">{job.description}</p>
+                        <p className="font-medium text-gray-600">Description</p>
+                        <p className="text-lg font-semibold">{currentJob.description || 'No description'}</p>
                     </div>
                     <div>
-                        <p className="font-medium text-gray-600">Active Tasks</p>
-                        <p className="text-lg font-semibold">{job.activeTasks}</p>
+                        <p className="font-medium text-gray-600">Assigned Employees</p>
+                        <p className="text-lg font-semibold">{currentJob.employees}</p>
+                    </div>
+                    <div>
+                        <p className="font-medium text-gray-600">Status</p>
+                        <div className="mt-1">
+                            <StatusBadge 
+                                status={currentJob.status} 
+                                type="task" 
+                                size="sm"
+                                showIcon={false}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -117,11 +170,11 @@ export default function JobDetails() {
             {/* Tasks Table */}
             <div className="bg-white rounded shadow mb-6">
                 <div className="p-6 border-b">
-                    <h2 className="text-xl font-bold">Tasks for this Job ({tasksForJob.length})</h2>
+                    <h2 className="text-xl font-bold">Tasks for this Job ({currentJobTasks.length})</h2>
                 </div>
                 <DataTable
                     columns={taskColumns}
-                    data={tasksForJob}
+                    data={currentJobTasks}
                     rowKey="id"
                     containerClass="bg-white rounded"
                 />

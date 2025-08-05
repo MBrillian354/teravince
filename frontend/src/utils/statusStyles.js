@@ -100,7 +100,7 @@ export const getDisplayTaskStatus = (taskStatus) => {
   const statusMap = {
     'draft': 'Draft',
     'inProgress': 'Ongoing',
-    'submitted': 'Under Review',
+    'submitted': 'Submitted',
     'rejected': 'Rejected',
     'completed': 'Completed',
     'cancelled': 'Cancelled'

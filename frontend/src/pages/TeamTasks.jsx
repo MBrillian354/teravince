@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TasksReportsTabs from '../components/TasksReportsTabs';
 import StatsCard from '../components/StatsCard';
@@ -12,12 +12,16 @@ import {
 const getBiasDetectionStatus = (biasCheck) => {
   if (!biasCheck) return { status: 'not-checked', label: 'Not Checked' };
 
-  if (biasCheck.is_bias === true) {
-    return { status: 'bias-detected', label: 'Bias Detected' };
-  } else if (biasCheck.is_bias === false) {
-    return { status: 'no-bias', label: 'No Bias' };
+  // Check if the task has been reviewed
+  if (biasCheck.action === 'reviewed') {
+    if (biasCheck.reviewedWithoutBias === true) {
+      return { status: 'no-bias', label: 'No Bias' };
+    } else if (biasCheck.reviewedWithoutBias === false) {
+      return { status: 'bias-detected', label: 'Bias Detected' };
+    }
   }
 
+  // If bias check exists but no action taken yet, it's pending
   return { status: 'pending', label: 'Pending' };
 };
 
@@ -93,7 +97,7 @@ export default function TeamTasks() {
     ).length;
 
     const tasksWithBias = tasks.filter(task =>
-      task.originalTask.bias_check?.is_bias === true
+      task.originalTask.bias_check?.reviewedWithoutBias === false
     ).length;
 
     return [
@@ -148,28 +152,28 @@ export default function TeamTasks() {
         />
       ),
     },
-    {
-      header: 'Approval Status',
-      render: (r) => (
-        <StatusBadge
-          status={r.approval}
-          type="approval"
-          size="xs"
-          showIcon={false}
-        />
-      ),
-    },
-    {
-      header: 'Task Status',
-      render: (r) => (
-        <StatusBadge
-          status={r.review}
-          type="review"
-          size="xs"
-          showIcon={false}
-        />
-      ),
-    },
+    // {
+    //   header: 'Approval Status',
+    //   render: (r) => (
+    //     <StatusBadge
+    //       status={r.approval}
+    //       type="approval"
+    //       size="xs"
+    //       showIcon={false}
+    //     />
+    //   ),
+    // },
+    // {
+    //   header: 'Task Status',
+    //   render: (r) => (
+    //     <StatusBadge
+    //       status={r.review}
+    //       type="review"
+    //       size="xs"
+    //       showIcon={false}
+    //     />
+    //   ),
+    // },
     {
       header: 'Bias Status',
       render: (r) => {

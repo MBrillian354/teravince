@@ -8,7 +8,7 @@ import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 
-export default function Reports() {
+export default function TeamReports() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);

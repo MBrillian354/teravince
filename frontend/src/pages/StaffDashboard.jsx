@@ -5,7 +5,7 @@ import HistoryList from '../components/HistoryList';
 
 const StaffDashboard = () => {
   // Mock staff data from sign-up
-  const staff = { firstName: "John", lastName: "Yasuarini" };
+  const staff = JSON.parse(localStorage.getItem("user"))
 
   // Mock dashboard data
   const mockupData = [
@@ -19,7 +19,7 @@ const StaffDashboard = () => {
       {/* Main Dashboard Section */}
       <div className={cardStyle}>
         {/* Greeting */}
-        <h1 className={greetingStyle}>Welcome back, {staff.firstName}</h1>
+        <h1 className={greetingStyle}>Welcome back, {staff.firstName + ' ' + staff.lastName}</h1>
 
         {/* Filters */}
         <div className={filterWrapperStyle}>

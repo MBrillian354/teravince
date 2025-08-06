@@ -42,6 +42,7 @@ import SupervisorReviewingAndApprovalOfTask from './pages/SupervisorReviewingAnd
 import JobDetails from './pages/JobDetails';
 import TeamTasks from './pages/TeamTasks';
 import StatusBadgeDemo from './components/StatusBadgeDemo';
+import OAuthSuccess from './pages/OauthSuccess';
 
 // Auth Routes Component
 function AuthRoutes() {
@@ -50,6 +51,7 @@ function AuthRoutes() {
       <Route path="/" element={<Root />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/oauth-callback" element={<OAuthSuccess />} />
     </>
   );
 }

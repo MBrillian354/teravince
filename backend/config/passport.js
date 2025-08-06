@@ -12,11 +12,16 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   async (accessToken, refreshToken, profile, done) => {
     try {
       let user = await User.findOne({ googleId: profile.id });
+      const [firstName, ...rest] = profile.displayName.split(' ');
+      const lastName = rest.join(' ');
+      
       if (!user) {
         user = await User.create({
           googleId: profile.id,
           email: profile.emails[0].value,
           name: profile.displayName,
+          firstName,
+          lastName,
           role: 'staff',
           isVerified: true,
         });

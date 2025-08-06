@@ -13,7 +13,7 @@ const verifyToken = require('../middlewares/auth');
 router.post('/register', authController.register);
 router.post('/signup', authController.register);
 
-// Email verification
+// Email verification 
 router.get('/verify-email/:token', authController.verifyEmail);
 
 // Login routes
@@ -37,14 +37,14 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 
   // Google OAuth callback
   router.get('/google/callback', 
-    passport.authenticate('google', { failureRedirect: '/' }), 
+    passport.authenticate('google', {session: false, failureRedirect: '/' }), 
     (req, res) => {
       const token = jwt.sign(
         { id: req.user._id, isVerified: req.user.isVerified, role: req.user.role },
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
-      res.redirect(`${process.env.CLIENT_URL}/?token=${token}`);
+      res.redirect(`${process.env.CLIENT_URL}/oauth-callback?token=${token}`);
     }
   );
 } else {

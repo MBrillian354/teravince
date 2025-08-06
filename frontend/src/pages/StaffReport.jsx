@@ -116,10 +116,10 @@ export default function StaffReport() {
             <span className="text-gray-400 text-2xl">👤</span>
           </div>
           <div>
-            <p className="font-semibold">{report.name}</p>
-            <p className="text-sm text-gray-600">{report.userId}</p>
-            <p className="text-sm text-gray-600">{report.jobTitle}</p>
-            <p className="text-sm text-gray-500">{report.month}</p>
+            <h1 className=" text-lg font-semibold">{report.name}</h1>
+            <p className="text-gray-600">{report.userId}</p>
+            <p className="text-gray-600">{report.jobTitle}</p>
+            <p className="text-gray-500">{report.month}</p>
           </div>
         </div>
         <StatsCard

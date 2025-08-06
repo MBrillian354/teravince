@@ -28,15 +28,15 @@ export default function DataTable({
 
   if (variant === 'gradient') {
     return (
-      <div className="bg-surface rounded-lg shadow-md border border-primary overflow-hidden flex flex-col mb-4">
+      <div className="bg-surface rounded-lg shadow-xs border border-primary/50 overflow-hidden flex flex-col mb-4">
         {title && (
-          <div className="bg-gradient-to-r from-primary to-secondary px-5 py-3">
+          <div className="bg-gradient-to-r from-primary to-secondary px-6 py-4">
             <h2 className="text-lg font-semibold text-background">{title}</h2>
           </div>
         )}
 
         <div className="w-full overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full">
             <thead className="bg-secondary text-background">
               <tr>
                 {columns.map((col, index) => (

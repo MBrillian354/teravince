@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function StatsCard({ label, value, delta }) {
   return (
-    <div className="relative group overflow-hidden p-4 h-24 rounded-2xl bg-[#810000] shadow-md flex justify-between items-center transition-all duration-300 hover:bg-[#CE1212] transform hover:scale-105 hover:shadow-lg">
+    <div className="relative group overflow-hidden p-4 h-24 rounded-lg bg-primary shadow-md flex justify-between items-center transition-all duration-300 hover:bg-primary/80 transform hover:scale-105 hover:shadow-lg">
       
       {/* Shimmer Effect */}
       <div className="absolute inset-0 pointer-events-none z-0">

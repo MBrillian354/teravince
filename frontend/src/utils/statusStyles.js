@@ -10,43 +10,43 @@
  */
 export const getTaskStatusStyles = (taskStatus) => {
   const statusMap = {
-    // Draft states
-    'draft': 'text-gray-700 bg-gray-100 border-gray-400',
-    'Draft': 'text-gray-700 bg-gray-100 border-gray-400',
+    // Draft states - using muted colors
+    'draft': 'text-gray-700 bg-muted border-gray-400',
+    'Draft': 'text-gray-700 bg-muted border-gray-400',
     
-    // Active/Working states
-    'inProgress': 'text-amber-700 bg-amber-100 border-amber-400',
-    'In Progress': 'text-amber-700 bg-amber-100 border-amber-400',
-    'Ongoing': 'text-amber-700 bg-amber-100 border-amber-400',
+    // Active/Working states - using warning colors
+    'inProgress': 'text-warning bg-warning-light border-warning',
+    'In Progress': 'text-warning bg-warning-light border-warning',
+    'Ongoing': 'text-warning bg-warning-light border-warning',
     
-    // Revision states
-    'revisionInProgress': 'text-yellow-700 bg-yellow-100 border-yellow-400',
-    'Revision In Progress': 'text-yellow-700 bg-yellow-100 border-yellow-400',
+    // Revision states - using warning colors
+    'revisionInProgress': 'text-warning bg-warning-light border-warning',
+    'Revision In Progress': 'text-warning bg-warning-light border-warning',
     
-    // Submitted states
-    'submittedAndAwaitingReview': 'text-blue-700 bg-blue-100 border-blue-400',
-    'Submitted And Awaiting Review': 'text-blue-700 bg-blue-100 border-blue-400',
+    // Submitted states - using info colors
+    'submittedAndAwaitingReview': 'text-info bg-info-light border-info',
+    'Submitted And Awaiting Review': 'text-info bg-info-light border-info',
     'submittedAndAwaitingApproval': 'text-purple-700 bg-purple-100 border-purple-400',
     'Submitted And Awaiting Approval': 'text-purple-700 bg-purple-100 border-purple-400',
-    'submitted': 'text-blue-700 bg-blue-100 border-blue-400',
-    'Submitted': 'text-blue-700 bg-blue-100 border-blue-400',
-    'Under Review': 'text-blue-700 bg-blue-100 border-blue-400',
+    'submitted': 'text-info bg-info-light border-info',
+    'Submitted': 'text-info bg-info-light border-info',
+    'Under Review': 'text-info bg-info-light border-info',
     
-    // Rejected states
-    'submissionRejected': 'text-red-700 bg-red-100 border-red-400',
-    'Submission Rejected': 'text-red-700 bg-red-100 border-red-400',
-    'approvalRejected': 'text-red-700 bg-red-100 border-red-400',
-    'Approval Rejected': 'text-red-700 bg-red-100 border-red-400',
-    'rejected': 'text-red-700 bg-red-100 border-red-400',
-    'Rejected': 'text-red-700 bg-red-100 border-red-400',
+    // Rejected states - using theme danger colors
+    'submissionRejected': 'text-danger bg-red-100 border-danger',
+    'Submission Rejected': 'text-danger bg-red-100 border-danger',
+    'approvalRejected': 'text-danger bg-red-100 border-danger',
+    'Approval Rejected': 'text-danger bg-red-100 border-danger',
+    'rejected': 'text-danger bg-red-100 border-danger',
+    'Rejected': 'text-danger bg-red-100 border-danger',
     
-    // Completed states
-    'completed': 'text-green-700 bg-green-100 border-green-400',
-    'Completed': 'text-green-700 bg-green-100 border-green-400',
+    // Completed states - using theme success colors
+    'completed': 'text-success bg-success-light border-success',
+    'Completed': 'text-success bg-success-light border-success',
     
-    // Cancelled states
-    'cancelled': 'text-gray-600 bg-gray-100 border-gray-400',
-    'Cancelled': 'text-gray-600 bg-gray-100 border-gray-400',
+    // Cancelled states - using muted colors
+    'cancelled': 'text-gray-600 bg-muted border-gray-400',
+    'Cancelled': 'text-gray-600 bg-muted border-gray-400',
   };
   
   return statusMap[taskStatus] || 'text-neutral-700 bg-neutral-100 border-neutral-400';

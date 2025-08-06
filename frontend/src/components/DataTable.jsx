@@ -3,22 +3,22 @@ export default function DataTable({
   data,
   rowKey = 'id',
   onRowClick,
-  containerClass = 'bg-white rounded shadow overflow-x-auto mb-6',
+  containerClass = 'bg-surface rounded shadow overflow-x-auto mb-6',
   variant = 'default',
   title = null
 }) {
   if (variant === 'gradient') {
     return (
-      <div className="bg-white rounded-lg shadow-md border border-[#CE1212] overflow-hidden flex flex-col mb-4">
+      <div className="bg-surface rounded-lg shadow-md border border-primary overflow-hidden flex flex-col mb-4">
         {title && (
-          <div className="bg-gradient-to-r from-[#810000] to-[#1B1717] px-5 py-3">
-            <h2 className="text-lg font-semibold text-[#EEEBDD]">{title}</h2>
+          <div className="bg-gradient-to-r from-danger to-secondary px-5 py-3">
+            <h2 className="text-lg font-semibold text-background">{title}</h2>
           </div>
         )}
 
         <div className="w-full overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-[#1B1717] text-[#EEEBDD]">
+            <thead className="bg-secondary text-background">
               <tr>
                 {columns.map((col, index) => (
                   <th
@@ -30,11 +30,11 @@ export default function DataTable({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1B1717]">
+            <tbody className="divide-y divide-secondary">
               {data.map((row) => (
                 <tr
                   key={row[rowKey]}
-                  className="hover:bg-[#F7F6F2] transition"
+                  className="hover:bg-surface-hover transition"
                   onClick={() => onRowClick && onRowClick(row)}
                 >
                   {columns.map((col, index) => (
@@ -60,7 +60,7 @@ export default function DataTable({
   return (
     <div className={containerClass}>
       <table className="min-w-full">
-        <thead className="bg-gray-100">
+        <thead className="bg-muted">
           <tr>
             {columns.map((col, index) => (
               <th
@@ -77,7 +77,7 @@ export default function DataTable({
             <tr
               key={row[rowKey]}
               className={`border-t cursor-pointer ${
-                onRowClick ? 'hover:bg-gray-50' : ''
+                onRowClick ? 'hover:bg-surface-hover' : ''
               }`}
               onClick={() => onRowClick && onRowClick(row)}
             >

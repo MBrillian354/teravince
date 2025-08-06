@@ -4,9 +4,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import { fetchJobDetails, clearCurrentJob } from '../store/adminSlice';
-import { 
-  getDisplayTaskStatus,
-} from '../utils/statusStyles';export default function JobDetails() {
+import {
+    getDisplayTaskStatus,
+} from '../utils/statusStyles'; export default function JobDetails() {
     const { jobId } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -36,9 +36,9 @@ import {
         {
             header: 'Submission Status',
             render: (r) => (
-                <StatusBadge 
-                    status={getDisplayTaskStatus(r.taskStatus)} 
-                    type="task" 
+                <StatusBadge
+                    status={getDisplayTaskStatus(r.taskStatus)}
+                    type="task"
                     size="xs"
                     showIcon={false}
                 />
@@ -47,9 +47,9 @@ import {
         {
             header: 'Task Status',
             render: (r) => (
-                <StatusBadge 
-                    status={getDisplayTaskStatus(r.taskStatus)} 
-                    type="task" 
+                <StatusBadge
+                    status={getDisplayTaskStatus(r.taskStatus)}
+                    type="task"
                     size="xs"
                     showIcon={false}
                 />
@@ -141,9 +141,9 @@ import {
                     <div>
                         <p className="font-medium text-gray-600">Status</p>
                         <div className="mt-1">
-                            <StatusBadge 
-                                status={currentJob.status} 
-                                type="task" 
+                            <StatusBadge
+                                status={currentJob.status}
+                                type="task"
                                 size="sm"
                                 showIcon={false}
                             />
@@ -162,6 +162,7 @@ import {
                     data={currentJobTasks}
                     rowKey="id"
                     containerClass="bg-white rounded"
+                    variant='gradient'
                 />
             </div>
         </div>

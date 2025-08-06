@@ -112,7 +112,7 @@ export default function SPVDashboard() {
         type="month"
         value={selectedMonth}
         onChange={e => setSelectedMonth(e.target.value)}
-        className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        className="w-36 px-2 py-1 text-sm bg-surface border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       />
     </div>
   </div>
@@ -120,7 +120,7 @@ export default function SPVDashboard() {
 
 
       {/* Centered Donut + Legend Card */}
-      <div className="bg-white rounded shadow p-4 mb-6 flex flex-col items-center justify-center md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-8">
+      <div className="bg-surface rounded shadow p-4 mb-6 flex flex-col items-center justify-center md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-8">
         <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-8">
           <TaskStatusChart data={statusData} />
           <ul className="space-y-2">

@@ -521,7 +521,7 @@ export default function SupervisorReviewingAndApprovalOfTask() {
       )}
 
       {/* Task Detail Form */}
-      <div className="bg-white rounded shadow p-6">
+      <div className="bg-surface rounded shadow p-6">
         <DynamicForm
           fields={getFormFields(task)}
           showSubmitButton={false}

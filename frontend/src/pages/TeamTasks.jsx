@@ -174,14 +174,14 @@ export default function TeamTasks() {
       header: 'Bias Status',
       render: (r) => {
         const biasStatus = r.biasStatus;
-        let statusColor = 'bg-gray-100 text-gray-800';
+        let statusColor = 'bg-muted text-gray-800';
 
         if (biasStatus.status === 'bias-detected') {
-          statusColor = 'bg-red-100 text-red-800';
+          statusColor = 'bg-red-100 text-danger';
         } else if (biasStatus.status === 'no-bias') {
-          statusColor = 'bg-green-100 text-green-800';
+          statusColor = 'bg-success-light text-success';
         } else if (biasStatus.status === 'pending') {
-          statusColor = 'bg-yellow-100 text-yellow-800';
+          statusColor = 'bg-warning-light text-warning';
         }
 
         return (
@@ -203,7 +203,7 @@ export default function TeamTasks() {
             <div className="flex space-x-2">
               <button
                 onClick={() => handleViewTask(row.id)}
-                className="btn-secondary text-xs bg-red-600 hover:bg-red-700"
+                className="btn-secondary text-xs bg-danger hover:bg-primary"
               >
                 Review Bias
               </button>
@@ -299,7 +299,7 @@ export default function TeamTasks() {
         data={paginatedTasks}
         rowKey="id"
         onRowClick={({ id }) => setSelectedTaskId(id)}
-        containerClass="bg-white rounded mb-4"
+        containerClass="bg-surface rounded mb-4"
         variant='gradient'
       />
 
@@ -314,7 +314,7 @@ export default function TeamTasks() {
 
       {/* Show message if no tasks */}
       {tasks.length === 0 && !loading && (
-        <div className="bg-white rounded shadow p-6 text-center">
+        <div className="bg-surface rounded shadow p-6 text-center">
           <p className="text-gray-600">No tasks found.</p>
         </div>
       )}

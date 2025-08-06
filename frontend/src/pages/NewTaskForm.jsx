@@ -133,7 +133,7 @@ export default function NewTaskForm() {
 
   return (
     <div className="bg-[#EEEBDD] min-h-screen px-4 py-6 text-[#1B1717]">
-      <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md border border-[#CE1212] p-6">
+      <div className="max-w-xl mx-auto bg-surface rounded-lg shadow-md border border-primary p-6">
         <DynamicForm
           title="Create New Task"
           subtitle="Fill in the details below to create a new task"

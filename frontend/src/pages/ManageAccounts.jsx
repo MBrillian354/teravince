@@ -103,14 +103,16 @@ const ManageAccounts = () => {
     { header: 'ID', accessor: 'id' },
     { header: 'Job Title', accessor: 'jobId', render: row => capitalizeFirst(row.jobId?.title || 'Unassigned') },
     { header: 'Position', accessor: 'role', render: row => capitalizeFirst(row.role) },
-    { header: 'Status', accessor: 'status', render: row => (
-      <StatusBadge 
-        status={capitalizeFirstWithFallback(row.status)} 
-        type="approval" 
-        size="xs"
-        variant={row.status === 'active' ? 'default' : 'outline'}
-      />
-    )},
+    {
+      header: 'Status', accessor: 'status', render: row => (
+        <StatusBadge
+          status={capitalizeFirstWithFallback(row.status)}
+          type="approval"
+          size="xs"
+          variant={row.status === 'active' ? 'default' : 'outline'}
+        />
+      )
+    },
     {
       header: 'Actions',
       render: row => (
@@ -165,6 +167,7 @@ const ManageAccounts = () => {
         data={accountsData}
         rowKey="id"
         onRowClick={row => console.log('Row clicked:', row)}
+        variant='gradient'
       />
     </>
   )

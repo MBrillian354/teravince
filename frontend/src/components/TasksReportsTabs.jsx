@@ -23,7 +23,7 @@ export default function TasksReportsTabs() {
         >
           {label}
           {badge != null && (
-            <span className="ml-1 inline-block bg-gray-200 text-gray-700 text-xs px-1 rounded-full">
+            <span className="ml-1 inline-block bg-muted text-gray-700 text-xs px-1 rounded-full">
               {badge}
             </span>
           )}

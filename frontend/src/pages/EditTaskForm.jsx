@@ -96,12 +96,23 @@ export default function EditTaskForm() {
     },
     {
       type: 'number',
-      name: 'amount',
-      label: 'Amount',
-      placeholder: 'Enter amount',
+      name: 'targetAmount',
+      label: 'Target Amount',
+      placeholder: 'Enter target amount',
       group: 'amounts', // low level field in the group
       isDynamic: true, // Enable dynamic add/remove functionality
       position: 'center', // Position at the bottom of the group
+      // PERBAIKAN: defaultValue tidak perlu diset di sini untuk field dinamis
+      defaultValue: '',
+    },
+    {
+      type: 'number',
+      name: 'achievedAmount',
+      label: 'Achieved Amount',
+      placeholder: 'Enter achieved amount (optional)',
+      group: 'amounts', // low level field in the group
+      isDynamic: true, // Enable dynamic add/remove functionality
+      position: 'bottom', // Position at the bottom of the group
       // PERBAIKAN: defaultValue tidak perlu diset di sini untuk field dinamis
       defaultValue: '',
     }
@@ -133,7 +144,8 @@ export default function EditTaskForm() {
         description: formData.taskDescription,
         kpis: formData.amounts.map(activity => ({
           kpiTitle: Array.isArray(activity.kpiTitle) ? activity.kpiTitle[0] : activity.kpiTitle,
-          amount: Array.isArray(activity.amount) ? activity.amount[0] : activity.amount,
+          targetAmount: Array.isArray(activity.targetAmount) ? activity.targetAmount[0] : activity.targetAmount,
+          achievedAmount: Array.isArray(activity.achievedAmount) ? activity.achievedAmount[0] : (activity.achievedAmount || 0),
           operator: Array.isArray(activity.operator) ? activity.operator[0] : activity.operator
         })),
       };
@@ -193,8 +205,9 @@ export default function EditTaskForm() {
               amounts: task.kpis && task.kpis.length > 0 ? task.kpis.map(kpi => ({
                 kpiTitle: kpi.kpiTitle,
                 operator: kpi.operator,
-                amount: kpi.amount
-              })) : [{ kpiTitle: '', operator: '', amount: '' }]
+                targetAmount: kpi.targetAmount,
+                achievedAmount: kpi.achievedAmount || 0
+              })) : [{ kpiTitle: '', operator: '', targetAmount: '', achievedAmount: '' }]
             } : null}
           />
         )}

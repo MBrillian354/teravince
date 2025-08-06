@@ -129,8 +129,8 @@ exports.createTask = async (req, res) => {
     // Validate kpis array if provided
     if (kpis && Array.isArray(kpis)) {
       for (let kpi of kpis) {
-        if (!kpi.kpiTitle || !kpi.amount || !kpi.operator) {
-          return res.status(400).json({ msg: 'Invalid KPI structure. Each KPI must have kpiTitle, amount, and operator' });
+        if (!kpi.kpiTitle || !kpi.targetAmount || !kpi.operator) {
+          return res.status(400).json({ msg: 'Invalid KPI structure. Each KPI must have kpiTitle, targetAmount, and operator' });
         }
         if (!['lessThan', 'greaterThan'].includes(kpi.operator)) {
           return res.status(400).json({ msg: 'Invalid operator. Must be either "lessThan" or "greaterThan"' });
@@ -183,8 +183,8 @@ exports.updateTask = async (req, res) => {
     // Validate kpis array if provided
     if (updateData.kpis && Array.isArray(updateData.kpis)) {
       for (let kpi of updateData.kpis) {
-        if (!kpi.kpiTitle || !kpi.amount || !kpi.operator) {
-          return res.status(400).json({ msg: 'Invalid KPI structure. Each KPI must have kpiTitle, amount, and operator' });
+        if (!kpi.kpiTitle || !kpi.targetAmount || !kpi.operator) {
+          return res.status(400).json({ msg: 'Invalid KPI structure. Each KPI must have kpiTitle, targetAmount, and operator' });
         }
         if (!['lessThan', 'greaterThan'].includes(kpi.operator)) {
           return res.status(400).json({ msg: 'Invalid operator. Must be either "lessThan" or "greaterThan"' });

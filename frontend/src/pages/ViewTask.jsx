@@ -98,18 +98,18 @@ export default function ViewTask() {
     try {
       // Determine the appropriate status based on current state
       let newTaskStatus = 'submittedAndAwaitingApproval'; // Default for new tasks
-      
+
       // If task was previously rejected, determine the appropriate submitted status
       if (task.taskStatus === 'approvalRejected') {
         newTaskStatus = 'submittedAndAwaitingApproval';
-      } else if (task.taskStatus === 'submissionRejected' || task.taskStatus === 'revisionInProgress') {
+      } else if (task.taskStatus === 'submissionRejected' || task.taskStatus === 'revisionInProgress' || task.taskStatus === 'inProgress') {
         newTaskStatus = 'submittedAndAwaitingReview';
       }
 
-      const updateData = { 
-        taskStatus: newTaskStatus, 
-        submittedDate: new Date(), 
-        bias_check: null 
+      const updateData = {
+        taskStatus: newTaskStatus,
+        submittedDate: new Date(),
+        bias_check: null
       };
 
       await tasksAPI.update(task._id, updateData);
@@ -121,7 +121,7 @@ export default function ViewTask() {
 
       showSuccess(
         'Task Submitted Successfully',
-        'Your task has been submitted for review.',
+        `Your task has been submitted and is ${getDisplayTaskStatus(newTaskStatus)}.`,
         {
           onConfirm: () => {
             navigate('/tasks');
@@ -149,11 +149,11 @@ export default function ViewTask() {
   // Check if task can be submitted
   const canSubmitTask = () => {
     if (!task) return false;
-    return task.taskStatus === 'inProgress' || 
-           task.taskStatus === 'draft' || 
-           task.taskStatus === 'approvalRejected' || 
-           task.taskStatus === 'submissionRejected' ||
-           task.taskStatus === 'revisionInProgress';
+    return task.taskStatus === 'inProgress' ||
+      task.taskStatus === 'draft' ||
+      task.taskStatus === 'approvalRejected' ||
+      task.taskStatus === 'submissionRejected' ||
+      task.taskStatus === 'revisionInProgress';
   };
 
   // Handle evidence file upload
@@ -226,7 +226,7 @@ export default function ViewTask() {
       label: 'Key Performance Indicators (KPIs)',
       rows: 3,
       defaultValue: task && task.kpis ? task.kpis.map(kpi =>
-        `${kpi.kpiTitle}: ${kpi.amount}`
+        `${kpi.kpiTitle}: Target ${kpi.targetAmount}, Achieved ${kpi.achievedAmount || 0} (${kpi.operator})`
       ).join('\n') : '',
       disabled: true
     },
@@ -266,15 +266,15 @@ export default function ViewTask() {
       defaultValue: task ? getDisplayTaskStatus(task.taskStatus) : '',
       disabled: true
     },
-    {
+    ...(task?.taskStatus !== 'draft' ? [{
       type: 'textarea',
       name: 'supervisorComment',
       label: 'Supervisor Comment',
       rows: 2,
       defaultValue: task ? task.supervisorComment : 'Waiting for review',
       disabled: true
-    },
-    {
+    }] : []),
+    ...(task?.taskStatus !== 'draft' ? [{
       type: 'number',
       name: 'score',
       label: 'Score',
@@ -282,8 +282,8 @@ export default function ViewTask() {
       max: 100,
       defaultValue: task ? task.score : '',
       disabled: true
-    },
-    {
+    }] : []),
+    ...((task?.taskStatus === 'submissionRejected' || task?.taskStatus === 'inProgress') && task?.taskStatus !== 'draft' ? [{
       type: isSubmissionMode ? 'file' : 'link',
       name: 'evidence',
       label: 'Evidence',
@@ -291,7 +291,7 @@ export default function ViewTask() {
       disabled: isSubmissionMode ? false : true,
       accept: '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xlsx,.xls',
       hint: isSubmissionMode ? 'Upload files as evidence for this task (PDF, DOC, images, etc.)' : ''
-    },
+    }] : []),
   ];
 
   if (isLoading) {
@@ -343,7 +343,7 @@ export default function ViewTask() {
           subtitle={isSubmissionMode ? "Review task details before submission" : "Task details (read-only)"}
           fields={formFields}
           onSubmit={isSubmissionMode ? handleFormSubmit : undefined}
-          showSubmitButton={isSubmissionMode && !task?.evidence && !isUploadingEvidence}
+          showSubmitButton={isSubmissionMode && !task?.evidence && !isUploadingEvidence && task?.taskStatus !== 'draft' && task?.taskStatus !== 'approvalRejected'}
           submitButtonText={isUploadingEvidence ? 'Uploading...' : 'Upload Evidence'}
           footer={
             <div className="flex justify-between items-center mt-6">
@@ -354,9 +354,9 @@ export default function ViewTask() {
                 Back to Tasks
               </button>
 
-              {isSubmissionMode && canSubmitTask() && (
+              {isSubmissionMode && canSubmitTask() && !(task?.taskStatus === 'draft' && !isSubmissionMode) && (
                 <div className="flex gap-3">
-                  {(task?.taskStatus === 'draft' || task?.taskStatus === 'approvalRejected' || task?.taskStatus === 'submissionRejected' || task?.taskStatus === 'revisionInProgress') && (
+                  {(task?.taskStatus === 'draft' || task?.taskStatus === 'approvalRejected') && (
                     <button
                       onClick={() => navigate(`/tasks/${task._id}/edit`)}
                       className="btn-outline"
@@ -364,19 +364,19 @@ export default function ViewTask() {
                       Edit Task
                     </button>
                   )}
-                  {task?.evidence ? (
+                  {(task?.taskStatus === 'submissionRejected' || task?.taskStatus === 'inProgress') && task?.evidence ? (
                     <span className="text-green-600 font-medium">
                       ✓ Evidence uploaded - Task ready for submission
                     </span>
-                  ) : (
+                  ) : (task?.taskStatus === 'submissionRejected' || task?.taskStatus === 'inProgress') && (
                     <span className="text-orange-600 font-medium">
                       ⚠ Please upload evidence before submitting
                     </span>
                   )}
                   <button
                     onClick={handleSubmitTask}
-                    disabled={isSubmitting || !task?.evidence}
-                    className={`btn-primary ${!task?.evidence ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={isSubmitting || (!task?.evidence && task?.taskStatus !== 'draft' && task?.taskStatus !== 'approvalRejected')}
+                    className={`btn-primary ${(!task?.evidence && task?.taskStatus !== 'draft' && task?.taskStatus !== 'approvalRejected') ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit Task'}
                   </button>

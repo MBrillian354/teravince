@@ -143,7 +143,7 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         name: 'kpis',
         label: 'Key Performance Indicators (KPIs)',
         defaultValue: selectedTask.kpis && selectedTask.kpis.length > 0
-          ? selectedTask.kpis.map(kpi => `${kpi.kpiTitle}: ${kpi.amount} (${kpi.operator})`).join('\n')
+          ? selectedTask.kpis.map(kpi => `${kpi.kpiTitle}: Target ${kpi.targetAmount}, Achieved ${kpi.achievedAmount || 0} (${kpi.operator})`).join('\n')
           : 'No KPIs defined',
         disabled: true,
         rows: 3
@@ -174,7 +174,7 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         group: 'dates',
         disabled: selectedTask.taskStatus !== 'submittedAndAwaitingApproval'
       },
-      ...(selectedTask.evidence ? [{
+      ...(selectedTask.taskStatus !== 'submittedAndAwaitingApproval' && selectedTask.evidence ? [{
         type: 'link',
         name: 'evidence',
         label: 'Evidence',
@@ -189,10 +189,10 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         defaultValue: selectedTask.supervisorComment || supervisorComment,
         rows: 3,
         placeholder: 'Enter your review comments here...',
-        disabled: selectedTask.taskStatus === 'inProgress' || selectedTask.taskStatus === 'completed'
+        disabled: selectedTask.taskStatus === 'inProgress' || (selectedTask.taskStatus === 'completed' && !selectedTask.bias_check?.is_bias),
       },
 
-      ...(selectedTask.evidence && (selectedTask.taskStatus === 'submittedAndAwaitingReview' || selectedTask.taskStatus === 'submittedAndAwaitingApproval') ? [{
+      ...((selectedTask.evidence && selectedTask.taskStatus === 'completed') && (selectedTask.taskStatus === 'submittedAndAwaitingReview') ? [{
         type: 'checkbox',
         name: 'biasReviewCheck',
         label: 'I have properly reviewed the staff\'s task without bias',
@@ -664,20 +664,6 @@ export default function SupervisorReviewingAndApprovalOfTask() {
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? 'Processing...' : 'Submit Review'}
-                    </button>
-                  </>
-                )}
-
-                {/* For already completed tasks without bias - allow revision request */}
-                {task.taskStatus === 'completed' && !task.bias_check?.is_bias && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => handleButtonAction('revise')}
-                      className="btn-outline"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? 'Processing...' : 'Request Revision'}
                     </button>
                   </>
                 )}

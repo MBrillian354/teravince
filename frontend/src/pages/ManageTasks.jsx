@@ -107,9 +107,9 @@ export default function ManageTasks() {
       header: "Status",
       accessor: "taskStatus",
       render: (task) => (
-        <StatusBadge 
-          status={task.taskStatus} 
-          type="task" 
+        <StatusBadge
+          status={task.taskStatus}
+          type="task"
           size="xs"
           showIcon={false}
         />
@@ -120,37 +120,38 @@ export default function ManageTasks() {
       accessor: "manage",
       render: (task) => (
         <div className="flex gap-2">
-          {(task.taskStatus === "Draft" || 
-            task.taskStatus === "Approval Rejected" || 
-            task.taskStatus === "Submission Rejected" ||
+          {(task.taskStatus === "Draft" ||
+            task.taskStatus === "Approval Rejected" &&
+            task.taskStatus !== "Submission Rejected" ||
             task.taskStatus === "Revision In Progress") && !task.submitted && (
-            <>
-              <button
-                onClick={() => handleEdit(task.taskId)}
-                className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
-              >
-                <Edit2 className="w-3 h-3" /> Edit
-              </button>
-              <button
-                onClick={() => handleDelete(task.taskId)}
-                className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
-              >
-                <Trash2 className="w-3 h-3" /> Delete
-              </button>
-            </>
-          )}
-          {(task.taskStatus === "In Progress" || 
-            task.taskStatus === "Awaiting Review" || 
+              <>
+                <button
+                  onClick={() => handleEdit(task.taskId)}
+                  className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
+                >
+                  <Edit2 className="w-3 h-3" /> Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(task.taskId)}
+                  className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
+                >
+                  <Trash2 className="w-3 h-3" /> Delete
+                </button>
+              </>
+            )}
+          {(task.taskStatus === "In Progress" ||
+            task.taskStatus === "Awaiting Review" ||
             task.taskStatus === "Awaiting Approval" ||
+            task.taskStatus === "Submission Rejected" ||
             task.taskStatus === "Completed") && (
-            <button
-              onClick={() => handleView(task.taskId)}
-              className="btn-outline text-xs flex items-center gap-1"
-            >
-              <Eye className="w-3 h-3" />
-              View
-            </button>
-          )}
+              <button
+                onClick={() => handleView(task.taskId)}
+                className="btn-outline text-xs flex items-center gap-1"
+              >
+                <Eye className="w-3 h-3" />
+                View
+              </button>
+            )}
         </div>
       )
     },

@@ -6,18 +6,18 @@ import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 import StatusBadge from '../components/StatusBadge';
 import { tasksAPI } from '../utils/api';
-import { 
-  getDisplayTaskStatus, 
+import {
+  getDisplayTaskStatus,
 } from '../utils/statusStyles';// Helper function to get bias detection status
 const getBiasDetectionStatus = (biasCheck) => {
   if (!biasCheck) return { status: 'not-checked', label: 'Not Checked' };
-  
+
   if (biasCheck.is_bias === true) {
     return { status: 'bias-detected', label: 'Bias Detected' };
   } else if (biasCheck.is_bias === false) {
     return { status: 'no-bias', label: 'No Bias' };
   }
-  
+
   return { status: 'pending', label: 'Pending' };
 };
 
@@ -140,9 +140,9 @@ export default function TeamTasks() {
     {
       header: 'Submission Status',
       render: (r) => (
-        <StatusBadge 
-          status={r.status} 
-          type="task" 
+        <StatusBadge
+          status={r.status}
+          type="task"
           size="xs"
           showIcon={false}
         />
@@ -151,9 +151,9 @@ export default function TeamTasks() {
     {
       header: 'Approval Status',
       render: (r) => (
-        <StatusBadge 
-          status={r.approval} 
-          type="approval" 
+        <StatusBadge
+          status={r.approval}
+          type="approval"
           size="xs"
           showIcon={false}
         />
@@ -162,9 +162,9 @@ export default function TeamTasks() {
     {
       header: 'Task Status',
       render: (r) => (
-        <StatusBadge 
-          status={r.review} 
-          type="review" 
+        <StatusBadge
+          status={r.review}
+          type="review"
           size="xs"
           showIcon={false}
         />
@@ -175,7 +175,7 @@ export default function TeamTasks() {
       render: (r) => {
         const biasStatus = r.biasStatus;
         let statusColor = 'bg-gray-100 text-gray-800';
-        
+
         if (biasStatus.status === 'bias-detected') {
           statusColor = 'bg-red-100 text-red-800';
         } else if (biasStatus.status === 'no-bias') {
@@ -183,7 +183,7 @@ export default function TeamTasks() {
         } else if (biasStatus.status === 'pending') {
           statusColor = 'bg-yellow-100 text-yellow-800';
         }
-        
+
         return (
           <span className={`px-2 py-1 text-xs rounded-full ${statusColor}`}>
             {biasStatus.label}
@@ -196,7 +196,7 @@ export default function TeamTasks() {
       render: (row) => {
         const task = row.originalTask;
         const biasStatus = row.biasStatus;
-        
+
         // For completed tasks with bias detected, show Review button
         if (task.taskStatus === 'completed' && biasStatus.status === 'bias-detected') {
           return (
@@ -210,9 +210,9 @@ export default function TeamTasks() {
             </div>
           );
         }
-        
+
         // For submitted tasks (awaiting supervisor review)
-        if (task.taskStatus === 'submitted') {
+        if (task.taskStatus === 'submittedAndAwaitingApproval' || task.taskStatus === 'submittedAndAwaitingReview') {
           return (
             <div className="flex space-x-2">
               <button
@@ -224,9 +224,9 @@ export default function TeamTasks() {
             </div>
           );
         }
-        
+
         // For in-progress tasks
-        if (task.taskStatus === 'inProgress' || task.taskStatus === 'completed') {
+        if (task.taskStatus !== 'submittedAndAwaitingReview' && task.taskStatus !== 'submittedAndAwaitingApproval') {
           return (
             <div className="flex space-x-2">
               <button
@@ -238,11 +238,19 @@ export default function TeamTasks() {
             </div>
           );
         }
-        
+
         return null;
       },
       align: 'center'
     },
+    {
+      header: 'Score',
+      accessor: 'score',
+      align: 'center',
+      render: (r) => (
+        <span className="text-xs">{r.score || 'N/A'}</span>
+      ),
+    }
   ];
 
   // Loading state

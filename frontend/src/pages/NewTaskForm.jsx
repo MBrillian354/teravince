@@ -53,12 +53,21 @@ export default function NewTaskForm() {
     },
     {
       type: 'number',
-      name: 'amount',
-      label: 'Amount',
-      placeholder: 'Enter amount',
+      name: 'targetAmount',
+      label: 'Target Amount',
+      placeholder: 'Enter target amount',
       group: 'amounts', // low level field in the group
       isDynamic: true, // Enable dynamic add/remove functionality
       position: 'center', // Position at the bottom of the group
+    },
+    {
+      type: 'number',
+      name: 'achievedAmount',
+      label: 'Achieved Amount',
+      placeholder: 'Enter achieved amount (optional)',
+      group: 'amounts', // low level field in the group
+      isDynamic: true, // Enable dynamic add/remove functionality
+      position: 'bottom', // Position at the bottom of the group
     }
   ];
 
@@ -78,7 +87,8 @@ export default function NewTaskForm() {
         description: formData.taskDescription,
         kpis: formData.amounts.map(activity => ({
           kpiTitle: Array.isArray(activity.kpiTitle) ? activity.kpiTitle[0] : activity.kpiTitle,
-          amount: Array.isArray(activity.amount) ? activity.amount[0] : activity.amount,
+          targetAmount: Array.isArray(activity.targetAmount) ? activity.targetAmount[0] : activity.targetAmount,
+          achievedAmount: Array.isArray(activity.achievedAmount) ? activity.achievedAmount[0] : (activity.achievedAmount || 0),
           operator: Array.isArray(activity.operator) ? activity.operator[0] : activity.operator
         })),
         score: 0, // Default score

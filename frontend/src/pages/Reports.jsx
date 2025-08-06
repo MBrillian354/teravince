@@ -1,43 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import TasksReportsTabs from '../components/TasksReportsTabs';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
+import axios from 'axios';
 
 export default function Reports() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc');
   const totalPages = 11;
+  const [selectedMonth, setSelectedMonth] = useState('All');
+
+  // ─── Fetch Data from Backend ─────────────────────────────
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('/api/reports', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setReports(response.data);
+      } catch (error) {
+        console.error('Failed to fetch reports', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
+
+  // Statistik dari laporan
+  const upcomingCount = reports.filter(r => r.status === 'awaitingReview').length;
+  const finishedCount = reports.filter(r => r.status === 'completed').length;
+
+  // Ambil tanggal terakhir di bulan ini sebagai deadline
+  const today = new Date();
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+  const formattedDeadline = endOfMonth.toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
 
   const cards = [
-    { label: 'Upcoming Reviews', value: 3 },
-    { label: 'Finished Review', value: 0 },
-    { label: "This Month’s Deadline", value: '31 May 2025' },
+    { label: 'Upcoming Reviews', value: upcomingCount },
+    { label: 'Finished Review', value: finishedCount },
+    { label: "This Month’s Deadline", value: formattedDeadline },
   ];
 
-  // ─── Dummy report data ─────────────────────────────────────────
-  const initialData = [
-    { reportId: 'r1', employeeId: '3210001', name: 'Jane Doe', month: 'May', jobTitle: 'Social Media Trainee', score: '0/100', status: 'Awaiting Review' },
-    { reportId: 'r2', employeeId: '3210002', name: 'John Smith', month: 'March', jobTitle: 'Marketing Intern', score: '75/100', status: 'Completed' },
-    { reportId: 'r3', employeeId: '3210003', name: 'Lisa Ray', month: 'January', jobTitle: 'Design Assistant', score: '85/100', status: 'Completed' },
-    { reportId: 'r4', employeeId: '3210004', name: 'Alan Kim', month: 'April', jobTitle: 'Community Intern', score: '60/100', status: 'Awaiting Review' }
+
+  // ─── Transform Data for Table ─────────────────────────────
+  const monthOrder = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  // ─── Sorting logic ─────────────────────────────────────────────
-  const [sortBy, setSortBy] = useState(null); // e.g. 'month'
-  const [sortDirection, setSortDirection] = useState('asc');
+  const transformedData = reports
+    .map((r) => {
+      const date = new Date(`${r.period}-01`);
+      const monthName = date.toLocaleString('en-US', { month: 'long' });
+      return {
+        reportId: r._id,
+        employeeId: r.userId?._id || '',
+        name: `${r.userId?.firstName || ''} ${r.userId?.lastName || ''}`,
+        month: monthName,
+        jobTitle: r.userId?.jobTitle || 'N/A',
+        score: `${r.score}/100`,
+        status: r.status === 'awaitingReview' ? 'Awaiting Review' : 'Completed',
+      };
+    })
+    .filter((item) => selectedMonth === 'All' || item.month === selectedMonth);
 
-  const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-  const sortedData = [...initialData].sort((a, b) => {
+  // ─── Sorting Logic ────────────────────────────────────────
+  const sortedData = [...transformedData].sort((a, b) => {
     if (sortBy === 'month') {
       const aIndex = monthOrder.indexOf(a.month);
       const bIndex = monthOrder.indexOf(b.month);
       return sortDirection === 'asc' ? aIndex - bIndex : bIndex - aIndex;
     }
-    return 0; // default (no sorting)
+    return 0;
   });
 
   const toggleSort = (field) => {
@@ -49,11 +100,12 @@ export default function Reports() {
     }
   };
 
+  // ─── Table Columns ───────────────────────────────────────
   const columns = [
     {
       header: '',
       render: () => <input type="checkbox" className="form-checkbox" />,
-      align: 'center'
+      align: 'center',
     },
     {
       header: 'Employee Name',
@@ -67,7 +119,7 @@ export default function Reports() {
           </div>
           <span>{row.name}</span>
         </Link>
-      )
+      ),
     },
     {
       header: () => (
@@ -88,7 +140,7 @@ export default function Reports() {
         </button>
       ),
       accessor: 'month',
-      align: 'center'
+      align: 'center',
     },
     { header: 'Job Title', accessor: 'jobTitle' },
     { header: 'Employee Score', accessor: 'score', align: 'right' },
@@ -99,7 +151,7 @@ export default function Reports() {
           {row.status}
         </span>
       ),
-      align: 'right'
+      align: 'right',
     },
   ];
 
@@ -108,18 +160,40 @@ export default function Reports() {
       <h1 className="text-3xl font-bold mb-4">Reports, Jobs, and Tasks</h1>
       <TasksReportsTabs />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        {cards.map(c => <StatsCard key={c.label} {...c} />)}
+      <div className="mb-4 flex justify-end">
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 text-sm"
+        >
+          <option value="All">All Months</option>
+          {monthOrder.map((month) => (
+            <option key={month} value={month}>
+              {month}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={sortedData}
-        rowKey="reportId"
-        containerClass="bg-white rounded mb-4"
-        onRowClick={({ reportId }) => navigate(`/report/${reportId}`)}
-        variant='gradient'
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {cards.map((c) => (
+          <StatsCard key={c.label} {...c} />
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="text-center py-10">Loading reports...</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={sortedData}
+          rowKey="reportId"
+          containerClass="bg-white rounded mb-4"
+          onRowClick={({ reportId }) => navigate(`/report/${reportId}`)}
+          variant='gradient'
       />
+      )}
 
       <Pagination
         currentPage={page}

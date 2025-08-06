@@ -3,29 +3,58 @@ export default function DataTable({
   data,
   rowKey = 'id',
   onRowClick,
-  containerClass = 'bg-surface rounded shadow overflow-x-auto mb-6',
+  containerClass = 'card-static overflow-x-auto mb-6',
   variant = 'default',
-  title = null
+  title = null,
+  sortBy,
+  sortOrder,
+  onSort
 }) {
+  const handleSort = (column) => {
+    if (column.sortable && onSort) {
+      const newOrder = sortBy === column.accessor && sortOrder === 'asc' ? 'desc' : 'asc';
+      onSort(column.accessor, newOrder);
+    }
+  };
+
+  const getSortIcon = (column) => {
+    if (!column.sortable) return null;
+    
+    if (sortBy === column.accessor) {
+      return sortOrder === 'asc' ? ' ↑' : ' ↓';
+    }
+    return ' ↕';
+  };
+
   if (variant === 'gradient') {
     return (
-      <div className="bg-surface rounded-lg shadow-md border border-primary overflow-hidden flex flex-col mb-4">
+      <div className="card-static p-0 border border-primary/50 overflow-hidden flex flex-col mb-4">
         {title && (
-          <div className="bg-gradient-to-r from-primary to-secondary px-5 py-3">
+          <div className="bg-gradient-to-r from-primary to-secondary px-6 py-4">
             <h2 className="text-lg font-semibold text-background">{title}</h2>
           </div>
         )}
 
         <div className="w-full overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full">
             <thead className="bg-secondary text-background">
               <tr>
                 {columns.map((col, index) => (
                   <th
                     key={`header-${index}`}
-                    className="px-4 py-2 text-left font-medium whitespace-nowrap"
+                    className={`px-4 py-2 text-left font-medium whitespace-nowrap ${
+                      col.sortable ? 'cursor-pointer hover:bg-primary transition-colors' : ''
+                    }`}
+                    onClick={() => handleSort(col)}
                   >
-                    {typeof col.header === 'function' ? col.header() : col.header}
+                    <div className="flex items-center">
+                      <span>{typeof col.header === 'function' ? col.header() : col.header}</span>
+                      {col.sortable && (
+                        <span className="ml-1 text-xs opacity-70">
+                          {getSortIcon(col)}
+                        </span>
+                      )}
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -34,7 +63,7 @@ export default function DataTable({
               {data.map((row) => (
                 <tr
                   key={row[rowKey]}
-                  className="hover:bg-surface-hover transition"
+                  className={`${onRowClick ? 'hover:bg-gray-100 transition cursor-pointer' : ''}`}
                   onClick={() => onRowClick && onRowClick(row)}
                 >
                   {columns.map((col, index) => (
@@ -65,9 +94,19 @@ export default function DataTable({
             {columns.map((col, index) => (
               <th
                 key={`header-${index}`}
-                className={`p-3 text-${col.align || 'left'}`}
+                className={`p-3 text-${col.align || 'left'} ${
+                  col.sortable ? 'cursor-pointer hover:bg-gray-200 transition-colors' : ''
+                }`}
+                onClick={() => handleSort(col)}
               >
-                {typeof col.header === 'function' ? col.header() : col.header}
+                <div className="flex items-center">
+                  <span>{typeof col.header === 'function' ? col.header() : col.header}</span>
+                  {col.sortable && (
+                    <span className="ml-1 text-xs opacity-70">
+                      {getSortIcon(col)}
+                    </span>
+                  )}
+                </div>
               </th>
             ))}
           </tr>
@@ -77,7 +116,7 @@ export default function DataTable({
             <tr
               key={row[rowKey]}
               className={`border-t cursor-pointer ${
-                onRowClick ? 'hover:bg-surface-hover' : ''
+                onRowClick ? 'hover:bg-gray-100' : ''
               }`}
               onClick={() => onRowClick && onRowClick(row)}
             >

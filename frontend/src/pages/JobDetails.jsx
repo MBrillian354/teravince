@@ -28,7 +28,7 @@ import {
 
     // Task table columns
     const taskColumns = [
-        { header: 'Employee Name', accessor: 'employeeName' },
+        { header: 'Staff Name', accessor: 'staffName' },
         { header: 'Task ID', accessor: 'id', render: (row) => row.id?.toString().slice(-8) || 'N/A' },
         { header: 'Task Title', accessor: 'title' },
         { header: 'Start Date', accessor: 'startDate' },
@@ -119,7 +119,7 @@ import {
             </div>
 
             {/* Job and Employee Information */}
-            <div className="bg-white rounded shadow p-6 mb-6">
+            <div className="card-static mb-6">
                 <h2 className="text-xl font-bold mb-4">Job Information</h2>
                 <div className="flex flex-col gap-6">
                     <div>
@@ -132,11 +132,11 @@ import {
                     </div>
                     <div>
                         <p className="font-medium text-gray-600">Description</p>
-                        <p className="text-lg font-semibold">{currentJob.description || 'No description'}</p>
+                        <p className="text-lg font-semibold whitespace-pre-line">{currentJob.description || 'No description'}</p>
                     </div>
                     <div>
                         <p className="font-medium text-gray-600">Assigned Employees</p>
-                        <p className="text-lg font-semibold">{currentJob.employees}</p>
+                        <p className="text-lg font-semibold">{currentJob.staffs}</p>
                     </div>
                     <div>
                         <p className="font-medium text-gray-600">Status</p>
@@ -154,10 +154,8 @@ import {
 
             {/* Tasks Table */}
             <div className="bg-white rounded shadow mb-6">
-                <div className="p-6 border-b">
-                    <h2 className="text-xl font-bold">Tasks for this Job ({currentJobTasks.length})</h2>
-                </div>
                 <DataTable
+                    title={`Tasks for this Job (${currentJobTasks.length})`}
                     columns={taskColumns}
                     data={currentJobTasks}
                     rowKey="id"

@@ -1,117 +1,132 @@
-// src/pages/StaffReport.jsx
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
-import Pagination from '../components/Pagination';
+import DynamicForm from '../components/DynamicForm';
+import { useModal } from '../hooks/useModal';
+import { fetchReportTasks, updateReport, clearCurrentReport, checkReportReviewBias } from '../store/supervisorSlice';
 
 export default function StaffReport() {
   const { reportId } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { showSuccess, showError } = useModal();
 
-  // 1) initial data from reports
-  const reportData = {
-    r1: { employeeId: '3210001', name: 'Jane Doe', month: 'May 2025', jobTitle: 'Social Media Trainee', score: '0/100' },
-    r2: { employeeId: '3210002', name: 'John Smith', month: 'March 2025', jobTitle: 'Marketing Intern', score: '75/100' },
-    r3: { employeeId: '3210003', name: 'Lisa Ray', month: 'January 2025', jobTitle: 'Design Assistant', score: '85/100' },
-    r4: { employeeId: '3210004', name: 'Alan Kim', month: 'April 2025', jobTitle: 'Community Intern', score: '60/100' },
+  const {
+    currentReport,
+    currentReportTasks,
+    currentReportLoading,
+    currentReportError,
+    biasCheckResult
+  } = useSelector(state => state.supervisor);
+
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
+
+  useEffect(() => {
+    if (reportId) {
+      dispatch(fetchReportTasks(reportId));
+    }
+
+    return () => {
+      dispatch(clearCurrentReport());
+    };
+  }, [dispatch, reportId]);
+
+  // Select first task by default when tasks are loaded
+  useEffect(() => {
+    if (currentReportTasks && currentReportTasks.length > 0 && !selectedTaskId) {
+      setSelectedTaskId(currentReportTasks[0]._id);
+    }
+  }, [currentReportTasks, selectedTaskId]);
+
+  const handleSubmitReview = async (formData) => {
+    try {
+      // Start bias checking in the background without waiting for the user
+      dispatch(checkReportReviewBias({
+        reportId,
+        review: formData.supervisorReview
+      })).then((result) => {
+        // Background bias check completed - results will be saved to the report
+        console.log('Background bias check completed for report:', result);
+      }).catch((error) => {
+        // Log error but don't interrupt the user flow
+        console.error('Background bias check failed for report:', error);
+      });
+
+      // Update the report immediately with the review and mark as done
+      await dispatch(updateReport({
+        reportId,
+        updateData: {
+          review: formData.supervisorReview,
+          status: formData.reviewed ? 'done' : 'needReview'
+        }
+      })).unwrap();
+
+      // Show success message or redirect
+      showSuccess(
+        'Review Submitted!',
+        'The review has been successfully submitted.',
+        {
+          onConfirm: () => navigate(-1), // Go back to the previous page
+          autoClose: true,
+          timeout: 3000
+        }
+      );
+    } catch (error) {
+      showError(
+        'Submission Failed',
+        error.message || 'Failed to submit the review. Please try again.',
+        'Error'
+      );
+    }
   };
 
-  const spvPlaceholder = "Enter your review...";
+  if (currentReportLoading) {
+    return (
+      <div className="container mx-auto px-4">
+        <div className="text-center py-10">Loading report...</div>
+      </div>
+    );
+  }
 
-  // 2) Look up the current report; fallback to r1
-  const report = reportData[reportId] || reportData.r1;
+  if (currentReportError) {
+    return (
+      <div className="container mx-auto px-4">
+        <div className="text-center py-10 text-red-500">
+          Error: {currentReportError}
+        </div>
+      </div>
+    );
+  }
 
-  // 3) Editable supervisor review
-  const [supervisorReview, setSupervisorReview] = useState('');
-  useEffect(() => {
-    setSupervisorReview('');  // reset when reportId changes
-  }, [reportId]);
+  if (!currentReport) {
+    return (
+      <div className="container mx-auto px-4">
+        <div className="text-center py-10">No report found</div>
+      </div>
+    );
+  }
 
-  // 4) Dummy tasks keyed by reportId
-  const allTasks = [
-    {
-      reportId: 'r1',
-      jobDescId: '32100010001',
-      jobDesc: 'Proofreading',
-      taskId: '32100010001',
-      title: 'Review Social Media Post',
-      status: 'Awaiting Review',
-      score: '100/100',
-      start: '01/03/2025',
-      end: '07/10/2025',
-      evidence: [{ name: 'report-may.pdf', url: '/assets/report-may.pdf' }],
-    },
-    {
-      reportId: 'r2',
-      jobDescId: '32100020001',
-      jobDesc: 'Draft Campaign Copy',
-      taskId: '32100020001',
-      title: 'Write blog post',
-      status: 'Completed',
-      score: '75/100',
-      start: '10/03/2025',
-      end: '15/10/2025',
-      evidence: [{ name: 'blog-draft.docx', url: '/assets/blog-draft.docx' }],
-    },
-    {
-      reportId: 'r3',
-      jobDescId: '32100030001',
-      jobDesc: 'Design Layout',
-      taskId: '32100030001',
-      title: 'Create flyer',
-      status: 'Completed',
-      score: '85/100',
-      start: '05/01/2025',
-      end: '20/01/2025',
-      evidence: [],
-    },
-    {
-      reportId: 'r4',
-      jobDescId: '32100040001',
-      jobDesc: 'Community Engagement',
-      taskId: '32100040001',
-      title: 'Host webinar',
-      status: 'Awaiting Review',
-      score: '60/100',
-      start: '15/04/2025',
-      end: '30/04/2025',
-      evidence: [],
-    },
-  ];
+  const selectedTask = currentReportTasks.find(task => task._id === selectedTaskId);
 
-  // 5) Filter tasks for this report
-  const tasks = allTasks.filter(t => t.reportId === reportId);
+  const formatPeriod = (period) => {
+    const [year, month] = period.split('-');
+    const date = new Date(year, month - 1);
+    return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  };
 
-  // 6) Which task is selected?
-  const [selectedTaskId, setSelectedTaskId] = useState(tasks[0]?.taskId);
-  const selectedTask = tasks.find(t => t.taskId === selectedTaskId) || tasks[0];
-
-  // reset selectedTask when reportId changes
-  useEffect(() => {
-    setSelectedTaskId(tasks[0]?.taskId);
-  }, [reportId]);
-
-  // 7) Pagination
-  const [page, setPage] = useState(1);
-  const totalPages = 3;
-
-  // 8) Columns for the tasks table
   const taskColumns = [
-    { header: '', render: () => <input type="checkbox" className="form-checkbox" />, align: 'center' },
-    { header: 'Job Description ID', accessor: 'jobDescId' },
-    { header: 'Job Description', accessor: 'jobDesc' },
-    { header: 'Task ID', accessor: 'taskId' },
+    { header: 'Task ID', render: row => row._id.slice(-8) },
     { header: 'Task Title', accessor: 'title' },
     {
       header: 'Task Status',
       render: r => <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">
-        {r.status}
+        {r.taskStatus.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
       </span>,
     },
-    { header: 'Task Score', accessor: 'score', align: 'right' },
+    { header: 'Task Score', render: row => `${row.score || 0}/100`, align: 'right' },
   ];
 
   return (
@@ -121,7 +136,7 @@ export default function StaffReport() {
         <h1 className="text-3xl font-bold">Staff Report</h1>
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center space-x-1 bg-gray-700 text-white px-3 py-1 rounded text-sm hover:bg-gray-800"
+          className="btn-outline flex items-center gap-2"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           <span>Back to Reports</span>
@@ -129,148 +144,176 @@ export default function StaffReport() {
       </div>
 
       {/* Top Summary Card */}
-      <div className="bg-surface rounded shadow p-6 mb-6 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+      <div className="card-static flex gap-2 justify-between mb-6">
         <div className="flex items-center space-x-6">
           <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
             <span className="text-gray-400 text-2xl">👤</span>
           </div>
           <div>
-            <p className="font-semibold">{report.name}</p>
-            <p className="text-sm text-gray-600">{report.employeeId}</p>
-            <p className="text-sm text-gray-600">{report.jobTitle}</p>
-            <p className="text-sm text-gray-500">{report.month}</p>
+            <h1 className=" text-lg font-semibold">
+              {`${currentReport.userId?.firstName || ''} ${currentReport.userId?.lastName || ''}`}
+            </h1>
+            <p className="text-gray-600">{currentReport.userId?._id}</p>
+            <p className="text-gray-600">{currentReport.userId?.jobTitle || 'N/A'}</p>
+            <p className="text-gray-500">{formatPeriod(currentReport.period)}</p>
           </div>
         </div>
         <StatsCard
-          label="Employee Score"
-          value={report.score}
+          label="Staff Score"
+          value={`${currentReport.score}/100`}
           colorClass="bg-white"
         />
       </div>
 
-      {/* Supervisor Review */}
-      <div className="bg-surface rounded shadow p-6 mb-6">
-        <p className="font-medium text-gray-600 mb-2">Supervisor Review</p>
-        <textarea
-          value={supervisorReview}
-          onChange={e => setSupervisorReview(e.target.value)}
-          className="w-full bg-muted border border-gray-200 rounded px-3 py-2 h-28 text-sm text-gray-700 mb-4"
-          placeholder={spvPlaceholder}
+      {/* Supervisor Review using DynamicForm */}
+      <div className="card-static mb-6">
+        {/* Bias Check Result Display - Show if bias was detected in previous review */}
+        {currentReport.bias_check && currentReport.bias_check.is_bias && (
+          <div className="mb-4 p-4 rounded-lg border-l-4 bg-red-50 border-red-500">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h4 className="text-sm font-medium text-red-800">
+                  Previous Bias Check Result: Bias Detected
+                </h4>
+                <div className="mt-2 text-sm text-red-700">
+                  <p><strong>Type:</strong> {currentReport.bias_check.bias_label}</p>
+                  <p><strong>Reason:</strong> {currentReport.bias_check.bias_reason}</p>
+                  <p className="mt-2 text-orange-700"><strong>Action Required:</strong> Please review your comments and consider providing a more objective evaluation.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentReport.bias_check && !currentReport.bias_check.is_bias && (
+          <div className="mb-4 p-4 rounded-lg border-l-4 bg-green-50 border-green-500">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h4 className="text-sm font-medium text-green-800">
+                  Previous Bias Check Result: No Bias Detected
+                </h4>
+                <p className="mt-1 text-sm text-green-700">
+                  Your previous review was objective and unbiased.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <DynamicForm
+          fields={[
+            {
+              label: 'Supervisor Review',
+              name: 'supervisorReview',
+              type: 'textarea',
+              placeholder: "Enter your review ...",
+              defaultValue: currentReport.review || '',
+              disabled: currentReport.status === 'done',
+            },
+            ...(currentReport.status !== 'done' ? [{
+              label: 'I have properly reviewed the staff\'s report',
+              name: 'reviewed',
+              type: 'checkbox',
+              required: true,
+            }] : [])
+          ]}
+          submitButtonText="Send Review"
+          showSubmitButton={currentReport.status !== 'done'}
+          onSubmit={handleSubmitReview}
         />
-        <div className="flex justify-end items-center space-x-4">
-          <label className="flex items-center text-sm">
-            <input type="checkbox" className="form-checkbox mr-2" />
-            I have properly reviewed the employee’s report
-          </label>
-          <button className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-            Send Review
-          </button>
-        </div>
       </div>
 
       {/* Tasks Table */}
       <DataTable
+        title={`Monthly Tasks for ${currentReport.userId?.firstName || ''} ${currentReport.userId?.lastName || ''}`}
         columns={taskColumns}
-        data={tasks}
-        rowKey="taskId"
+        data={currentReportTasks}
+        rowKey="_id"
         containerClass="bg-white rounded mb-4"
-        onRowClick={({ taskId }) => setSelectedTaskId(taskId)}
+        onRowClick={(task) => setSelectedTaskId(task._id)}
         variant='gradient'
       />
 
-      {/* Pagination */}
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
-
-      {/* Bottom Detail Card */}
+      {/* Bottom Detail Card using DynamicForm */}
       {selectedTask && (
-        <div className="bg-white rounded shadow p-6 mt-6 space-y-6">
-          {/* JobDesc ID & Desc */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[['Job Description ID', selectedTask.jobDescId],
-            ['Job Description', selectedTask.jobDesc]].map(([label, val]) => (
-              <div key={label}>
-                <label className="block text-sm text-gray-600">{label}</label>
-                <input
-                  readOnly
-                  value={val}
-                  className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Task ID & Score */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[['Task ID', selectedTask.taskId],
-            ['Task Score', selectedTask.score]].map(([label, val]) => (
-              <div key={label}>
-                <label className="block text-sm text-gray-600">{label}</label>
-                <input
-                  readOnly
-                  value={val}
-                  className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Title */}
-          <div>
-            <label className="block text-sm text-gray-600">Task Title</label>
-            <input
-              readOnly
-              value={selectedTask.title}
-              className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm text-gray-600">Task Description</label>
-            <textarea
-              readOnly
-              value={selectedTask.title}
-              className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700 h-24"
-            />
-          </div>
-
-          {/* Status / Dates */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[['Task Status', selectedTask.status],
-            ['Start Date', selectedTask.start],
-            ['Finish Date', selectedTask.end]].map(([label, val]) => (
-              <div key={label}>
-                <label className="block text-sm text-gray-600">{label}</label>
-                <input
-                  readOnly
-                  value={val}
-                  className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Evidence */}
-          <div>
-            <label className="block text-sm text-gray-600">Evidence</label>
-            {selectedTask.evidence.length > 0
-              ? selectedTask.evidence.map(f => (
-                <a
-                  key={f.url}
-                  href={f.url}
-                  download={f.name}
-                  className="block text-indigo-600 hover:underline text-sm"
-                >
-                  {f.name}
-                </a>
-              ))
-              : <p className="text-gray-500 text-sm">No evidence uploaded</p>
-            }
-          </div>
+        <div className="card-static mb-6">
+          <DynamicForm
+            fields={[
+              {
+                label: 'Task ID',
+                name: 'taskId',
+                type: 'text',
+                defaultValue: selectedTask._id.slice(-8),
+                disabled: true,
+                group: 'taskDetails'
+              },
+              {
+                label: 'Task Score',
+                name: 'score',
+                type: 'text',
+                defaultValue: `${selectedTask.score || 0}/100`,
+                disabled: true,
+                group: 'taskDetails'
+              },
+              {
+                label: 'Task Title',
+                name: 'title',
+                type: 'text',
+                defaultValue: selectedTask.title,
+                disabled: true
+              },
+              {
+                label: 'Task Description',
+                name: 'description',
+                type: 'textarea',
+                defaultValue: selectedTask.description,
+                disabled: true
+              },
+              {
+                label: 'Start Date',
+                name: 'startDate',
+                type: 'text',
+                defaultValue: selectedTask.startDate ? new Date(selectedTask.startDate).toLocaleDateString() : 'N/A',
+                disabled: true,
+                group: 'status'
+              },
+              {
+                label: 'Completion Date',
+                name: 'completedDate',
+                type: 'text',
+                defaultValue: selectedTask.completedDate ? new Date(selectedTask.completedDate).toLocaleDateString() : 'N/A',
+                disabled: true,
+                group: 'status'
+              },
+              {
+                label: 'Deadline',
+                name: 'deadline',
+                type: 'text',
+                defaultValue: selectedTask.deadline ? new Date(selectedTask.deadline).toLocaleDateString() : 'N/A',
+                disabled: true,
+                group: 'status'
+              },
+              {
+                label: 'Evidence',
+                name: 'evidence',
+                type: 'link',
+                defaultValue: selectedTask.evidence ? [{ name: 'Evidence File', url: `/uploads/${selectedTask.evidence}` }] : [],
+                className: 'justify-start',
+                disabled: true,
+              },
+            ]}
+            showSubmitButton={false}
+          />
         </div>
       )}
     </div>

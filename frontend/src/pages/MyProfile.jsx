@@ -198,7 +198,7 @@ export default function MyProfile() {
   return (
     <div className="container mx-auto px-4">
       {/* Page title */}
-      <h1 className="text-3xl font-bold mb-6">My Profile</h1>
+      <h1 className="page-title">My Profile</h1>
 
       {/* Error/Success Messages */}
       {error && (
@@ -217,7 +217,7 @@ export default function MyProfile() {
 
 
 
-        <div className="bg-surface rounded p-6 mb-6 space-y-6">
+        <div className="card-static mb-6 space-y-6">
           {/* Profile Photo + Requirements */}
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-12">
             {/* Avatar + Upload/Remove */}

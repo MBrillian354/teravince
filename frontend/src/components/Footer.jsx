@@ -15,7 +15,7 @@ export default function Footer() {
         showFooter ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 py-3 flex justify-center items-center text-sm text-primary">
+      <div className="max-w-6xl mx-auto px-6 py-3 flex justify-center items-center text-sm text-primary">
         <span className="mx-1">Copyright © 2025 IDK Team</span>
         <span className="mx-1">|</span>
         <Link to="/terms" className="hover:text-primary/60 mx-1 transition-all duration-150">

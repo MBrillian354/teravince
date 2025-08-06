@@ -1,5 +1,102 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { dashboardAPI, tasksAPI, biasAPI } from "../utils/api";
+import axios from 'axios';
+
+// Helper function to get the correct API base URL
+const getApiBaseUrl = () => {
+  return import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : '/api';
+};
+
+// Async thunk for fetching reports
+export const fetchReports = createAsyncThunk(
+  'supervisor/fetchReports',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${getApiBaseUrl()}/reports`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.msg || 'Failed to fetch reports');
+    }
+  }
+);
+
+// Async thunk for fetching a single report by ID
+export const fetchReportById = createAsyncThunk(
+  'supervisor/fetchReportById',
+  async (reportId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${getApiBaseUrl()}/reports/${reportId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch report');
+    }
+  }
+);
+
+// Async thunk for fetching tasks for a specific report
+export const fetchReportTasks = createAsyncThunk(
+  'supervisor/fetchReportTasks',
+  async (reportId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${getApiBaseUrl()}/reports/${reportId}/tasks`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch report tasks');
+    }
+  }
+);
+
+// Async thunk for generating monthly reports
+export const generateMonthlyReports = createAsyncThunk(
+  'supervisor/generateMonthlyReports',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${getApiBaseUrl()}/reports/generate-monthly`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to generate monthly reports');
+    }
+  }
+);
+
+// Async thunk for updating a report (supervisor review)
+export const updateReport = createAsyncThunk(
+  'supervisor/updateReport',
+  async ({ reportId, updateData }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.patch(`${getApiBaseUrl()}/reports/${reportId}`, updateData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data.report;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update report');
+    }
+  }
+);
 
 // Async thunk for fetching supervisor dashboard data
 export const fetchSupervisorDashboard = createAsyncThunk(
@@ -66,6 +163,19 @@ export const checkTaskReviewBias = createAsyncThunk(
     }
 );
 
+// Async thunk for bias checking in report reviews
+export const checkReportReviewBias = createAsyncThunk(
+    'supervisor/checkReportReviewBias',
+    async ({ reportId, review }, { rejectWithValue }) => {
+        try {
+            const response = await biasAPI.checkReportReviewBias(reportId, { review });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.error || 'Failed to check bias');
+        }
+    }
+);
+
 const initialState = {
     totalTasks: 0,
     numberOfStaffs: 0,
@@ -82,7 +192,20 @@ const initialState = {
     currentTaskForReview: null,
     biasCheckResult: null,
     isLoading: false,
-    error: null
+    error: null,
+    // Reports state
+    reports: [],
+    reportsLoading: false,
+    reportsError: null,
+    // Generate reports state
+    generateLoading: false,
+    generateError: null,
+    generateResult: null,
+    // Single report state
+    currentReport: null,
+    currentReportTasks: [],
+    currentReportLoading: false,
+    currentReportError: null,
 };
 
 const supervisorSlice = createSlice({
@@ -100,6 +223,11 @@ const supervisorSlice = createSlice({
         },
         clearBiasCheckResult: (state) => {
             state.biasCheckResult = null;
+        },
+        clearCurrentReport: (state) => {
+            state.currentReport = null;
+            state.currentReportTasks = [];
+            state.currentReportError = null;
         }
     },
     extraReducers: (builder) => {
@@ -120,6 +248,19 @@ const supervisorSlice = createSlice({
             .addCase(fetchSupervisorDashboard.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
+            })
+            // Fetch reports
+            .addCase(fetchReports.pending, (state) => {
+                state.reportsLoading = true;
+                state.reportsError = null;
+            })
+            .addCase(fetchReports.fulfilled, (state, action) => {
+                state.reportsLoading = false;
+                state.reports = action.payload;
+            })
+            .addCase(fetchReports.rejected, (state, action) => {
+                state.reportsLoading = false;
+                state.reportsError = action.payload;
             })
             // Fetch all tasks
             .addCase(fetchAllTasks.pending, (state) => {
@@ -180,10 +321,83 @@ const supervisorSlice = createSlice({
             .addCase(checkTaskReviewBias.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
+            })
+            // Check report review bias
+            .addCase(checkReportReviewBias.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(checkReportReviewBias.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.biasCheckResult = action.payload;
+            })
+            .addCase(checkReportReviewBias.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
+            // Fetch report by ID
+            .addCase(fetchReportById.pending, (state) => {
+                state.currentReportLoading = true;
+                state.currentReportError = null;
+            })
+            .addCase(fetchReportById.fulfilled, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReport = action.payload;
+            })
+            .addCase(fetchReportById.rejected, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReportError = action.payload;
+            })
+            // Fetch report tasks
+            .addCase(fetchReportTasks.pending, (state) => {
+                state.currentReportLoading = true;
+                state.currentReportError = null;
+            })
+            .addCase(fetchReportTasks.fulfilled, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReport = action.payload.report;
+                state.currentReportTasks = action.payload.tasks;
+            })
+            .addCase(fetchReportTasks.rejected, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReportError = action.payload;
+            })
+            // Update report
+            .addCase(updateReport.pending, (state) => {
+                state.currentReportLoading = true;
+                state.currentReportError = null;
+            })
+            .addCase(updateReport.fulfilled, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReport = action.payload;
+                // Update in reports list as well
+                state.reports = state.reports.map(report =>
+                    report._id === action.payload._id ? action.payload : report
+                );
+            })
+            .addCase(updateReport.rejected, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReportError = action.payload;
+            })
+            // Generate monthly reports
+            .addCase(generateMonthlyReports.pending, (state) => {
+                state.generateLoading = true;
+                state.generateError = null;
+                state.generateResult = null;
+            })
+            .addCase(generateMonthlyReports.fulfilled, (state, action) => {
+                state.generateLoading = false;
+                state.generateResult = action.payload;
+                // If new reports were generated, we might want to refresh the reports list
+                // This will be handled by refetching reports in the component
+            })
+            .addCase(generateMonthlyReports.rejected, (state, action) => {
+                state.generateLoading = false;
+                state.generateError = action.payload;
             });
     }
 });
 
-export const { clearSupervisorError, resetSupervisorData, clearCurrentTaskForReview, clearBiasCheckResult } = supervisorSlice.actions;
+export const { clearSupervisorError, resetSupervisorData, clearCurrentTaskForReview, clearBiasCheckResult, clearCurrentReport } = supervisorSlice.actions;
 
 export default supervisorSlice.reducer;

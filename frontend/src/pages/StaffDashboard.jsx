@@ -60,7 +60,7 @@ export default StaffDashboard;
 // ================== Styling Section ==================
 
 const containerStyle = "min-h-screen bg-background text-primary";
-const cardStyle = "bg-surface shadow p-6 rounded-xl m-6";
+const cardStyle = "card-static m-6";
 const greetingStyle = "text-2xl font-semibold mb-2";
 const filterWrapperStyle = "flex justify-between items-center mb-4";
 const overviewTitleStyle = "text-lg font-medium border-b-2 border-primary";

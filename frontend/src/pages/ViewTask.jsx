@@ -310,7 +310,7 @@ export default function ViewTask() {
       defaultValue: task ? getDisplayTaskStatus(task.taskStatus) : '',
       disabled: true
     },
-    ...(task?.taskStatus !== 'draft' ? [{
+    ...(task?.taskStatus === 'completed' ? [{
       type: 'textarea',
       name: 'supervisorComment',
       label: 'Supervisor Comment',
@@ -318,7 +318,7 @@ export default function ViewTask() {
       defaultValue: task ? task.supervisorComment : 'Waiting for review',
       disabled: true
     }] : []),
-    ...(task?.taskStatus !== 'draft' ? [{
+    ...(task?.taskStatus === 'completed' ? [{
       type: 'number',
       name: 'score',
       label: 'Score',
@@ -396,7 +396,7 @@ export default function ViewTask() {
 
   return (
     <div className="bg-background min-h-screen px-4 py-6 text-[#1B1717]">
-      <div className="max-w-4xl mx-auto p-6 bg-surface rounded-lg shadow-md border border-primary">
+      <div className="max-w-4xl mx-auto card-static border border-primary">
         {/* Announcement for Submission Mode */}
         {isSubmissionMode && canSubmitTask() && (
           <StatusNotification

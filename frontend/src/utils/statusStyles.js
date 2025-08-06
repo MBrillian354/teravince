@@ -43,10 +43,23 @@ export const getTaskStatusStyles = (taskStatus) => {
     // Completed states - using theme success colors
     'completed': 'text-success bg-success-light border-success',
     'Completed': 'text-success bg-success-light border-success',
-    
+    'done': 'text-success bg-success-light border-success',
+    'Done': 'text-success bg-success-light border-success',
+
     // Cancelled states - using muted colors
     'cancelled': 'text-gray-600 bg-muted border-gray-400',
     'Cancelled': 'text-gray-600 bg-muted border-gray-400',
+    
+    // Bias statuses - using appropriate colors
+    'biasDetected': 'text-danger bg-red-100 border-danger',
+    'noBias': 'text-success bg-success-light border-success',
+    'notChecked': 'text-neutral-700 bg-neutral-100 border-neutral-400',
+
+    'awaitingReview': 'text-info bg-info-light border-info',
+    'Awaiting Review': 'text-info bg-info-light border-info',
+
+    'needReview': 'text-warning bg-warning-light border-warning',
+    'Need Review': 'text-warning bg-warning-light border-warning',
   };
   
   return statusMap[taskStatus] || 'text-neutral-700 bg-neutral-100 border-neutral-400';
@@ -66,7 +79,16 @@ export const getDisplayTaskStatus = (taskStatus) => {
     'submittedAndAwaitingApproval': 'Awaiting Approval',
     'submissionRejected': 'Submission Rejected',
     'approvalRejected': 'Approval Rejected',
-    'completed': 'Completed'
+    'completed': 'Completed',
+    'done': 'Done',
+
+    'awaitingReview': 'Awaiting Review',
+    'needReview': 'Need Review',
+
+    // Bias statuses
+    'biasDetected': 'Bias Detected',
+    'noBias': 'No Bias',
+    'notChecked': 'Not Checked',
   };
   return statusMap[taskStatus] || taskStatus;
 };

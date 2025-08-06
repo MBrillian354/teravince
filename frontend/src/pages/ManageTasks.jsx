@@ -187,8 +187,18 @@ export default function ManageTasks() {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-[#1B1717] flex flex-col">
-      <main className="flex-1 w-full mx-auto px-4 py-4">
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-1 w-full mx-auto">
+        <div className="flex justify-between items-center">
+          <h1 className="page-title">Manage Tasks</h1>
+          <button
+            onClick={() => navigate("/tasks/new")}
+            className="btn-primary"
+          >
+            + Add Task
+          </button>
+        </div>
+
         {/* Loading State */}
         {isLoading && tasks.length === 0 && (
           <div className="flex justify-center items-center py-8">
@@ -236,15 +246,6 @@ export default function ManageTasks() {
               </div>
             </div>
 
-            {/* Add Task Button */}
-            <div className="flex justify-end">
-              <button
-                onClick={() => navigate("/tasks/new")}
-                className="btn-primary"
-              >
-                + Add Task
-              </button>
-            </div>
 
             {/* Note Section */}
             <div className="bg-background my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717]">
@@ -253,11 +254,11 @@ export default function ManageTasks() {
 
             {/* Task Table */}
             <DataTable
+              title="Manage Tasks"
               columns={columns}
               data={transformedTasks}
               rowKey="taskId"
               variant="gradient"
-              title="Task Management Recap"
             />
           </>
         )}

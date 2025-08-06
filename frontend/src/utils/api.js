@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export const accountsAPI = {
   // Upload user profilePicture
   uploadPhoto: (id, formData) => {
     return axios.create({
-      baseURL: '/api',
+      baseURL: import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : '/api',
       timeout: 10000,
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -87,8 +87,11 @@ export const jobsAPI = {
 
 // Tasks API functions
 export const tasksAPI = {
-  // Get all tasks
-  getAll: () => api.get('/tasks'),
+  // Get all tasks with query parameters support
+  getAll: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return api.get(`/tasks${queryString ? `?${queryString}` : ''}`);
+  },
   
   // Get task by ID
   getById: (id) => api.get(`/tasks/${id}`),
@@ -114,7 +117,7 @@ export const tasksAPI = {
   // Upload evidence file
   uploadEvidence: (id, formData) => {
     return axios.create({
-      baseURL: '/api',
+      baseURL: import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : '/api',
       timeout: 10000,
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -134,6 +137,33 @@ export const dashboardAPI = {
   
   // Get staff dashboard data
   getStaffDashboard: (params) => api.get('/dashboard/staff', { params })
+};
+
+// Reports API functions
+export const reportsAPI = {
+  // Get all reports with pagination and filtering
+  getAll: (params) => api.get('/reports', { params }),
+  
+  // Get report by ID
+  getById: (id) => api.get(`/reports/${id}`),
+  
+  // Get reports by user ID
+  getByUserId: (userId) => api.get(`/reports/user/${userId}`),
+  
+  // Get tasks for a specific report
+  getReportTasks: (reportId) => api.get(`/reports/${reportId}/tasks`),
+  
+  // Create new report
+  create: (reportData) => api.post('/reports', reportData),
+  
+  // Update report
+  update: (id, reportData) => api.patch(`/reports/${id}`, reportData),
+  
+  // Delete report
+  delete: (id) => api.delete(`/reports/${id}`),
+  
+  // Generate monthly reports
+  generateMonthly: () => api.post('/reports/generate-monthly')
 };
 
 // Bias checking API functions

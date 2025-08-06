@@ -7,8 +7,8 @@ const reportSchema = new mongoose.Schema({
     required: true,
   },
   period: {
-    type: String,
-    required: true, 
+    type: Date,
+    required: true,
   },
   score: {
     type: Number,
@@ -16,8 +16,8 @@ const reportSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['awaitingReview', 'done'],
-    default: 'awaitingReview',
+    enum: ['needReview', 'done'],
+    default: 'needReview',
   },
   review: {
     type: String,

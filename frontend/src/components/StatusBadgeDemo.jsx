@@ -23,7 +23,7 @@ const StatusBadgeDemo = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
-      <h1 className="text-3xl font-bold mb-6">Status Badge Demo</h1>
+      <h1 className="page-title">Status Badge Demo</h1>
       
       {/* Task Status Badges */}
       <section className="bg-surface rounded-lg shadow p-6">

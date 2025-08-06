@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "vite preview"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -15,6 +16,7 @@
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.11.0",
     "chart.js": "^4.5.0",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.536.0",
     "prop-types": "^15.8.1",
     "react": "^19.1.0",

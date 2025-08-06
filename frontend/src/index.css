@@ -55,15 +55,15 @@ h1 {
 }
 
 @utility card-static {
-  @apply bg-white p-8 rounded-lg shadow-md;
+  @apply bg-white p-8 rounded-lg shadow-xs;
 }
 
 @utility card-interactive {
-  @apply bg-white p-8 rounded-lg shadow-md hover:shadow-lg hover:cursor-pointer transition-shadow duration-300;
+  @apply bg-white p-8 rounded-lg shadow-xs hover:shadow-lg hover:cursor-pointer transition-shadow duration-300;
 }
 
 @utility card-outline {
-  @apply rounded-lg p-4 shadow-sm border border-[#1B1717] transition-transform hover:scale-105 hover:shadow-md;
+  @apply rounded-lg p-4 shadow-xs border border-[#1B1717] transition-transform hover:scale-105 hover:shadow-md;
 }
 
 /* Utility classes for forms */
@@ -186,7 +186,7 @@ h1 {
 
 /* Other utility classes */
 @utility page-title {
-  @apply text-2xl font-semibold text-gray-800;
+  @apply text-3xl font-bold text-gray-800 mb-6;
 }
 
 @utility btn-success {

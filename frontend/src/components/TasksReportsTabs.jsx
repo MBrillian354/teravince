@@ -3,12 +3,13 @@ import { NavLink } from 'react-router-dom';
 const tabs = [
   { path: '/reports/', label: 'Reports', end: true },
   { path: '/reports/job-description', label: 'Job Description' },
-  { path: '/reports/tasks', label: 'Tasks', badge: 2 },
+  { path: '/reports/tasks', label: 'Tasks'},
+  // { path: '/reports/tasks', label: 'Tasks', badge: 2 },
 ];
 
 export default function TasksReportsTabs() {
   return (
-    <nav className="flex space-x-6 border-b border-gray-200 mb-6">
+    <nav className="flex space-x-6 border-b border-gray-300 mb-6">
       {tabs.map(({ path, label, badge }) => (
         <NavLink
           key={path}
@@ -16,7 +17,7 @@ export default function TasksReportsTabs() {
           end={path.endsWith('/')}
           className={({ isActive }) => `
             pb-2 ${isActive
-              ? 'text-indigo-600 border-b-2 border-indigo-600'
+              ? 'text-primary border-b-3 border-primary'
               : 'text-gray-600 hover:text-gray-800'
             }`
           }

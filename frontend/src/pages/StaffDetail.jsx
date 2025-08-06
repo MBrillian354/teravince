@@ -199,7 +199,7 @@ export default function StaffDetail() {
                         </h3>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-600 mb-1">Employee ID</label>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Staff ID</label>
                                 <p className="text-gray-900 font-mono">{staff._id}</p>
                             </div>
                             <div>

@@ -22,7 +22,7 @@ import ManageAccounts from './pages/ManageAccounts';
 import NewAccountForm from './pages/NewAccountForm';
 import EditAccount from './pages/EditAccount';
 import MyStaffs from './pages/MyStaffs.jsx';
-import Reports from './pages/Reports.jsx';
+import TeamReports from './pages/TeamReports.jsx';
 import JobDescription from './pages/JobDescription';
 import StaffReport from './pages/StaffReport.jsx';
 import StaffDetail from './pages/StaffDetail.jsx';
@@ -133,7 +133,7 @@ function SupervisorRoutes() {
       } />
       <Route path="/reports/" element={
         <RoleBasedRoute allowedRoles={['supervisor']}>
-          <Reports />
+          <TeamReports />
         </RoleBasedRoute>
       } />
       <Route path="/reports/job-description" element={

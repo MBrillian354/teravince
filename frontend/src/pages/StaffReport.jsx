@@ -1,10 +1,9 @@
-// src/pages/StaffReport.jsx
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
+import DynamicForm from '@/components/DynamicForm';
 
 export default function StaffReport() {
   const { reportId } = useParams();
@@ -17,8 +16,6 @@ export default function StaffReport() {
     r3: { userId: '3210003', name: 'Lisa Ray', month: 'January 2025', jobTitle: 'Design Assistant', score: '85/100' },
     r4: { userId: '3210004', name: 'Alan Kim', month: 'April 2025', jobTitle: 'Community Intern', score: '60/100' },
   };
-
-  const spvPlaceholder = "Enter your review...";
 
   // 2) Look up the current report; fallback to r1
   const report = reportData[reportId] || reportData.r1;
@@ -105,7 +102,7 @@ export default function StaffReport() {
         <h1 className="text-3xl font-bold">Staff Report</h1>
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center space-x-1 bg-gray-700 text-white px-3 py-1 rounded text-sm hover:bg-gray-800"
+          className="btn-outline flex items-center gap-2"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           <span>Back to Reports</span>
@@ -113,7 +110,7 @@ export default function StaffReport() {
       </div>
 
       {/* Top Summary Card */}
-      <div className="bg-surface rounded shadow p-6 mb-6 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+      <div className="card-static flex gap-2 justify-between mb-6">
         <div className="flex items-center space-x-6">
           <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
             <span className="text-gray-400 text-2xl">👤</span>
@@ -132,28 +129,36 @@ export default function StaffReport() {
         />
       </div>
 
-      {/* Supervisor Review */}
-      <div className="bg-surface rounded shadow p-6 mb-6">
-        <p className="font-medium text-gray-600 mb-2">Supervisor Review</p>
-        <textarea
-          value={supervisorReview}
-          onChange={e => setSupervisorReview(e.target.value)}
-          className="w-full bg-muted border border-gray-200 rounded px-3 py-2 h-28 text-sm text-gray-700 mb-4"
-          placeholder={spvPlaceholder}
+      {/* Supervisor Review using DynamicForm */}
+      <div className="card-static mb-6">
+        <DynamicForm
+          fields={[
+            {
+              label: 'Supervisor Review',
+              name: 'supervisorReview',
+              type: 'textarea',
+              value: supervisorReview,
+              onChange: e => setSupervisorReview(e.target.value),
+              placeholder: "Enter your review ...",
+              disabled: false,
+            },
+            {
+              label: 'I have properly reviewed the staff\'s report',
+              name: 'reviewed',
+              type: 'checkbox',
+              disabled: false,
+            },
+          ]}
+          submitButton={{
+            label: 'Send Review',
+            className: 'bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700',
+          }}
         />
-        <div className="flex justify-end items-center space-x-4">
-          <label className="flex items-center text-sm">
-            <input type="checkbox" className="form-checkbox mr-2" />
-            I have properly reviewed the staff's report
-          </label>
-          <button className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-            Send Review
-          </button>
-        </div>
       </div>
 
       {/* Tasks Table */}
       <DataTable
+        title={`Monthly Tasks for ${report.name}`}
         columns={taskColumns}
         data={tasks}
         rowKey="taskId"
@@ -162,77 +167,29 @@ export default function StaffReport() {
         variant='gradient'
       />
 
-      {/* Bottom Detail Card */}
+      {/* Bottom Detail Card using DynamicForm */}
       {selectedTask && (
-        <div className="bg-white rounded shadow p-6 mt-6 space-y-6">
-          {/* Task ID & Score */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[['Task ID', selectedTask.taskId],
-            ['Task Score', selectedTask.score]].map(([label, val]) => (
-              <div key={label}>
-                <label className="block text-sm text-gray-600">{label}</label>
-                <input
-                  readOnly
-                  value={val}
-                  className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Title */}
-          <div>
-            <label className="block text-sm text-gray-600">Task Title</label>
-            <input
-              readOnly
-              value={selectedTask.title}
-              className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm text-gray-600">Task Description</label>
-            <textarea
-              readOnly
-              value={selectedTask.title}
-              className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700 h-24"
-            />
-          </div>
-
-          {/* Status / Dates */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[['Task Status', selectedTask.taskStatus],
-            ['Start Date', selectedTask.startDate],
-            ['Finish Date', selectedTask.endDate]].map(([label, val]) => (
-              <div key={label}>
-                <label className="block text-sm text-gray-600">{label}</label>
-                <input
-                  readOnly
-                  value={val}
-                  className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-700"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Evidence */}
-          <div>
-            <label className="block text-sm text-gray-600">Evidence</label>
-            {selectedTask.evidence.length > 0
-              ? selectedTask.evidence.map(f => (
-                <a
-                  key={f.url}
-                  href={f.url}
-                  download={f.name}
-                  className="block text-indigo-600 hover:underline text-sm"
-                >
-                  {f.name}
-                </a>
-              ))
-              : <p className="text-gray-500 text-sm">No evidence uploaded</p>
-            }
-          </div>
+        <div className="card-static mb-6">
+          <DynamicForm
+            fields={[
+              { label: 'Task ID', name: 'taskId', type: 'text', defaultValue: selectedTask.taskId, disabled: true, group: 'taskDetails' },
+              { label: 'Task Score', name: 'score', type: 'text', defaultValue: selectedTask.score, disabled: true, group: 'taskDetails' },
+              { label: 'Task Title', name: 'title', type: 'text', defaultValue: selectedTask.title, disabled: true },
+              { label: 'Task Description', name: 'description', type: 'textarea', defaultValue: selectedTask.title, disabled: true },
+              { label: 'Task Status', name: 'taskStatus', type: 'text', defaultValue: selectedTask.taskStatus, disabled: true, group: 'status' },
+              { label: 'Start Date', name: 'startDate', type: 'text', defaultValue: selectedTask.startDate, disabled: true, group: 'status' },
+              { label: 'Finish Date', name: 'endDate', type: 'text', defaultValue: selectedTask.endDate, disabled: true, group: 'status' },
+              {
+                label: 'Evidence',
+                name: 'evidence',
+                type: 'link',
+                defaultValue: selectedTask.evidence,
+                className: 'justify-start',
+                disabled: true,
+              },
+            ]}
+            showSubmitButton={false}
+          />
         </div>
       )}
     </div>

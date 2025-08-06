@@ -11,16 +11,13 @@ export default function TeamReports() {
   const dispatch = useDispatch();
   const { reports, reportsLoading, reportsError } = useSelector(state => state.supervisor);
 
-  // ─── Fetch Data from Backend (Redux) ─────────────────────────────
   useEffect(() => {
     dispatch(fetchReports());
   }, [dispatch]);
 
-  // Statistik dari laporan
   const upcomingCount = reports.filter(r => r.status === 'awaitingReview').length;
   const finishedCount = reports.filter(r => r.status === 'done').length;
 
-  // Ambil tanggal terakhir di bulan ini sebagai deadline
   const today = new Date();
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 

@@ -3,6 +3,55 @@ const Task = require('../models/Task');
 const path = require('path');
 const fs = require('fs');
 
+// Calculate task score based on KPI performance
+const calculateTaskScore = (kpis) => {
+  if (!kpis || !Array.isArray(kpis) || kpis.length === 0) {
+    return 0;
+  }
+
+  let totalScore = 0;
+  let validKpis = 0;
+
+  kpis.forEach(kpi => {
+    const { targetAmount, achievedAmount, operator } = kpi;
+    
+    // Skip KPIs with invalid data
+    if (typeof targetAmount !== 'number' || typeof achievedAmount !== 'number') {
+      return;
+    }
+
+    let kpiScore = 0;
+
+    if (targetAmount === 0) {
+      // If target is 0, consider it as 100% achievement
+      kpiScore = 100;
+    } else if (operator === 'greaterThan') {
+      // For greaterThan: score = min(100, (achieved / target) * 100)
+      kpiScore = Math.min(100, (achievedAmount / targetAmount) * 100);
+    } else if (operator === 'lessThan') {
+      // For lessThan: score = 100 if achieved <= target, otherwise decrease proportionally
+      if (achievedAmount <= targetAmount) {
+        // Perfect score if achieved is less than or equal to target
+        kpiScore = 100;
+      } else {
+        // Score decreases as achieved exceeds target
+        // Formula: 100 - ((achieved - target) / target) * 100
+        const excessRatio = (achievedAmount - targetAmount) / targetAmount;
+        kpiScore = Math.max(0, 100 - (excessRatio * 100));
+      }
+    }
+
+    // Ensure score is between 0 and 100
+    kpiScore = Math.max(0, Math.min(100, kpiScore));
+    
+    totalScore += kpiScore;
+    validKpis++;
+  });
+
+  // Return average score, rounded to nearest integer
+  return validKpis > 0 ? Math.round(totalScore / validKpis) : 0;
+};
+
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
   try {
@@ -195,6 +244,25 @@ exports.updateTask = async (req, res) => {
     // Validate enum fields if provided
     if (updateData.taskStatus && !['inProgress', 'submissionRejected', 'approvalRejected', 'submittedAndAwaitingReview', 'submittedAndAwaitingApproval', 'revisionInProgress', 'completed', 'draft'].includes(updateData.taskStatus)) {
       return res.status(400).json({ msg: 'Invalid task status. Must be one of: inProgress, submissionRejected, approvalRejected, submittedAndAwaitingReview, submittedAndAwaitingApproval, revisionInProgress, completed, draft' });
+    }
+
+    // Auto-calculate score if KPIs are being updated and task is being submitted
+    if (updateData.kpis && Array.isArray(updateData.kpis) && updateData.kpis.length > 0) {
+      // Check if this is a submission (status change to submitted states)
+      const isSubmission = updateData.taskStatus && 
+        (updateData.taskStatus === 'submittedAndAwaitingReview' || 
+         updateData.taskStatus === 'submittedAndAwaitingApproval');
+      
+      // Also check if any KPI has achieved amount data
+      const hasAchievedData = updateData.kpis.some(kpi => 
+        typeof kpi.achievedAmount === 'number' && kpi.achievedAmount >= 0
+      );
+
+      if (isSubmission && hasAchievedData) {
+        const calculatedScore = calculateTaskScore(updateData.kpis);
+        updateData.score = calculatedScore;
+        console.log('Auto-calculated task score:', calculatedScore);
+      }
     }
 
     console.log('Update Data:', updateData);

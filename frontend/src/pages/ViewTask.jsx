@@ -145,6 +145,7 @@ export default function ViewTask() {
       const updateData = {
         taskStatus: newTaskStatus,
         submittedDate: new Date(),
+        ...(newTaskStatus === 'submittedAndAwaitingReview' ? { completedDate: new Date() } : {}),
         bias_check: null
       };
 
@@ -272,6 +273,60 @@ export default function ViewTask() {
       defaultValue: task ? task.description : '',
       disabled: true
     },
+
+
+    {
+      type: 'text',
+      name: 'createdDate',
+      label: 'Created Date',
+      defaultValue: task && task.createdDate ? new Date(task.createdDate).toISOString().split('T')[0] : '',
+      disabled: true
+    },
+    {
+      type: 'text',
+      name: 'startDate',
+      label: 'Start Date',
+      defaultValue: task && task.startDate ? new Date(task.startDate).toISOString().split('T')[0] : 'Not Started',
+      disabled: true
+    },
+    {
+      type: 'text',
+      name: 'completedDate',
+      label: 'Completed Date',
+      defaultValue: task && task.completedDate ? new Date(task.completedDate).toISOString().split('T')[0] : 'Not Finished',
+      disabled: true
+    },
+    {
+      type: 'text',
+      name: 'deadline',
+      label: 'Deadline',
+      defaultValue: task && task.deadline ? new Date(task.deadline).toISOString().split('T')[0] : 'To be determined',
+      disabled: true
+    },
+    {
+      type: 'text',
+      name: 'taskStatus',
+      label: 'Task Status',
+      defaultValue: task ? getDisplayTaskStatus(task.taskStatus) : '',
+      disabled: true
+    },
+    ...(task?.taskStatus !== 'draft' ? [{
+      type: 'textarea',
+      name: 'supervisorComment',
+      label: 'Supervisor Comment',
+      rows: 2,
+      defaultValue: task ? task.supervisorComment : 'Waiting for review',
+      disabled: true
+    }] : []),
+    ...(task?.taskStatus !== 'draft' ? [{
+      type: 'number',
+      name: 'score',
+      label: 'Score',
+      min: 0,
+      max: 100,
+      defaultValue: task ? task.score : '',
+      disabled: true
+    }] : []),
     // KPI fields - show individual inputs in submission mode for tasks in progress, otherwise show as readonly
     ...(isSubmissionMode && task?.taskStatus === 'inProgress' && task?.kpis && task.kpis.length > 0
       ? task.kpis.map((kpi, index) => ([
@@ -311,59 +366,6 @@ export default function ViewTask() {
         disabled: true
       }]
     ),
-
-    {
-      type: 'text',
-      name: 'createdDate',
-      label: 'Created Date',
-      defaultValue: task && task.createdDate ? new Date(task.createdDate).toISOString().split('T')[0] : '',
-      disabled: true
-    },
-    {
-      type: 'text',
-      name: 'startDate',
-      label: 'Start Date',
-      defaultValue: task && task.startDate ? new Date(task.startDate).toISOString().split('T')[0] : 'Not Started',
-      disabled: true
-    },
-    {
-      type: 'text',
-      name: 'endDate',
-      label: 'End Date',
-      defaultValue: task && task.endDate ? new Date(task.endDate).toISOString().split('T')[0] : 'Not Finished',
-      disabled: true
-    },
-    {
-      type: 'text',
-      name: 'deadline',
-      label: 'Deadline',
-      defaultValue: task && task.deadline ? new Date(task.deadline).toISOString().split('T')[0] : 'To be determined',
-      disabled: true
-    },
-    {
-      type: 'text',
-      name: 'taskStatus',
-      label: 'Task Status',
-      defaultValue: task ? getDisplayTaskStatus(task.taskStatus) : '',
-      disabled: true
-    },
-    ...(task?.taskStatus !== 'draft' ? [{
-      type: 'textarea',
-      name: 'supervisorComment',
-      label: 'Supervisor Comment',
-      rows: 2,
-      defaultValue: task ? task.supervisorComment : 'Waiting for review',
-      disabled: true
-    }] : []),
-    ...(task?.taskStatus !== 'draft' ? [{
-      type: 'number',
-      name: 'score',
-      label: 'Score',
-      min: 0,
-      max: 100,
-      defaultValue: task ? task.score : '',
-      disabled: true
-    }] : []),
     ...((task?.taskStatus === 'submissionRejected' || task?.taskStatus === 'inProgress') && task?.taskStatus !== 'draft' ? [{
       type: isSubmissionMode ? 'file' : 'link',
       name: 'evidence',

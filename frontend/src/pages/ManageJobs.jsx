@@ -176,7 +176,7 @@ const ManageJobs = () => {
   return (
     <>
       <div className="flex justify-between items-center">
-        <div className='page-title my-4'>Manage Jobs</div>
+        <h1 className='page-title'>Manage Jobs</h1>
         <Link to="/jobs/new" className="btn-primary">Create New Job</Link>
       </div>
 
@@ -193,6 +193,7 @@ const ManageJobs = () => {
       </div>
       <div>
         <DataTable
+          title="Job Listings"
           columns={columns}
           data={jobsData}
           rowKey="id"

@@ -112,7 +112,7 @@ export default function MyStaffs() {
   return (
     <div className="container mx-auto px-4">
       {/* Big header */}
-      <h1 className="text-3xl font-bold mb-6">
+      <h1 className="page-title">
         Welcome back, <span className="underline">Supervisor</span>.
       </h1>
 
@@ -204,6 +204,7 @@ export default function MyStaffs() {
         <>
           {/* Staff Table */}
           <DataTable
+            title="Staff Members"
             columns={staffColumns}
             data={filteredStaffList}
             rowKey="_id"

@@ -163,6 +163,7 @@ const ManageAccounts = () => {
         ))}
       </div>
       <DataTable
+        title="Accounts"
         columns={columns}
         data={accountsData}
         rowKey="id"

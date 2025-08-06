@@ -58,7 +58,7 @@ export default function SPVDashboard() {
   return (
     <div className="container mx-auto px-4">
       {/* Big header */}
-      <h1 className="text-3xl font-bold mb-6">
+      <h1 className="page-title">
         Welcome back, <span className="underline">Supervisor</span>.
       </h1>
 
@@ -110,7 +110,7 @@ export default function SPVDashboard() {
               type="month"
               value={selectedMonth}
               onChange={e => setSelectedMonth(e.target.value)}
-              className="w-36 px-2 py-1 text-sm bg-surface border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-36 p-2 px-4 text-sm card-static focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
         </div>

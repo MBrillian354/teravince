@@ -3,7 +3,7 @@ export default function DataTable({
   data,
   rowKey = 'id',
   onRowClick,
-  containerClass = 'bg-surface rounded shadow overflow-x-auto mb-6',
+  containerClass = 'card-static overflow-x-auto mb-6',
   variant = 'default',
   title = null,
   sortBy,
@@ -28,7 +28,7 @@ export default function DataTable({
 
   if (variant === 'gradient') {
     return (
-      <div className="bg-surface rounded-lg shadow-xs border border-primary/50 overflow-hidden flex flex-col mb-4">
+      <div className="card-static p-0 border border-primary/50 overflow-hidden flex flex-col mb-4">
         {title && (
           <div className="bg-gradient-to-r from-primary to-secondary px-6 py-4">
             <h2 className="text-lg font-semibold text-background">{title}</h2>
@@ -116,7 +116,7 @@ export default function DataTable({
             <tr
               key={row[rowKey]}
               className={`border-t cursor-pointer ${
-                onRowClick ? 'hover:bg-surface-hover' : ''
+                onRowClick ? 'hover:bg-gray-100' : ''
               }`}
               onClick={() => onRowClick && onRowClick(row)}
             >

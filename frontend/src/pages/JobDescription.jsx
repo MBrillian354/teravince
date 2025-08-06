@@ -113,6 +113,7 @@ export default function JobDescription() {
 
       {/* Job Description table */}
       <DataTable
+        title="Job Descriptions"
         columns={jobColumns}
         data={jobsData}
         rowKey="id"

@@ -309,7 +309,7 @@ export default function TeamTasks() {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-surface rounded-lg shadow-md border border-primary mb-4 p-4">
+      <div className="card-static border border-primary mb-4 p-4">
         <div className="flex flex-wrap gap-4 items-center">
           <div className="flex-1 min-w-64">
             <SearchInput
@@ -369,7 +369,7 @@ export default function TeamTasks() {
         data={tasks}
         rowKey="id"
         onRowClick={({ id }) => setSelectedTaskId(id)}
-        containerClass="bg-surface rounded mb-4"
+        containerClass="card-static mb-4"
         variant='gradient'
         sortBy={params.sortBy}
         sortOrder={params.sortOrder}
@@ -387,7 +387,7 @@ export default function TeamTasks() {
 
       {/* Show message if no tasks */}
       {tasks.length === 0 && !loading && (
-        <div className="bg-surface rounded shadow p-6 text-center">
+        <div className="card-static text-center">
           <p className="text-gray-600">No tasks found.</p>
           {(params.search || params.status || params.biasStatus) && (
             <button

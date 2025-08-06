@@ -119,7 +119,7 @@ import {
             </div>
 
             {/* Job and Employee Information */}
-            <div className="bg-white rounded shadow p-6 mb-6">
+            <div className="card-static mb-6">
                 <h2 className="text-xl font-bold mb-4">Job Information</h2>
                 <div className="flex flex-col gap-6">
                     <div>
@@ -132,7 +132,7 @@ import {
                     </div>
                     <div>
                         <p className="font-medium text-gray-600">Description</p>
-                        <p className="text-lg font-semibold">{currentJob.description || 'No description'}</p>
+                        <p className="text-lg font-semibold whitespace-pre-line">{currentJob.description || 'No description'}</p>
                     </div>
                     <div>
                         <p className="font-medium text-gray-600">Assigned Employees</p>
@@ -154,10 +154,8 @@ import {
 
             {/* Tasks Table */}
             <div className="bg-white rounded shadow mb-6">
-                <div className="p-6 border-b">
-                    <h2 className="text-xl font-bold">Tasks for this Job ({currentJobTasks.length})</h2>
-                </div>
                 <DataTable
+                    title={`Tasks for this Job (${currentJobTasks.length})`}
                     columns={taskColumns}
                     data={currentJobTasks}
                     rowKey="id"

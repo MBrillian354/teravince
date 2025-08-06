@@ -5,6 +5,7 @@ const verifyToken = require('../middlewares/auth');
 
 // Semua endpoint di-protect dengan token
 router.post('/', verifyToken, reportController.createReport);
+router.post('/generate-monthly', verifyToken, reportController.generateMonthlyReports);
 router.get('/', verifyToken, reportController.getAllReports);
 router.get('/user/:userId', verifyToken, reportController.getReportsByUser);
 router.get('/:id', verifyToken, reportController.getReportById);

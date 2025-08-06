@@ -69,7 +69,7 @@ exports.getReportTasks = async (req, res) => {
     const periodDate = new Date(report.period);
     const year = periodDate.getFullYear();
     const month = periodDate.getMonth();
-    
+
     const startDate = new Date(year, month, 1); // Start of the month
     const endDate = new Date(year, month + 1, 0); // End of the month
 
@@ -112,6 +112,91 @@ exports.updateReport = async (req, res) => {
     res.status(200).json({ message: 'Report updated', report: updatedReport });
   } catch (error) {
     res.status(500).json({ message: 'Failed to update report', error });
+  }
+};
+
+// Generate monthly reports for current month
+exports.generateMonthlyReports = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
+
+    // Create a date object for the first day of the current month for consistent period format
+    const currentPeriodDate = new Date(currentYear, currentMonth - 1, 1);
+
+    // Find all staff users
+    const staffUsers = await User.find({ role: 'staff' });
+
+    // Find staff who already have reports for the current month
+    // We need to check for reports with the same year and month
+    const startOfMonth = new Date(currentYear, currentMonth - 1, 1);
+    const endOfMonth = new Date(currentYear, currentMonth, 0);
+
+    const existingReports = await Report.find({
+      period: {
+        $gte: startOfMonth,
+        $lte: endOfMonth
+      }
+    });
+    const usersWithReports = new Set(existingReports.map(report => report.userId.toString()));
+
+    // Filter staff who don't have reports for current month
+    const staffWithoutReports = staffUsers.filter(staff => !usersWithReports.has(staff._id.toString()));
+
+    const filteredStaffWithoutReports = staffWithoutReports.filter(staff => staff.role !== 'supervisor' && staff.role !== 'admin');
+
+    const generatedReports = [];
+
+    // Generate reports for each staff member without a report
+    for (const staff of filteredStaffWithoutReports) {
+      try {
+        // Get tasks for this staff member in the current month
+        const tasks = await Task.find({
+          userId: staff._id,
+          createdDate: {
+            $gte: startOfMonth,
+            $lte: endOfMonth
+          }
+        });
+
+        // Calculate average score from tasks
+        let averageScore = 0;
+        if (tasks.length > 0) {
+          const totalScore = tasks.reduce((sum, task) => sum + (task.score || 0), 0);
+          averageScore = Math.round(totalScore / tasks.length);
+        }
+
+        // Create new report
+        const newReport = new Report({
+          userId: staff._id,
+          period: currentPeriodDate, // Use Date object instead of string
+          score: averageScore,
+          status: 'awaitingReview',
+          review: '' // Empty review, to be filled by supervisor
+        });
+
+        await newReport.save();
+        generatedReports.push(newReport);
+      } catch (error) {
+        console.error(`Failed to generate report for staff ${staff._id}:`, error);
+        // Continue with other staff members even if one fails
+      }
+    }
+
+    res.status(201).json({
+      message: `Generated ${generatedReports.length} monthly reports for current month`,
+      period: `${currentYear}-${currentMonth.toString().padStart(2, '0')}`,
+      generatedCount: generatedReports.length,
+      totalStaff: staffUsers.length,
+      existingReports: existingReports.length,
+      reports: generatedReports
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Failed to generate monthly reports',
+      error: error.message
+    });
   }
 };
 

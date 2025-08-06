@@ -55,6 +55,24 @@ export const fetchReportTasks = createAsyncThunk(
   }
 );
 
+// Async thunk for generating monthly reports
+export const generateMonthlyReports = createAsyncThunk(
+  'supervisor/generateMonthlyReports',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post('/api/reports/generate-monthly', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to generate monthly reports');
+    }
+  }
+);
+
 // Async thunk for updating a report (supervisor review)
 export const updateReport = createAsyncThunk(
   'supervisor/updateReport',
@@ -160,6 +178,10 @@ const initialState = {
     reports: [],
     reportsLoading: false,
     reportsError: null,
+    // Generate reports state
+    generateLoading: false,
+    generateError: null,
+    generateResult: null,
     // Single report state
     currentReport: null,
     currentReportTasks: [],
@@ -324,6 +346,22 @@ const supervisorSlice = createSlice({
             .addCase(updateReport.rejected, (state, action) => {
                 state.currentReportLoading = false;
                 state.currentReportError = action.payload;
+            })
+            // Generate monthly reports
+            .addCase(generateMonthlyReports.pending, (state) => {
+                state.generateLoading = true;
+                state.generateError = null;
+                state.generateResult = null;
+            })
+            .addCase(generateMonthlyReports.fulfilled, (state, action) => {
+                state.generateLoading = false;
+                state.generateResult = action.payload;
+                // If new reports were generated, we might want to refresh the reports list
+                // This will be handled by refetching reports in the component
+            })
+            .addCase(generateMonthlyReports.rejected, (state, action) => {
+                state.generateLoading = false;
+                state.generateError = action.payload;
             });
     }
 });

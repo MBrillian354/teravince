@@ -1,20 +1,67 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchReports } from '../store/supervisorSlice';
+import { fetchReports, generateMonthlyReports } from '../store/supervisorSlice';
 import { useNavigate } from 'react-router-dom';
 import TasksReportsTabs from '../components/TasksReportsTabs';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
+import { useModal } from '../hooks/useModal';
 
 export default function TeamReports() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { reports, reportsLoading, reportsError } = useSelector(state => state.supervisor);
+  const { showSuccess, showError } = useModal();
+  const { 
+    reports, 
+    reportsLoading, 
+    reportsError, 
+    generateLoading, 
+    generateError, 
+    generateResult 
+  } = useSelector(state => state.supervisor);
+  
+  // Track if user triggered report generation
+  const [reportGenerationTriggered, setReportGenerationTriggered] = useState(false);
+
   console.log('Reports:', reports);
 
   useEffect(() => {
     dispatch(fetchReports());
   }, [dispatch]);
+
+  // Show modal notification only if user triggered report generation
+  useEffect(() => {
+    if (reportGenerationTriggered && generateResult && !generateLoading) {
+      showSuccess(
+        'Reports Generated Successfully!',
+        `Generated ${generateResult.generatedCount} new reports for ${generateResult.period}` +
+          (generateResult.generatedCount === 0 ? ' (All staff already have reports for this month)' : ''),
+        {
+          autoClose: true,
+          timeout: 5000
+        }
+      );
+      setReportGenerationTriggered(false); // Reset after showing
+    }
+  }, [reportGenerationTriggered, generateResult, generateLoading, showSuccess]);
+
+  const handleRefreshReports = async () => {
+    try {
+      setReportGenerationTriggered(true);
+      await dispatch(generateMonthlyReports()).unwrap();
+      // Refresh the reports list after generating new ones
+      dispatch(fetchReports());
+    } catch (error) {
+      setReportGenerationTriggered(false);
+      console.error('Failed to generate reports:', error);
+      showError(
+        'Error generating reports',
+        error?.message || 'Failed to generate reports. Please try again.',
+        'Error',
+        { timeout: 5000, autoClose: false }
+      );
+    }
+  };
 
   const upcomingCount = reports.filter(r => r.status === 'awaitingReview').length;
   const finishedCount = reports.filter(r => r.status === 'done').length;
@@ -71,7 +118,21 @@ export default function TeamReports() {
 
   return (
     <div className="container mx-auto px-4">
-      <h1 className="text-3xl font-bold mb-4">Reports, Jobs, and Tasks</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-3xl font-bold">Reports, Jobs, and Tasks</h1>
+        <button
+          onClick={handleRefreshReports}
+          disabled={generateLoading}
+          className={`btn-primary ${
+            generateLoading
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-primary text-white hover:bg-primary/50'
+          }`}
+        >
+          {generateLoading ? 'Generating...' : 'Refresh Reports'}
+        </button>
+      </div>
+
       <TasksReportsTabs />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

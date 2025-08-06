@@ -157,6 +157,19 @@ export const checkTaskReviewBias = createAsyncThunk(
     }
 );
 
+// Async thunk for bias checking in report reviews
+export const checkReportReviewBias = createAsyncThunk(
+    'supervisor/checkReportReviewBias',
+    async ({ reportId, review }, { rejectWithValue }) => {
+        try {
+            const response = await biasAPI.checkReportReviewBias(reportId, { review });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.error || 'Failed to check bias');
+        }
+    }
+);
+
 const initialState = {
     totalTasks: 0,
     numberOfStaffs: 0,
@@ -300,6 +313,19 @@ const supervisorSlice = createSlice({
                 state.biasCheckResult = action.payload;
             })
             .addCase(checkTaskReviewBias.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
+            // Check report review bias
+            .addCase(checkReportReviewBias.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(checkReportReviewBias.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.biasCheckResult = action.payload;
+            })
+            .addCase(checkReportReviewBias.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
             })

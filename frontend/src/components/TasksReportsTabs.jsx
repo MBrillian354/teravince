@@ -17,7 +17,7 @@ export default function TasksReportsTabs() {
           end={path.endsWith('/')}
           className={({ isActive }) => `
             pb-2 ${isActive
-              ? 'text-indigo-600 border-b-3 border-indigo-600'
+              ? 'text-primary border-b-3 border-primary'
               : 'text-gray-600 hover:text-gray-800'
             }`
           }

@@ -6,20 +6,21 @@ import TasksReportsTabs from '../components/TasksReportsTabs';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
 import { useModal } from '../hooks/useModal';
+import { getTaskStatusStyles, getDisplayTaskStatus } from '../utils/statusStyles';
 
 export default function TeamReports() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showSuccess, showError } = useModal();
-  const { 
-    reports, 
-    reportsLoading, 
-    reportsError, 
-    generateLoading, 
-    generateError, 
-    generateResult 
+  const {
+    reports,
+    reportsLoading,
+    reportsError,
+    generateLoading,
+    generateError,
+    generateResult
   } = useSelector(state => state.supervisor);
-  
+
   // Track if user triggered report generation
   const [reportGenerationTriggered, setReportGenerationTriggered] = useState(false);
 
@@ -35,7 +36,7 @@ export default function TeamReports() {
       showSuccess(
         'Reports Generated Successfully!',
         `Generated ${generateResult.generatedCount} new reports for ${generateResult.period}` +
-          (generateResult.generatedCount === 0 ? ' (All staff already have reports for this month)' : ''),
+        (generateResult.generatedCount === 0 ? ' (All staff already have reports for this month)' : ''),
         {
           autoClose: true,
           timeout: 5000
@@ -65,20 +66,15 @@ export default function TeamReports() {
 
   const upcomingCount = reports.filter(r => r.status === 'awaitingReview').length;
   const finishedCount = reports.filter(r => r.status === 'done').length;
+  const biasDetectedCount = reports.filter(r => r.bias_check?.is_bias === true).length;
 
   const today = new Date();
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-  const formattedDeadline = endOfMonth.toLocaleDateString('en-US', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
-  });
-
   const cards = [
     { label: 'Upcoming Reviews', value: upcomingCount },
     { label: 'Finished Review', value: finishedCount },
-    { label: "This Month’s Deadline", value: formattedDeadline },
+    { label: 'Reports with Bias', value: biasDetectedCount },
   ];
 
   const columns = [
@@ -107,13 +103,31 @@ export default function TeamReports() {
     },
     {
       header: 'Report Status',
-      render: row => (
-        <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800">
-          {row.status === 'awaitingReview' ? 'Awaiting Review' : 'Completed'}
-        </span>
-      ),
+      render: row => {
+        const statusStyle = getTaskStatusStyles(row.status);
+        console.log('Report Status:', row.status, 'Style:', statusStyle);
+        return (
+          <span className={`px-2 py-0.5 text-xs rounded-full ${statusStyle} whitespace-nowrap`}>
+            {getDisplayTaskStatus(row.status)}
+          </span>
+        );
+      },
       align: 'right',
     },
+    {
+      header: 'Bias Status',
+      render: row => {
+        const biasStatus = row.bias_check?.is_bias ? 'biasDetected' : row.bias_check ? 'noBias' : 'notChecked';
+        const biasStyle = getTaskStatusStyles(biasStatus);
+
+        return (
+          <span className={`px-2 py-1 text-xs rounded-full ${biasStyle} whitespace-nowrap`}>
+            {getDisplayTaskStatus(biasStatus)}
+          </span>
+        );
+      },
+      align: 'center',
+    }
   ];
 
   return (
@@ -123,11 +137,10 @@ export default function TeamReports() {
         <button
           onClick={handleRefreshReports}
           disabled={generateLoading}
-          className={`btn-primary ${
-            generateLoading
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-primary text-white hover:bg-primary/50'
-          }`}
+          className={`btn-primary ${generateLoading
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-primary text-white hover:bg-primary/50'
+            }`}
         >
           {generateLoading ? 'Generating...' : 'Refresh Reports'}
         </button>

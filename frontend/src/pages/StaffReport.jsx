@@ -5,18 +5,21 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
 import DynamicForm from '../components/DynamicForm';
-import { fetchReportTasks, updateReport, clearCurrentReport } from '../store/supervisorSlice';
+import { useModal } from '../hooks/useModal';
+import { fetchReportTasks, updateReport, clearCurrentReport, checkReportReviewBias } from '../store/supervisorSlice';
 
 export default function StaffReport() {
   const { reportId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
-  const { 
-    currentReport, 
-    currentReportTasks, 
-    currentReportLoading, 
-    currentReportError 
+  const { showSuccess, showError } = useModal();
+
+  const {
+    currentReport,
+    currentReportTasks,
+    currentReportLoading,
+    currentReportError,
+    biasCheckResult
   } = useSelector(state => state.supervisor);
 
   const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -40,6 +43,19 @@ export default function StaffReport() {
 
   const handleSubmitReview = async (formData) => {
     try {
+      // Start bias checking in the background without waiting for the user
+      dispatch(checkReportReviewBias({
+        reportId,
+        review: formData.supervisorReview
+      })).then((result) => {
+        // Background bias check completed - results will be saved to the report
+        console.log('Background bias check completed for report:', result);
+      }).catch((error) => {
+        // Log error but don't interrupt the user flow
+        console.error('Background bias check failed for report:', error);
+      });
+
+      // Update the report immediately with the review and mark as done
       await dispatch(updateReport({
         reportId,
         updateData: {
@@ -47,11 +63,23 @@ export default function StaffReport() {
           status: formData.reviewed ? 'done' : 'awaitingReview'
         }
       })).unwrap();
-      
+
       // Show success message or redirect
-      alert('Review submitted successfully!');
+      showSuccess(
+        'Review Submitted!',
+        'The review has been successfully submitted.',
+        {
+          onConfirm: () => navigate(-1), // Go back to the previous page
+          autoClose: true,
+          timeout: 3000
+        }
+      );
     } catch (error) {
-      alert('Failed to submit review: ' + error);
+      showError(
+        'Submission Failed',
+        error.message || 'Failed to submit the review. Please try again.',
+        'Error'
+      );
     }
   };
 
@@ -139,6 +167,49 @@ export default function StaffReport() {
 
       {/* Supervisor Review using DynamicForm */}
       <div className="card-static mb-6">
+        {/* Bias Check Result Display - Show if bias was detected in previous review */}
+        {currentReport.bias_check && currentReport.bias_check.is_bias && (
+          <div className="mb-4 p-4 rounded-lg border-l-4 bg-red-50 border-red-500">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h4 className="text-sm font-medium text-red-800">
+                  Previous Bias Check Result: Bias Detected
+                </h4>
+                <div className="mt-2 text-sm text-red-700">
+                  <p><strong>Type:</strong> {currentReport.bias_check.bias_label}</p>
+                  <p><strong>Reason:</strong> {currentReport.bias_check.bias_reason}</p>
+                  <p className="mt-2 text-orange-700"><strong>Action Required:</strong> Please review your comments and consider providing a more objective evaluation.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentReport.bias_check && !currentReport.bias_check.is_bias && (
+          <div className="mb-4 p-4 rounded-lg border-l-4 bg-green-50 border-green-500">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h4 className="text-sm font-medium text-green-800">
+                  Previous Bias Check Result: No Bias Detected
+                </h4>
+                <p className="mt-1 text-sm text-green-700">
+                  Your previous review was objective and unbiased.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <DynamicForm
           fields={[
             {
@@ -147,15 +218,17 @@ export default function StaffReport() {
               type: 'textarea',
               placeholder: "Enter your review ...",
               defaultValue: currentReport.review || '',
+              disabled: currentReport.status === 'done',
             },
-            {
+            ...(currentReport.status !== 'done' ? [{
               label: 'I have properly reviewed the staff\'s report',
               name: 'reviewed',
               type: 'checkbox',
-              defaultValue: currentReport.status === 'done',
-            },
+              required: true,
+            }] : [])
           ]}
           submitButtonText="Send Review"
+          showSubmitButton={currentReport.status !== 'done'}
           onSubmit={handleSubmitReview}
         />
       </div>
@@ -176,59 +249,59 @@ export default function StaffReport() {
         <div className="card-static mb-6">
           <DynamicForm
             fields={[
-              { 
-                label: 'Task ID', 
-                name: 'taskId', 
-                type: 'text', 
-                defaultValue: selectedTask._id.slice(-8), 
-                disabled: true, 
-                group: 'taskDetails' 
+              {
+                label: 'Task ID',
+                name: 'taskId',
+                type: 'text',
+                defaultValue: selectedTask._id.slice(-8),
+                disabled: true,
+                group: 'taskDetails'
               },
-              { 
-                label: 'Task Score', 
-                name: 'score', 
-                type: 'text', 
-                defaultValue: `${selectedTask.score || 0}/100`, 
-                disabled: true, 
-                group: 'taskDetails' 
+              {
+                label: 'Task Score',
+                name: 'score',
+                type: 'text',
+                defaultValue: `${selectedTask.score || 0}/100`,
+                disabled: true,
+                group: 'taskDetails'
               },
-              { 
-                label: 'Task Title', 
-                name: 'title', 
-                type: 'text', 
-                defaultValue: selectedTask.title, 
-                disabled: true 
+              {
+                label: 'Task Title',
+                name: 'title',
+                type: 'text',
+                defaultValue: selectedTask.title,
+                disabled: true
               },
-              { 
-                label: 'Task Description', 
-                name: 'description', 
-                type: 'textarea', 
-                defaultValue: selectedTask.description, 
-                disabled: true 
+              {
+                label: 'Task Description',
+                name: 'description',
+                type: 'textarea',
+                defaultValue: selectedTask.description,
+                disabled: true
               },
-              { 
-                label: 'Start Date', 
-                name: 'startDate', 
-                type: 'text', 
-                defaultValue: selectedTask.startDate ? new Date(selectedTask.startDate).toLocaleDateString() : 'N/A', 
-                disabled: true, 
-                group: 'status' 
+              {
+                label: 'Start Date',
+                name: 'startDate',
+                type: 'text',
+                defaultValue: selectedTask.startDate ? new Date(selectedTask.startDate).toLocaleDateString() : 'N/A',
+                disabled: true,
+                group: 'status'
               },
-              { 
-                label: 'Completion Date', 
-                name: 'completedDate', 
-                type: 'text', 
-                defaultValue: selectedTask.completedDate ? new Date(selectedTask.completedDate).toLocaleDateString() : 'N/A', 
-                disabled: true, 
-                group: 'status' 
+              {
+                label: 'Completion Date',
+                name: 'completedDate',
+                type: 'text',
+                defaultValue: selectedTask.completedDate ? new Date(selectedTask.completedDate).toLocaleDateString() : 'N/A',
+                disabled: true,
+                group: 'status'
               },
-              { 
-                label: 'Deadline', 
-                name: 'deadline', 
-                type: 'text', 
-                defaultValue: selectedTask.deadline ? new Date(selectedTask.deadline).toLocaleDateString() : 'N/A', 
-                disabled: true, 
-                group: 'status' 
+              {
+                label: 'Deadline',
+                name: 'deadline',
+                type: 'text',
+                defaultValue: selectedTask.deadline ? new Date(selectedTask.deadline).toLocaleDateString() : 'N/A',
+                disabled: true,
+                group: 'status'
               },
               {
                 label: 'Evidence',

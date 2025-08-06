@@ -60,7 +60,7 @@ export default function StaffReport() {
         reportId,
         updateData: {
           review: formData.supervisorReview,
-          status: formData.reviewed ? 'done' : 'awaitingReview'
+          status: formData.reviewed ? 'done' : 'needReview'
         }
       })).unwrap();
 

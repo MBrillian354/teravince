@@ -16,13 +16,174 @@ exports.createReport = async (req, res) => {
   }
 };
 
-// get report
+// get all reports with pagination, search, and filtering
 exports.getAllReports = async (req, res) => {
   try {
-    const reports = await Report.find().populate({ path: 'userId', select: 'firstName lastName email jobId', populate: { path: 'jobId', select: 'title' } });
-    res.status(200).json(reports);
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      status,
+      biasStatus,
+      staffName,
+      sortBy = 'period',
+      sortOrder = 'desc',
+      month,
+      year
+    } = req.query;
+
+    // Build query
+    let query = {};
+
+    // Status filter
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+
+    // Bias status filter
+    if (biasStatus && biasStatus !== 'all') {
+      if (biasStatus === 'bias-detected') {
+        query['bias_check.is_bias'] = true;
+      } else if (biasStatus === 'no-bias') {
+        query['bias_check.is_bias'] = false;
+      } else if (biasStatus === 'pending') {
+        query['bias_check'] = { $exists: true, 'is_bias': { $exists: false } };
+      } else if (biasStatus === 'not-checked') {
+        query['bias_check'] = { $exists: false };
+      }
+    }
+
+    // Month and year filter
+    if (month && year) {
+      const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+      const endDate = new Date(parseInt(year), parseInt(month), 0);
+      query.period = { $gte: startDate, $lte: endDate };
+    } else if (year) {
+      const startDate = new Date(parseInt(year), 0, 1);
+      const endDate = new Date(parseInt(year), 11, 31);
+      query.period = { $gte: startDate, $lte: endDate };
+    }
+
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Build sort object
+    const sort = {};
+    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    let reports;
+    let totalReports;
+
+    if (search) {
+      // Use aggregation for searching in populated user fields
+      const pipeline = [
+        { $match: query },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        { $unwind: '$user' },
+        {
+          $lookup: {
+            from: 'jobs',
+            localField: 'user.jobId',
+            foreignField: '_id',
+            as: 'job'
+          }
+        },
+        {
+          $unwind: {
+            path: '$job',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $match: {
+            $or: [
+              { 'user.firstName': { $regex: search, $options: 'i' } },
+              { 'user.lastName': { $regex: search, $options: 'i' } },
+              { 'job.title': { $regex: search, $options: 'i' } },
+              { 
+                $expr: {
+                  $regexMatch: {
+                    input: { $concat: ['$user.firstName', ' ', '$user.lastName'] },
+                    regex: search,
+                    options: 'i'
+                  }
+                }
+              }
+            ]
+          }
+        },
+        { $sort: sort },
+        {
+          $addFields: {
+            'userId._id': '$user._id',
+            'userId.firstName': '$user.firstName',
+            'userId.lastName': '$user.lastName',
+            'userId.email': '$user.email',
+            'userId.jobId': {
+              '_id': '$job._id',
+              'title': '$job.title'
+            }
+          }
+        },
+        {
+          $project: {
+            user: 0,
+            job: 0
+          }
+        }
+      ];
+
+      // Get total count
+      const countPipeline = [...pipeline];
+      const countResult = await Report.aggregate([...countPipeline, { $count: 'total' }]);
+      totalReports = countResult.length > 0 ? countResult[0].total : 0;
+
+      // Get paginated results
+      pipeline.push({ $skip: skip }, { $limit: parseInt(limit) });
+      reports = await Report.aggregate(pipeline);
+    } else {
+      // Simple query without search
+      totalReports = await Report.countDocuments(query);
+      reports = await Report.find(query)
+        .populate({
+          path: 'userId',
+          select: 'firstName lastName email jobId',
+          populate: {
+            path: 'jobId',
+            select: 'title'
+          }
+        })
+        .sort(sort)
+        .skip(skip)
+        .limit(parseInt(limit));
+    }
+
+    // Calculate pagination info
+    const totalPages = Math.ceil(totalReports / parseInt(limit));
+    const currentPage = parseInt(page);
+
+    res.status(200).json({
+      success: true,
+      data: reports,
+      pagination: {
+        currentPage,
+        totalPages,
+        totalReports,
+        hasNextPage: currentPage < totalPages,
+        hasPrevPage: currentPage > 1,
+        limit: parseInt(limit)
+      }
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch reports', error });
+    console.error('Error in getAllReports:', error);
+    res.status(500).json({ message: 'Failed to fetch reports', error: error.message });
   }
 };
 
@@ -172,7 +333,7 @@ exports.generateMonthlyReports = async (req, res) => {
           userId: staff._id,
           period: currentPeriodDate, // Use Date object instead of string
           score: averageScore,
-          status: 'awaitingReview',
+          status: 'needReview', // Default status
           review: '' // Empty review, to be filled by supervisor
         });
 

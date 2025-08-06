@@ -57,6 +57,9 @@ export const getTaskStatusStyles = (taskStatus) => {
 
     'awaitingReview': 'text-info bg-info-light border-info',
     'Awaiting Review': 'text-info bg-info-light border-info',
+
+    'needReview': 'text-warning bg-warning-light border-warning',
+    'Need Review': 'text-warning bg-warning-light border-warning',
   };
   
   return statusMap[taskStatus] || 'text-neutral-700 bg-neutral-100 border-neutral-400';
@@ -80,6 +83,7 @@ export const getDisplayTaskStatus = (taskStatus) => {
     'done': 'Done',
 
     'awaitingReview': 'Awaiting Review',
+    'needReview': 'Need Review',
 
     // Bias statuses
     'biasDetected': 'Bias Detected',

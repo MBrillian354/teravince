@@ -139,6 +139,33 @@ export const dashboardAPI = {
   getStaffDashboard: (params) => api.get('/dashboard/staff', { params })
 };
 
+// Reports API functions
+export const reportsAPI = {
+  // Get all reports with pagination and filtering
+  getAll: (params) => api.get('/reports', { params }),
+  
+  // Get report by ID
+  getById: (id) => api.get(`/reports/${id}`),
+  
+  // Get reports by user ID
+  getByUserId: (userId) => api.get(`/reports/user/${userId}`),
+  
+  // Get tasks for a specific report
+  getReportTasks: (reportId) => api.get(`/reports/${reportId}/tasks`),
+  
+  // Create new report
+  create: (reportData) => api.post('/reports', reportData),
+  
+  // Update report
+  update: (id, reportData) => api.patch(`/reports/${id}`, reportData),
+  
+  // Delete report
+  delete: (id) => api.delete(`/reports/${id}`),
+  
+  // Generate monthly reports
+  generateMonthly: () => api.post('/reports/generate-monthly')
+};
+
 // Bias checking API functions
 export const biasAPI = {
   // Check bias in task review

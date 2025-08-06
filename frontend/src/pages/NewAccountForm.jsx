@@ -11,7 +11,7 @@ const NewAccountForm = () => {
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.admin);
   const { showSuccess, showError } = useModal();
-  const timeoutRef = useRef(null); // simpan timeout ID
+  const timeoutRef = useRef(null); 
 
   // Cleanup timeout jika komponen di-unmount (navigasi ke halaman lain)
   useEffect(() => {

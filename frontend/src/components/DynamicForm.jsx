@@ -12,6 +12,7 @@ const DynamicForm = ({
   className = "",
   error = "",
   success = "",
+  initialData = null, 
 }) => {
   const [formData, setFormData] = useState({});
   const [localError, setLocalError] = useState('');
@@ -32,9 +33,10 @@ const DynamicForm = ({
         }
       });
 
-      // Create at least one instance of each dynamic group
       Object.keys(groups).forEach(groupName => {
-        if (!currentData[groupName] || !Array.isArray(currentData[groupName])) {
+        if (initialData && initialData[groupName] && Array.isArray(initialData[groupName])) {
+          groups[groupName] = initialData[groupName].map(item => ({ ...item }));
+        } else if (!currentData[groupName] || !Array.isArray(currentData[groupName])) {
           groups[groupName] = [{}];
         } else {
           groups[groupName] = currentData[groupName];
@@ -62,11 +64,14 @@ const DynamicForm = ({
           return;
         }
 
-        // If there's a value in the current state for this field, keep it.
-        // Otherwise, use the default value.
-        if (currentData.hasOwnProperty(field.name)) {
+        // PERBAIKAN: Prioritaskan initialData untuk field biasa
+        if (initialData && initialData.hasOwnProperty(field.name)) {
+          newData[field.name] = initialData[field.name];
+        } else if (currentData.hasOwnProperty(field.name)) {
+          // If there's a value in the current state for this field, keep it.
           newData[field.name] = currentData[field.name];
         } else {
+          // Otherwise, use the default value.
           newData[field.name] = field.defaultValue || '';
         }
       });
@@ -78,7 +83,7 @@ const DynamicForm = ({
 
       return newData;
     });
-  }, [fields]);
+  }, [fields, initialData]); 
 
   const handleInputChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -595,7 +600,8 @@ DynamicForm.propTypes = {
   showSubmitButton: PropTypes.bool,
   className: PropTypes.string,
   error: PropTypes.string,
-  success: PropTypes.string
+  success: PropTypes.string,
+  initialData: PropTypes.object, // TAMBAHAN: PropTypes untuk initialData
 };
 
 export default DynamicForm;

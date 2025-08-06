@@ -101,11 +101,6 @@ function AdminRoutes() {
           <ManageAccounts />
         </RoleBasedRoute>
       } />
-      <Route path="/accounts" element={
-        <RoleBasedRoute allowedRoles={['admin']}>
-          <ManageAccounts />
-        </RoleBasedRoute>
-      } />
       <Route path="/accounts/new" element={
         <RoleBasedRoute allowedRoles={['admin']}>
           <NewAccountForm />

@@ -83,8 +83,7 @@ export default function NewTaskForm() {
         })),
         score: 0, // Default score
         evidence: '', // Default empty evidence
-        taskStatus: 'draft',
-        approvalStatus: 'draft'
+        taskStatus: 'draft'
       };
 
       console.log('Task Data:', taskData);

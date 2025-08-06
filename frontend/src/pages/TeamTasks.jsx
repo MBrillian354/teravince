@@ -8,9 +8,18 @@ import StatusBadge from '../components/StatusBadge';
 import { tasksAPI } from '../utils/api';
 import { 
   getDisplayTaskStatus, 
-  getDisplayApprovalStatus, 
-  getReviewStatus 
-} from '../utils/statusStyles';
+} from '../utils/statusStyles';// Helper function to get bias detection status
+const getBiasDetectionStatus = (biasCheck) => {
+  if (!biasCheck) return { status: 'not-checked', label: 'Not Checked' };
+  
+  if (biasCheck.is_bias === true) {
+    return { status: 'bias-detected', label: 'Bias Detected' };
+  } else if (biasCheck.is_bias === false) {
+    return { status: 'no-bias', label: 'No Bias' };
+  }
+  
+  return { status: 'pending', label: 'Pending' };
+};
 
 export default function TeamTasks() {
   const navigate = useNavigate();
@@ -34,13 +43,11 @@ export default function TeamTasks() {
         if (response.data.success) {
           // Transform backend data to match component's expected format
           const transformedTasks = response.data.data
-            .filter(task => task.taskStatus !== 'draft' && task.approvalStatus !== 'draft') // Exclude draft and cancelled tasks
+            .filter(task => task.taskStatus !== 'draft') // Exclude draft tasks
             .map(task => ({
               id: task._id,
               title: task.title,
               status: getDisplayTaskStatus(task.taskStatus),
-              approval: getDisplayApprovalStatus(task.approvalStatus),
-              review: getReviewStatus(task.taskStatus, task.approvalStatus),
               employeeName: task.userId ? `${task.userId.firstName} ${task.userId.lastName}` : 'Unknown',
               description: task.description,
               supervisorComment: task.supervisorComment || '',
@@ -48,8 +55,9 @@ export default function TeamTasks() {
               startDate: task.startDate,
               endDate: task.endDate,
               evidence: task.evidence || '',
+              biasStatus: getBiasDetectionStatus(task.bias_check),
               originalTask: task // Keep original data for detailed view
-            })); // Exclude cancelled tasks
+            }));
 
           setTasks(transformedTasks);
         } else {
@@ -69,7 +77,7 @@ export default function TeamTasks() {
   // 4) Calculate summary statistics based on real data
   const calculateSummary = () => {
     const tasksToApprove = tasks.filter(task =>
-      task.originalTask.approvalStatus === 'pending'
+      task.originalTask.taskStatus === 'submittedAndAwaitingApproval'
     ).length;
 
     const taskOngoing = tasks.filter(task =>
@@ -77,11 +85,15 @@ export default function TeamTasks() {
     ).length;
 
     const tasksToReview = tasks.filter(task =>
-      task.originalTask.taskStatus === 'submitted'
+      task.originalTask.taskStatus === 'submittedAndAwaitingReview'
     ).length;
 
     const taskCompleted = tasks.filter(task =>
       task.originalTask.taskStatus === 'completed'
+    ).length;
+
+    const tasksWithBias = tasks.filter(task =>
+      task.originalTask.bias_check?.is_bias === true
     ).length;
 
     return [
@@ -89,6 +101,7 @@ export default function TeamTasks() {
       { label: 'Tasks to Approve', value: tasksToApprove },
       { label: 'Task to Review', value: tasksToReview },
       { label: 'Task Completed', value: taskCompleted },
+      { label: 'Bias Detected', value: tasksWithBias },
     ];
   };
 
@@ -158,28 +171,76 @@ export default function TeamTasks() {
       ),
     },
     {
+      header: 'Bias Status',
+      render: (r) => {
+        const biasStatus = r.biasStatus;
+        let statusColor = 'bg-gray-100 text-gray-800';
+        
+        if (biasStatus.status === 'bias-detected') {
+          statusColor = 'bg-red-100 text-red-800';
+        } else if (biasStatus.status === 'no-bias') {
+          statusColor = 'bg-green-100 text-green-800';
+        } else if (biasStatus.status === 'pending') {
+          statusColor = 'bg-yellow-100 text-yellow-800';
+        }
+        
+        return (
+          <span className={`px-2 py-1 text-xs rounded-full ${statusColor}`}>
+            {biasStatus.label}
+          </span>
+        );
+      },
+    },
+    {
       header: 'Actions',
-      render: (row) => (
-        row.originalTask.taskStatus === 'submitted' ? (
-          <div className="flex space-x-2">
-            <button
-              onClick={() => handleViewTask(row.id)}
-              className="btn-secondary text-xs"
-            >
-              Review
-            </button>
-          </div>
-        ) : row.originalTask.taskStatus === 'inProgress' ? (
-          <div className="flex space-x-2">
-            <button
-              onClick={() => handleViewTask(row.id)}
-              className="btn-secondary text-xs"
-            >
-              View
-            </button>
-          </div>
-        ) : null
-      ),
+      render: (row) => {
+        const task = row.originalTask;
+        const biasStatus = row.biasStatus;
+        
+        // For completed tasks with bias detected, show Review button
+        if (task.taskStatus === 'completed' && biasStatus.status === 'bias-detected') {
+          return (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleViewTask(row.id)}
+                className="btn-secondary text-xs bg-red-600 hover:bg-red-700"
+              >
+                Review Bias
+              </button>
+            </div>
+          );
+        }
+        
+        // For submitted tasks (awaiting supervisor review)
+        if (task.taskStatus === 'submitted') {
+          return (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleViewTask(row.id)}
+                className="btn-secondary text-xs"
+              >
+                Review
+              </button>
+            </div>
+          );
+        }
+        
+        // For in-progress tasks
+        if (task.taskStatus === 'inProgress' || task.taskStatus === 'completed') {
+          return (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleViewTask(row.id)}
+                className="btn-secondary text-xs"
+              >
+                View
+              </button>
+            </div>
+          );
+        }
+        
+        return null;
+      },
       align: 'center'
     },
   ];
@@ -217,7 +278,7 @@ export default function TeamTasks() {
       <TasksReportsTabs active={activeTab} onChange={setActiveTab} />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         {summary.map((c) => (
           <StatsCard key={c.label} label={c.label} value={c.value} />
         ))}

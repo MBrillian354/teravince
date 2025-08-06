@@ -7,7 +7,7 @@ import StatusBadge from "../components/StatusBadge";
 import { tasksAPI } from "../utils/api";
 import authService from "../utils/authService";
 import { fetchTasksByUserId, clearError } from '../store/staffSlice';
-import { getDisplayTaskStatus, getDisplayApprovalStatus } from '../utils/statusStyles';
+import { getDisplayTaskStatus } from '../utils/statusStyles';
 
 export default function ManageTasks() {
   const dispatch = useDispatch();
@@ -37,10 +37,9 @@ export default function ManageTasks() {
     taskId: task._id,
     taskTitle: task.title,
     taskDescription: task.description,
-    deadline: task.deadline ? new Date(task.deadline).toLocaleDateString() : "Waiting Approval",
+    deadline: task.deadline ? new Date(task.deadline).toLocaleDateString() : "To be determined",
     taskStatus: getDisplayTaskStatus(task.taskStatus),
-    approvalStatus: getDisplayApprovalStatus(task.approvalStatus),
-    submitted: task.taskStatus === 'submitted' || task.taskStatus === 'completed',
+    submitted: task.taskStatus === 'submittedAndAwaitingReview' || task.taskStatus === 'submittedAndAwaitingApproval' || task.taskStatus === 'completed',
     score: task.score || "N/A"
   })) : [];
 
@@ -115,24 +114,16 @@ export default function ManageTasks() {
           showIcon={false}
         />
       )
-    }, {
-      header: "Approval Status",
-      accessor: "approvalStatus",
-      render: (task) => (
-        <StatusBadge 
-          status={task.approvalStatus} 
-          type="approval" 
-          size="xs"
-          showIcon={false}
-        />
-      )
     },
     {
       header: "Manage",
       accessor: "manage",
       render: (task) => (
         <div className="flex gap-2">
-          {(task.status === "Draft" || task.status === "Rejected") && !task.submitted && (
+          {(task.taskStatus === "Draft" || 
+            task.taskStatus === "Approval Rejected" || 
+            task.taskStatus === "Submission Rejected" ||
+            task.taskStatus === "Revision In Progress") && !task.submitted && (
             <>
               <button
                 onClick={() => handleEdit(task.taskId)}
@@ -148,7 +139,10 @@ export default function ManageTasks() {
               </button>
             </>
           )}
-          {(task.taskStatus === "Ongoing" || task.taskStatus === "Under Review") && (
+          {(task.taskStatus === "In Progress" || 
+            task.taskStatus === "Awaiting Review" || 
+            task.taskStatus === "Awaiting Approval" ||
+            task.taskStatus === "Completed") && (
             <button
               onClick={() => handleView(task.taskId)}
               className="btn-outline text-xs flex items-center gap-1"

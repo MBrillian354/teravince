@@ -112,7 +112,6 @@ exports.createTask = async (req, res) => {
       evidence,
       startDate,
       endDate,
-      approvalStatus,
       taskStatus,
       supervisorComment
     } = req.body;
@@ -148,7 +147,6 @@ exports.createTask = async (req, res) => {
       evidence: evidence || '',
       startDate,
       endDate,
-      approvalStatus: approvalStatus || 'draft',
       taskStatus: taskStatus || 'draft',
       supervisorComment
     });
@@ -195,12 +193,8 @@ exports.updateTask = async (req, res) => {
     }
 
     // Validate enum fields if provided
-    if (updateData.approvalStatus && !['pending', 'approved', 'rejected'].includes(updateData.approvalStatus)) {
-      return res.status(400).json({ msg: 'Invalid approval status. Must be "pending", "approved", or "rejected"' });
-    }
-
-    if (updateData.taskStatus && !['draft', 'inProgress', 'submitted', 'rejected', 'completed', 'cancelled'].includes(updateData.taskStatus)) {
-      return res.status(400).json({ msg: 'Invalid task status' });
+    if (updateData.taskStatus && !['inProgress', 'submissionRejected', 'approvalRejected', 'submittedAndAwaitingReview', 'submittedAndAwaitingApproval', 'revisionInProgress', 'completed', 'draft'].includes(updateData.taskStatus)) {
+      return res.status(400).json({ msg: 'Invalid task status. Must be one of: inProgress, submissionRejected, approvalRejected, submittedAndAwaitingReview, submittedAndAwaitingApproval, revisionInProgress, completed, draft' });
     }
 
     console.log('Update Data:', updateData);

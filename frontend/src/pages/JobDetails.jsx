@@ -5,12 +5,8 @@ import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import { fetchJobDetails, clearCurrentJob } from '../store/adminSlice';
 import { 
-  getDisplayTaskStatus, 
-  getDisplayApprovalStatus,
-  getReviewStatus 
-} from '../utils/statusStyles';
-
-export default function JobDetails() {
+  getDisplayTaskStatus,
+} from '../utils/statusStyles';export default function JobDetails() {
     const { jobId } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -49,22 +45,11 @@ export default function JobDetails() {
             ),
         },
         {
-            header: 'Approval Status',
-            render: (r) => (
-                <StatusBadge 
-                    status={getDisplayApprovalStatus(r.approvalStatus)} 
-                    type="approval" 
-                    size="xs"
-                    showIcon={false}
-                />
-            ),
-        },
-        {
             header: 'Task Status',
             render: (r) => (
                 <StatusBadge 
-                    status={getReviewStatus(r.taskStatus, r.approvalStatus)} 
-                    type="review" 
+                    status={getDisplayTaskStatus(r.taskStatus)} 
+                    type="task" 
                     size="xs"
                     showIcon={false}
                 />

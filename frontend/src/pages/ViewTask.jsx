@@ -66,34 +66,27 @@ export default function ViewTask() {
     }
   }, [task, isLoading, showError, navigate]);
 
-  // Helper function to get display status
+  // Helper function to get display status using new enum
   const getDisplayTaskStatus = (taskStatus) => {
     switch (taskStatus) {
       case 'inProgress':
-        return 'Ongoing';
-      case 'submitted':
-        return 'Under Review';
+        return 'In Progress';
+      case 'submittedAndAwaitingReview':
+        return 'Awaiting Review';
+      case 'submittedAndAwaitingApproval':
+        return 'Awaiting Approval';
+      case 'revisionInProgress':
+        return 'Revision In Progress';
+      case 'submissionRejected':
+        return 'Submission Rejected';
+      case 'approvalRejected':
+        return 'Approval Rejected';
       case 'completed':
         return 'Completed';
-      case 'rejected':
-        return 'Rejected';
-      case 'cancelled':
-        return 'Cancelled';
-      default:
+      case 'draft':
         return 'Draft';
-    }
-  };
-
-  const getDisplayApprovalStatus = (approvalStatus) => {
-    switch (approvalStatus) {
-      case 'pending':
-        return 'Under Review';
-      case 'approved':
-        return 'Approved';
-      case 'rejected':
-        return 'Rejected';
       default:
-        return 'Pending';
+        return taskStatus;
     }
   };
 
@@ -103,11 +96,21 @@ export default function ViewTask() {
 
     setIsSubmitting(true);
     try {
-      // Update task status to 'submitted'
-      const updateData = { taskStatus: 'submitted', submittedDate: new Date() };
-      if (task?.approvalStatus === 'draft') {
-        updateData.approvalStatus = 'pending';
+      // Determine the appropriate status based on current state
+      let newTaskStatus = 'submittedAndAwaitingApproval'; // Default for new tasks
+      
+      // If task was previously rejected, determine the appropriate submitted status
+      if (task.taskStatus === 'approvalRejected') {
+        newTaskStatus = 'submittedAndAwaitingApproval';
+      } else if (task.taskStatus === 'submissionRejected' || task.taskStatus === 'revisionInProgress') {
+        newTaskStatus = 'submittedAndAwaitingReview';
       }
+
+      const updateData = { 
+        taskStatus: newTaskStatus, 
+        submittedDate: new Date(), 
+        bias_check: null 
+      };
 
       await tasksAPI.update(task._id, updateData);
 
@@ -146,7 +149,11 @@ export default function ViewTask() {
   // Check if task can be submitted
   const canSubmitTask = () => {
     if (!task) return false;
-    return task.taskStatus === 'inProgress' || task.taskStatus === 'draft' || task.taskStatus === 'rejected';
+    return task.taskStatus === 'inProgress' || 
+           task.taskStatus === 'draft' || 
+           task.taskStatus === 'approvalRejected' || 
+           task.taskStatus === 'submissionRejected' ||
+           task.taskStatus === 'revisionInProgress';
   };
 
   // Handle evidence file upload
@@ -260,13 +267,6 @@ export default function ViewTask() {
       disabled: true
     },
     {
-      type: 'text',
-      name: 'approvalStatus',
-      label: 'Approval Status',
-      defaultValue: task ? getDisplayApprovalStatus(task.approvalStatus) : '',
-      disabled: true
-    },
-    {
       type: 'textarea',
       name: 'supervisorComment',
       label: 'Supervisor Comment',
@@ -284,7 +284,7 @@ export default function ViewTask() {
       disabled: true
     },
     {
-      type: 'link',
+      type: isSubmissionMode ? 'file' : 'link',
       name: 'evidence',
       label: 'Evidence',
       defaultValue: task ? task.evidence : '',
@@ -323,7 +323,7 @@ export default function ViewTask() {
         )}
 
         {/* Announcement for Already Submitted Tasks */}
-        {isSubmissionMode && !canSubmitTask() && task?.taskStatus === "submitted" && (
+        {isSubmissionMode && !canSubmitTask() && (task?.taskStatus === "submittedAndAwaitingReview" || task?.taskStatus === "submittedAndAwaitingApproval") && (
           <StatusNotification
             type="info"
             message="This task has already been submitted and is under review."
@@ -356,7 +356,7 @@ export default function ViewTask() {
 
               {isSubmissionMode && canSubmitTask() && (
                 <div className="flex gap-3">
-                  {task?.approvalStatus !== 'approved' && (
+                  {(task?.taskStatus === 'draft' || task?.taskStatus === 'approvalRejected' || task?.taskStatus === 'submissionRejected' || task?.taskStatus === 'revisionInProgress') && (
                     <button
                       onClick={() => navigate(`/tasks/${task._id}/edit`)}
                       className="btn-outline"

@@ -182,27 +182,27 @@ h1 {
 }
 
 @utility btn-success {
-  @apply px-4 py-2 bg-green-500 text-white rounded hover:bg-green-500/50 hover:cursor-pointer transition-colors duration-150;
+  @apply px-4 py-2 bg-green-500 text-white rounded hover:bg-green-500/50 hover:cursor-pointer transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-primary {
-  @apply px-4 py-2 bg-primary text-white rounded hover:bg-primary/50 hover:cursor-pointer transition-colors duration-150;
+  @apply px-4 py-2 bg-primary text-white rounded hover:bg-primary/50 hover:cursor-pointer transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-secondary {
-  @apply px-4 py-2 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700 hover:cursor-pointer transition-colors duration-150;
+  @apply px-4 py-2 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700 hover:cursor-pointer transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-outline {
-  @apply px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-100 hover:cursor-pointer transition-colors duration-150;
+  @apply px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-100 hover:cursor-pointer transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-danger {
-  @apply px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-100 hover:cursor-pointer transition-colors duration-150;
+  @apply px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-100 hover:cursor-pointer transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-icon {
-  @apply p-2 rounded-full hover:bg-gray-100 transition-colors duration-150 hover:cursor-pointer;
+  @apply p-2 rounded-full hover:bg-gray-100 transition-colors duration-150 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 /* Modal Animations */

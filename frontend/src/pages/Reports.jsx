@@ -56,7 +56,7 @@ export default function Reports() {
       const monthName = date.toLocaleString('en-US', { month: 'long' });
       return {
         reportId: r._id,
-        employeeId: r.userId?._id || '',
+        staffId: r.userId?._id || '',
         name: `${r.userId?.firstName || ''} ${r.userId?.lastName || ''}`,
         month: monthName,
         jobTitle: r.userId?.jobTitle || 'N/A',
@@ -88,7 +88,7 @@ export default function Reports() {
   // ─── Table Columns ───────────────────────────────────────
   const columns = [
     {
-      header: 'Employee Name',
+      header: 'Staff Name',
       render: row => (
         <Link
           to={`/report/${row.reportId}`}
@@ -123,7 +123,7 @@ export default function Reports() {
       align: 'center',
     },
     { header: 'Job Title', accessor: 'jobTitle' },
-    { header: 'Employee Score', accessor: 'score', align: 'right' },
+    { header: 'Staff Score', accessor: 'score', align: 'right' },
     {
       header: 'Report Status',
       render: row => (

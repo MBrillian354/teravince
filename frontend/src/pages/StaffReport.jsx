@@ -13,10 +13,10 @@ export default function StaffReport() {
 
   // 1) initial data from reports
   const reportData = {
-    r1: { employeeId: '3210001', name: 'Jane Doe', month: 'May 2025', jobTitle: 'Social Media Trainee', score: '0/100' },
-    r2: { employeeId: '3210002', name: 'John Smith', month: 'March 2025', jobTitle: 'Marketing Intern', score: '75/100' },
-    r3: { employeeId: '3210003', name: 'Lisa Ray', month: 'January 2025', jobTitle: 'Design Assistant', score: '85/100' },
-    r4: { employeeId: '3210004', name: 'Alan Kim', month: 'April 2025', jobTitle: 'Community Intern', score: '60/100' },
+    r1: { staffId: '3210001', name: 'Jane Doe', month: 'May 2025', jobTitle: 'Social Media Trainee', score: '0/100' },
+    r2: { staffId: '3210002', name: 'John Smith', month: 'March 2025', jobTitle: 'Marketing Intern', score: '75/100' },
+    r3: { staffId: '3210003', name: 'Lisa Ray', month: 'January 2025', jobTitle: 'Design Assistant', score: '85/100' },
+    r4: { staffId: '3210004', name: 'Alan Kim', month: 'April 2025', jobTitle: 'Community Intern', score: '60/100' },
   };
 
   const spvPlaceholder = "Enter your review...";
@@ -136,13 +136,13 @@ export default function StaffReport() {
           </div>
           <div>
             <p className="font-semibold">{report.name}</p>
-            <p className="text-sm text-gray-600">{report.employeeId}</p>
+            <p className="text-sm text-gray-600">{report.staffId}</p>
             <p className="text-sm text-gray-600">{report.jobTitle}</p>
             <p className="text-sm text-gray-500">{report.month}</p>
           </div>
         </div>
         <StatsCard
-          label="Employee Score"
+          label="Staff Score"
           value={report.score}
           colorClass="bg-white"
         />
@@ -160,7 +160,7 @@ export default function StaffReport() {
         <div className="flex justify-end items-center space-x-4">
           <label className="flex items-center text-sm">
             <input type="checkbox" className="form-checkbox mr-2" />
-            I have properly reviewed the employee’s report
+            I have properly reviewed the staff's report
           </label>
           <button className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
             Send Review

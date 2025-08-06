@@ -19,8 +19,8 @@ export default function MyStaffs() {
 
   // Staff columns configuration
   const staffColumns = [
-    { header: 'Employee Name', accessor: 'name' },
-    { header: 'Employee ID', accessor: '_id' },
+    { header: 'Staff Name', accessor: 'name' },
+    { header: 'Staff ID', accessor: '_id' },
     { header: 'Job Title', accessor: 'jobTitle' },
     {
       header: 'Actions',

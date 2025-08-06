@@ -87,8 +87,11 @@ export const jobsAPI = {
 
 // Tasks API functions
 export const tasksAPI = {
-  // Get all tasks
-  getAll: () => api.get('/tasks'),
+  // Get all tasks with query parameters support
+  getAll: (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return api.get(`/tasks${queryString ? `?${queryString}` : ''}`);
+  },
   
   // Get task by ID
   getById: (id) => api.get(`/tasks/${id}`),

@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TasksReportsTabs from '../components/TasksReportsTabs';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 import StatusBadge from '../components/StatusBadge';
+import SearchInput from '../components/SearchInput';
+import FilterSelect from '../components/FilterSelect';
 import { tasksAPI } from '../utils/api';
+import { useServerTable } from '../hooks/useServerTable';
 import {
   getDisplayTaskStatus,
 } from '../utils/statusStyles';// Helper function to get bias detection status
@@ -31,85 +34,97 @@ export default function TeamTasks() {
   // 1) Tab state
   const [activeTab, setActiveTab] = useState('tasks');
 
-  // 2) Data states
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // 2) Use server table hook for data management
+  const {
+    data: rawTasks,
+    loading,
+    error,
+    pagination,
+    params,
+    updateSearch,
+    updateFilter,
+    changePage,
+    updateSort,
+    resetFilters,
+    refetch
+  } = useServerTable(tasksAPI.getAll, {
+    page: 1,
+    limit: 10,
+    sortBy: 'startDate',
+    sortOrder: 'desc'
+  });
 
-  // 3) Fetch tasks from backend
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await tasksAPI.getAll();
+  // 3) Transform backend data to match component's expected format using useMemo to prevent recreation
+  const tasks = useMemo(() =>
+    rawTasks.map(task => ({
+      id: task._id,
+      title: task.title,
+      status: getDisplayTaskStatus(task.taskStatus),
+      staffName: task.userId ? `${task.userId.firstName} ${task.userId.lastName}` : 'Unknown',
+      description: task.description,
+      supervisorComment: task.supervisorComment || '',
+      score: task.score || 0,
+      startDate: task.startDate,
+      completedDate: task.completedDate,
+      evidence: task.evidence || '',
+      biasStatus: getBiasDetectionStatus(task.bias_check),
+      originalTask: task // Keep original data for detailed view
+    })), [rawTasks]
+  );
 
-        if (response.data.success) {
-          // Transform backend data to match component's expected format
-          const transformedTasks = response.data.data
-            .filter(task => task.taskStatus !== 'draft') // Exclude draft tasks
-            .map(task => ({
-              id: task._id,
-              title: task.title,
-              status: getDisplayTaskStatus(task.taskStatus),
-              employeeName: task.userId ? `${task.userId.firstName} ${task.userId.lastName}` : 'Unknown',
-              description: task.description,
-              supervisorComment: task.supervisorComment || '',
-              score: task.score || 0,
-              startDate: task.startDate,
-              completedDate: task.completedDate,
-              evidence: task.evidence || '',
-              biasStatus: getBiasDetectionStatus(task.bias_check),
-              originalTask: task // Keep original data for detailed view
-            }));
+  // 4) Calculate summary statistics - we'll need a separate API call for this
+  const [summary, setSummary] = useState([
+    { label: 'Task Ongoing', value: 0 },
+    { label: 'Tasks to Approve', value: 0 },
+    { label: 'Task to Review', value: 0 },
+    { label: 'Task Completed', value: 0 },
+    { label: 'Bias Detected', value: 0 },
+  ]);
 
-          setTasks(transformedTasks);
-        } else {
-          setError('Failed to fetch tasks');
-        }
-      } catch (err) {
-        console.error('Error fetching tasks:', err);
-        setError(err.response?.data?.msg || 'Failed to fetch tasks');
-      } finally {
-        setLoading(false);
+  // Fetch summary statistics - memoize to prevent recreation
+  const fetchSummary = useCallback(async () => {
+    try {
+      // Get all tasks for summary calculation (without pagination)
+      const response = await tasksAPI.getAll({ limit: 1000, page: 1 });
+      if (response.data.success) {
+        const allTasks = response.data.data;
+
+        const tasksToApprove = allTasks.filter(task =>
+          task.taskStatus === 'submittedAndAwaitingApproval'
+        ).length;
+
+        const taskOngoing = allTasks.filter(task =>
+          task.taskStatus === 'inProgress'
+        ).length;
+
+        const tasksToReview = allTasks.filter(task =>
+          task.taskStatus === 'submittedAndAwaitingReview'
+        ).length;
+
+        const taskCompleted = allTasks.filter(task =>
+          task.taskStatus === 'completed'
+        ).length;
+
+        const tasksWithBias = allTasks.filter(task =>
+          task.bias_check?.reviewedWithoutBias === false
+        ).length;
+
+        setSummary([
+          { label: 'Task Ongoing', value: taskOngoing },
+          { label: 'Tasks to Approve', value: tasksToApprove },
+          { label: 'Task to Review', value: tasksToReview },
+          { label: 'Task Completed', value: taskCompleted },
+          { label: 'Bias Detected', value: tasksWithBias },
+        ]);
       }
-    };
-
-    fetchTasks();
+    } catch (err) {
+      console.error('Error fetching summary:', err);
+    }
   }, []);
 
-  // 4) Calculate summary statistics based on real data
-  const calculateSummary = () => {
-    const tasksToApprove = tasks.filter(task =>
-      task.originalTask.taskStatus === 'submittedAndAwaitingApproval'
-    ).length;
-
-    const taskOngoing = tasks.filter(task =>
-      task.originalTask.taskStatus === 'inProgress'
-    ).length;
-
-    const tasksToReview = tasks.filter(task =>
-      task.originalTask.taskStatus === 'submittedAndAwaitingReview'
-    ).length;
-
-    const taskCompleted = tasks.filter(task =>
-      task.originalTask.taskStatus === 'completed'
-    ).length;
-
-    const tasksWithBias = tasks.filter(task =>
-      task.originalTask.bias_check?.reviewedWithoutBias === false
-    ).length;
-
-    return [
-      { label: 'Task Ongoing', value: taskOngoing },
-      { label: 'Tasks to Approve', value: tasksToApprove },
-      { label: 'Task to Review', value: tasksToReview },
-      { label: 'Task Completed', value: taskCompleted },
-      { label: 'Bias Detected', value: tasksWithBias },
-    ];
-  };
-
-  const summary = calculateSummary();
+  useEffect(() => {
+    fetchSummary();
+  }, [fetchSummary]); // Use memoized function
 
   // 5) Selected row state
   const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -119,28 +134,48 @@ export default function TeamTasks() {
     if (tasks.length > 0 && !selectedTaskId) {
       setSelectedTaskId(tasks[0].id);
     }
-  }, [tasks, selectedTaskId]);
+  }, [tasks.length, selectedTaskId]); // Changed dependency to tasks.length to prevent infinite loop
 
-  // 6) Handle task view
-  const handleViewTask = (taskId) => {
+  // 6) Handle task view - memoize to prevent recreation
+  const handleViewTask = useCallback((taskId) => {
     navigate(`/reports/tasks/${taskId}`);
-  };
+  }, [navigate]);
 
-  // 7) Pagination state
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil(tasks.length / itemsPerPage);
+  // 7) Filter options - memoize to prevent recreation
+  const statusOptions = useMemo(() => [
+    { value: 'inProgress', label: 'In Progress' },
+    { value: 'submittedAndAwaitingApproval', label: 'Awaiting Approval' },
+    { value: 'submittedAndAwaitingReview', label: 'Awaiting Review' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'submissionRejected', label: 'Submission Rejected' },
+    { value: 'approvalRejected', label: 'Approval Rejected' },
+    { value: 'revisionInProgress', label: 'Revision in Progress' }
+  ], []);
 
-  // Get paginated tasks
-  const paginatedTasks = tasks.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
+  const biasStatusOptions = useMemo(() => [
+    { value: 'not-checked', label: 'Not Checked' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'no-bias', label: 'No Bias' },
+    { value: 'bias-detected', label: 'Bias Detected' }
+  ], []);
 
-  // 8) Table column definitions
-  const columns = [
-    { header: 'Task Title', accessor: 'title' },
-    { header: 'Employee', accessor: 'employeeName' },
+  // 8) Table column definitions - memoize to prevent recreation
+  const columns = useMemo(() => [
+    {
+      header: 'Task Title',
+      accessor: 'title',
+      sortable: true,
+      render: (r) => (
+        <div className="max-w-xs truncate" title={r.title}>
+          {r.title}
+        </div>
+      )
+    },
+    {
+      header: 'Staff Name',
+      accessor: 'staffName',
+      sortable: true
+    },
     {
       header: 'Submission Status',
       render: (r) => (
@@ -152,28 +187,6 @@ export default function TeamTasks() {
         />
       ),
     },
-    // {
-    //   header: 'Approval Status',
-    //   render: (r) => (
-    //     <StatusBadge
-    //       status={r.approval}
-    //       type="approval"
-    //       size="xs"
-    //       showIcon={false}
-    //     />
-    //   ),
-    // },
-    // {
-    //   header: 'Task Status',
-    //   render: (r) => (
-    //     <StatusBadge
-    //       status={r.review}
-    //       type="review"
-    //       size="xs"
-    //       showIcon={false}
-    //     />
-    //   ),
-    // },
     {
       header: 'Bias Status',
       render: (r) => {
@@ -251,11 +264,12 @@ export default function TeamTasks() {
       header: 'Score',
       accessor: 'score',
       align: 'center',
+      sortable: true,
       render: (r) => (
         <span className="text-xs">{r.score || 'N/A'}</span>
       ),
     }
-  ];
+  ], [handleViewTask]); // Only depend on handleViewTask which is memoized
 
   // Loading state
   if (loading) {
@@ -296,23 +310,80 @@ export default function TeamTasks() {
         ))}
       </div>
 
+      {/* Search and Filters */}
+      <div className="bg-surface rounded-lg shadow-md border border-primary mb-4 p-4">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex-1 min-w-64">
+            <SearchInput
+              id="team-tasks-search"
+              name="teamTasksSearch"
+              value={params.search}
+              onChange={updateSearch}
+              placeholder="Search tasks or staff names..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <FilterSelect
+              id="team-tasks-status-filter"
+              name="teamTasksStatusFilter"
+              value={params.status}
+              onChange={(value) => updateFilter('status', value)}
+              options={statusOptions}
+              placeholder="All Statuses"
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+
+            <FilterSelect
+              id="team-tasks-bias-filter"
+              name="teamTasksBiasFilter"
+              value={params.biasStatus}
+              onChange={(value) => updateFilter('biasStatus', value)}
+              options={biasStatusOptions}
+              placeholder="All Bias Status"
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+
+            <button
+              onClick={resetFilters}
+              className="btn-primary"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+
+        {/* Results info */}
+        <div className="mt-3 text-sm text-gray-600">
+          {loading ? (
+            'Loading...'
+          ) : (
+            `Showing ${tasks.length} of ${pagination.totalTasks} tasks`
+          )}
+        </div>
+      </div>
+
       {/* Tasks Table */}
       <DataTable
         title={"Team Tasks"}
         columns={columns}
-        data={paginatedTasks}
+        data={tasks}
         rowKey="id"
         onRowClick={({ id }) => setSelectedTaskId(id)}
         containerClass="bg-surface rounded mb-4"
         variant='gradient'
+        sortBy={params.sortBy}
+        sortOrder={params.sortOrder}
+        onSort={updateSort}
       />
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {pagination.totalPages > 1 && (
         <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={changePage}
         />
       )}
 
@@ -320,6 +391,14 @@ export default function TeamTasks() {
       {tasks.length === 0 && !loading && (
         <div className="bg-surface rounded shadow p-6 text-center">
           <p className="text-gray-600">No tasks found.</p>
+          {(params.search || params.status || params.biasStatus) && (
+            <button
+              onClick={resetFilters}
+              className="mt-2 text-primary hover:underline"
+            >
+              Clear filters to see all tasks
+            </button>
+          )}
         </div>
       )}
     </div>

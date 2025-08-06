@@ -133,7 +133,7 @@ const ManageJobs = () => {
   const columns = [
     { header: 'Job Title', accessor: 'title' },
     { header: 'Job Description', accessor: 'description', render: row => <p className='whitespace-pre-line'>{row.description}</p> },
-    { header: 'Number of Employees', accessor: 'employees' },
+    { header: 'Number of Staffs', accessor: 'staffs' },
     { header: 'Status', accessor: 'status', render: row => capitalizeFirst(row.status) },
     {
       header: 'Actions',

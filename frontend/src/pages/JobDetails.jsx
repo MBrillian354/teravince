@@ -28,7 +28,7 @@ import {
 
     // Task table columns
     const taskColumns = [
-        { header: 'Employee Name', accessor: 'employeeName' },
+        { header: 'Staff Name', accessor: 'staffName' },
         { header: 'Task ID', accessor: 'id', render: (row) => row.id?.toString().slice(-8) || 'N/A' },
         { header: 'Task Title', accessor: 'title' },
         { header: 'Start Date', accessor: 'startDate' },
@@ -136,7 +136,7 @@ import {
                     </div>
                     <div>
                         <p className="font-medium text-gray-600">Assigned Employees</p>
-                        <p className="text-lg font-semibold">{currentJob.employees}</p>
+                        <p className="text-lg font-semibold">{currentJob.staffs}</p>
                     </div>
                     <div>
                         <p className="font-medium text-gray-600">Status</p>

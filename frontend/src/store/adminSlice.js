@@ -281,7 +281,7 @@ const adminSlice = createSlice({
                     id: job._id,
                     title: job.title,
                     description: job.description || '',
-                    employees: job.assignedTo ? job.assignedTo.length : 0,
+                    staffs: job.assignedTo ? job.assignedTo.length : 0,
                     status: job.status,
                     assignedTo: job.assignedTo || [],
                     taskCounts: job.taskCounts || { inProgress: 0, completed: 0, total: 0 }
@@ -303,7 +303,7 @@ const adminSlice = createSlice({
                     id: job._id,
                     title: job.title,
                     description: job.description || '',
-                    employees: job.assignedTo ? job.assignedTo.length : 0,
+                    staffs: job.assignedTo ? job.assignedTo.length : 0,
                     status: job.status,
                     assignedTo: job.assignedTo || [],
                     taskCounts: job.taskCounts || { inProgress: 0, completed: 0, total: 0 }
@@ -326,7 +326,7 @@ const adminSlice = createSlice({
                         id: updated._id,
                         title: updated.title,
                         description: updated.description || '',
-                        employees: updated.assignedTo ? updated.assignedTo.length : 0,
+                        staffs: updated.assignedTo ? updated.assignedTo.length : 0,
                         status: updated.status,
                         assignedTo: updated.assignedTo || [],
                         taskCounts: updated.taskCounts || { inProgress: 0, completed: 0, total: 0 }
@@ -365,7 +365,7 @@ const adminSlice = createSlice({
                     id: job._id,
                     title: job.title,
                     description: job.description || '',
-                    employees: job.assignedTo ? job.assignedTo.length : 0,
+                    staffs: job.assignedTo ? job.assignedTo.length : 0,
                     status: job.status,
                     assignedTo: job.assignedTo || [],
                     taskCounts: job.taskCounts || { inProgress: 0, completed: 0, total: 0 }
@@ -375,7 +375,7 @@ const adminSlice = createSlice({
                 state.currentJobTasks = tasks.map(task => ({
                     id: task._id,
                     userId: task.userId?._id || task.userId,
-                    employeeName: task.userId?.firstName && task.userId?.lastName 
+                    staffName: task.userId?.firstName && task.userId?.lastName 
                         ? `${task.userId.firstName} ${task.userId.lastName}` 
                         : 'Unknown Employee',
                     title: task.title,

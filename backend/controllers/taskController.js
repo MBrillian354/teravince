@@ -55,27 +55,185 @@ const calculateTaskScore = (kpis) => {
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
   try {
-    const { jobId } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      status,
+      biasStatus,
+      staffName,
+      sortBy = 'startDate',
+      sortOrder = 'desc',
+      jobId
+    } = req.query;
+
+    // Build query
+    let query = {};
     
-    let tasks;
+    // Exclude draft tasks by default
+    query.taskStatus = { $ne: 'draft' };
+    
     if (jobId) {
-      // If jobId is provided, get the job and find tasks for users assigned to that job
       const Job = require('../models/Job');
       const job = await Job.findById(jobId);
       if (!job) {
         return res.status(404).json({ msg: 'Job not found' });
       }
-      
-      // Find tasks for users assigned to this job
-      tasks = await Task.find({ userId: { $in: job.assignedTo } }).populate('userId');
-    } else {
-      tasks = await Task.find().populate('userId');
+      query.userId = { $in: job.assignedTo };
     }
-    
+
+    // Status filter
+    if (status && status !== 'all') {
+      query.taskStatus = status;
+    }
+
+    // Bias status filter
+    if (biasStatus && biasStatus !== 'all') {
+      if (biasStatus === 'bias-detected') {
+        query['bias_check.reviewedWithoutBias'] = false;
+      } else if (biasStatus === 'no-bias') {
+        query['bias_check.reviewedWithoutBias'] = true;
+      } else if (biasStatus === 'pending') {
+        query['bias_check.action'] = { $ne: 'reviewed' };
+        query['bias_check'] = { $exists: true };
+      } else if (biasStatus === 'not-checked') {
+        query['bias_check'] = { $exists: false };
+      }
+    }
+
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Build sort object
+    const sort = {};
+    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    // First get tasks with basic filters (excluding search for now)
+    let taskQuery = Task.find(query).populate('userId');
+
+    // Search functionality - search in populated user fields and task fields
+    if (search) {
+      // We need to use aggregation for searching in populated fields
+      const pipeline = [
+        { $match: query },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        { $unwind: '$user' },
+        {
+          $match: {
+            $or: [
+              { title: { $regex: search, $options: 'i' } },
+              { description: { $regex: search, $options: 'i' } },
+              { 'user.firstName': { $regex: search, $options: 'i' } },
+              { 'user.lastName': { $regex: search, $options: 'i' } },
+              { 
+                $expr: {
+                  $regexMatch: {
+                    input: { $concat: ['$user.firstName', ' ', '$user.lastName'] },
+                    regex: search,
+                    options: 'i'
+                  }
+                }
+              }
+            ]
+          }
+        },
+        { $sort: sort },
+        { $skip: skip },
+        { $limit: parseInt(limit) },
+        {
+          $addFields: {
+            userId: '$user'
+          }
+        },
+        {
+          $project: {
+            user: 0
+          }
+        }
+      ];
+
+      const tasks = await Task.aggregate(pipeline);
+      
+      // Get total count for search
+      const countPipeline = [
+        { $match: query },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        { $unwind: '$user' },
+        {
+          $match: {
+            $or: [
+              { title: { $regex: search, $options: 'i' } },
+              { description: { $regex: search, $options: 'i' } },
+              { 'user.firstName': { $regex: search, $options: 'i' } },
+              { 'user.lastName': { $regex: search, $options: 'i' } },
+              { 
+                $expr: {
+                  $regexMatch: {
+                    input: { $concat: ['$user.firstName', ' ', '$user.lastName'] },
+                    regex: search,
+                    options: 'i'
+                  }
+                }
+              }
+            ]
+          }
+        },
+        { $count: "total" }
+      ];
+
+      const countResult = await Task.aggregate(countPipeline);
+      const totalTasks = countResult[0]?.total || 0;
+      const totalPages = Math.ceil(totalTasks / parseInt(limit));
+
+      return res.status(200).json({
+        success: true,
+        data: tasks,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages,
+          totalTasks,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+          limit: parseInt(limit)
+        }
+      });
+    }
+
+    // Execute query without search
+    const tasks = await taskQuery
+      .sort(sort)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get total count for pagination
+    const totalTasks = await Task.countDocuments(query);
+    const totalPages = Math.ceil(totalTasks / parseInt(limit));
+
     res.status(200).json({
       success: true,
-      count: tasks.length,
-      data: tasks
+      data: tasks,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages,
+        totalTasks,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        limit: parseInt(limit)
+      }
     });
   } catch (err) {
     console.log(err);

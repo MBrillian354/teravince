@@ -197,7 +197,13 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         name: 'biasReviewCheck',
         label: 'I have properly reviewed the staff\'s task without bias',
         required: true
-      }] : [])
+      }] : []),
+      {
+        type: 'checkbox',
+        name: 'biasReviewCheck',
+        label: 'I have properly reviewed the staff\'s task without bias',
+        required: true
+      }
     ];
   };
 
@@ -304,7 +310,7 @@ export default function SupervisorReviewingAndApprovalOfTask() {
           // For completed tasks, request revision - change to revisionInProgress
           updateData = {
             ...updateData,
-            taskStatus: 'revisionInProgress',
+            taskStatus: 'submissionRejected',
             bias_check: biasCheckResponse?.data || {
               reviewedWithoutBias: formData.biasReviewCheck || false,
               reviewDate: new Date().toISOString(),

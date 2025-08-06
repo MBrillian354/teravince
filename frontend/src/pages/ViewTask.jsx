@@ -17,6 +17,7 @@ export default function ViewTask() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evidenceFile, setEvidenceFile] = useState(null);
   const [isUploadingEvidence, setIsUploadingEvidence] = useState(false);
+  const [kpiAchievedAmounts, setKpiAchievedAmounts] = useState({});
 
   const user = authService.getStoredUser();
   const { currentTask, tasks, isLoading } = useSelector(state => state.staff);
@@ -42,6 +43,17 @@ export default function ViewTask() {
       taskId ? dispatch(fetchTaskById(taskId)) : dispatch(fetchTasks(id));
     }
   }, [dispatch, task, isLoading, id, taskId]);
+
+  // Initialize KPI achieved amounts when task is loaded
+  useEffect(() => {
+    if (task && task.kpis && task.kpis.length > 0) {
+      const initialKpiAmounts = {};
+      task.kpis.forEach((kpi, index) => {
+        initialKpiAmounts[index] = kpi.achievedAmount || '';
+      });
+      setKpiAchievedAmounts(initialKpiAmounts);
+    }
+  }, [task]);
 
   // Fetch all tasks if tasks array is empty and no current task
   useEffect(() => {
@@ -94,6 +106,28 @@ export default function ViewTask() {
   const handleSubmitTask = async () => {
     if (!task) return;
 
+    // Validate KPI achieved amounts in submission mode for tasks in progress
+    if (isSubmissionMode && task.taskStatus === 'inProgress' && task.kpis && task.kpis.length > 0) {
+      const missingKpis = [];
+      task.kpis.forEach((kpi, index) => {
+        if (!kpiAchievedAmounts[index] || kpiAchievedAmounts[index].toString().trim() === '') {
+          missingKpis.push(kpi.kpiTitle);
+        }
+      });
+
+      if (missingKpis.length > 0) {
+        showError(
+          'Missing KPI Data',
+          `Please fill in the achieved amount for all KPIs: ${missingKpis.join(', ')}`,
+          {
+            autoClose: true,
+            timeout: 5000
+          }
+        );
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       // Determine the appropriate status based on current state
@@ -111,6 +145,15 @@ export default function ViewTask() {
         submittedDate: new Date(),
         bias_check: null
       };
+
+      // Include updated KPI data if in submission mode for tasks in progress
+      if (isSubmissionMode && task.taskStatus === 'inProgress' && task.kpis && task.kpis.length > 0) {
+        const updatedKpis = task.kpis.map((kpi, index) => ({
+          ...kpi,
+          achievedAmount: parseFloat(kpiAchievedAmounts[index]) || 0
+        }));
+        updateData.kpis = updatedKpis;
+      }
 
       await tasksAPI.update(task._id, updateData);
 
@@ -145,6 +188,7 @@ export default function ViewTask() {
       setIsSubmitting(false);
     }
   };
+
 
   // Check if task can be submitted
   const canSubmitTask = () => {
@@ -197,6 +241,14 @@ export default function ViewTask() {
     }
   };
 
+  // Handle KPI achieved amount changes
+  const handleKpiAchievedAmountChange = (index, value) => {
+    setKpiAchievedAmounts(prev => ({
+      ...prev,
+      [index]: value
+    }));
+  };
+
   // Handle form submission (for evidence file upload)
   const handleFormSubmit = (formData) => {
     if (formData.evidence && formData.evidence instanceof File) {
@@ -220,16 +272,45 @@ export default function ViewTask() {
       defaultValue: task ? task.description : '',
       disabled: true
     },
-    {
-      type: 'textarea',
-      name: 'kpis',
-      label: 'Key Performance Indicators (KPIs)',
-      rows: 3,
-      defaultValue: task && task.kpis ? task.kpis.map(kpi =>
-        `${kpi.kpiTitle}: Target ${kpi.targetAmount}, Achieved ${kpi.achievedAmount || 0} (${kpi.operator})`
-      ).join('\n') : '',
-      disabled: true
-    },
+    // KPI fields - show individual inputs in submission mode for tasks in progress, otherwise show as readonly
+    ...(isSubmissionMode && task?.taskStatus === 'inProgress' && task?.kpis && task.kpis.length > 0
+      ? task.kpis.map((kpi, index) => ([
+        {
+          type: 'text',
+          name: `kpi_title_${index}`,
+          label: `KPI ${index + 1}: ${kpi.kpiTitle}`,
+          defaultValue: `Target: ${kpi.targetAmount} (${kpi.operator})`,
+          disabled: true,
+          group: 'kpis',
+          isDynamic: false,
+          position: 'top'
+        },
+        {
+          type: 'number',
+          name: `kpi_achieved_${index}`,
+          label: 'Achieved Amount',
+          defaultValue: kpiAchievedAmounts[index] || '',
+          disabled: false,
+          required: true,
+          placeholder: 'Enter achieved amount',
+          group: 'kpis',
+          isDynamic: false,
+          position: 'bottom',
+          min: 0,
+          onChange: (value) => handleKpiAchievedAmountChange(index, value)
+        }
+      ])).flat()
+      : [{
+        type: 'textarea',
+        name: 'kpis',
+        label: 'Key Performance Indicators (KPIs)',
+        rows: 3,
+        defaultValue: task && task.kpis ? task.kpis.map(kpi =>
+          `${kpi.kpiTitle}: Target ${kpi.targetAmount}, Achieved ${kpi.achievedAmount || 0} (${kpi.operator})`
+        ).join('\n') : '',
+        disabled: true
+      }]
+    ),
 
     {
       type: 'text',
@@ -373,6 +454,12 @@ export default function ViewTask() {
                       ⚠ Please upload evidence before submitting
                     </span>
                   )}
+                  {/* KPI completion status */}
+                  {/* {task?.taskStatus === 'inProgress' && task?.kpis && task.kpis.length > 0 && !areKpisComplete() && (
+                    <span className="text-orange-600 font-medium">
+                      ⚠ Please fill in achieved amounts for all KPIs
+                    </span>
+                  )} */}
                   <button
                     onClick={handleSubmitTask}
                     disabled={isSubmitting || (!task?.evidence && task?.taskStatus !== 'draft' && task?.taskStatus !== 'approvalRejected')}

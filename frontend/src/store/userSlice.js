@@ -10,7 +10,7 @@ export const updateCurrentUser = createAsyncThunk(
             if (!storedUser) {
                 throw new Error('No user found');
             }
-            const response = await authService.updateProfile(storedUser._id, userData);
+            const response = await authService.updateProfile(storedUser._id || storedUser.id, userData);
             return response.user;
         } catch (error) {
             return rejectWithValue(error.response?.data?.msg || 'Failed to update user');

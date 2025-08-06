@@ -187,14 +187,15 @@ function Signin() {
           error={error}
           disabled={isLoading}
           footer={
-            <button
+            <a
+              href='http://localhost:5000/api/auth/google'
               type="button"
               className="google-sign-in-button"
               disabled={isLoading}
             >
               <img src={googleLogo} alt="Google logo" className="google-logo" />
               Log In with Google
-            </button>
+            </a>
           }
         />
 

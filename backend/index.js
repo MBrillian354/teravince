@@ -46,7 +46,7 @@ if (!fs.existsSync(uploadsDir)) {
 app.use('/uploads', express.static(uploadsDir));
 
 app.use((req, res, next) => {
-    console.log('Received URL:', req.originalUrl);
+    console.log('Received:', req.method, req.originalUrl);
     next();
 });
 

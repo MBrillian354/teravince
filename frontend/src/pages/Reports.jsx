@@ -68,7 +68,7 @@ export default function Reports() {
   const transformedData = reports
     .map((r) => {
       const date = new Date(`${r.period}-01`);
-      const monthName = date.toLocaleString('default', { month: 'long' });
+      const monthName = date.toLocaleString('en-US', { month: 'long' });
       return {
         reportId: r._id,
         employeeId: r.userId?._id || '',

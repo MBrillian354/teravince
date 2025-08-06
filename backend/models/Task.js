@@ -19,7 +19,6 @@ const taskSchema = new Schema({
   startDate: { type: Date, required: false },
   submittedDate: { type: Date, required: false },
   completedDate: { type: Date, required: false },
-  endDate: { type: Date, required: false },
   taskStatus: { type: String, enum: ['inProgress', 'submissionRejected', 'approvalRejected', 'submittedAndAwaitingReview', 'submittedAndAwaitingApproval', 'completed', 'draft'], default: 'draft' },
   supervisorComment: { type: String, default: '' },
   bias_check: {

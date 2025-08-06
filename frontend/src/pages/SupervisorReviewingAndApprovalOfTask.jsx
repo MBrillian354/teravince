@@ -192,18 +192,12 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         disabled: selectedTask.taskStatus === 'inProgress' || (selectedTask.taskStatus === 'completed' && !selectedTask.bias_check?.is_bias),
       },
 
-      ...((selectedTask.evidence && selectedTask.taskStatus === 'completed') && (selectedTask.taskStatus === 'submittedAndAwaitingReview') ? [{
+      ...((selectedTask.evidence && selectedTask.taskStatus === 'completed') || (selectedTask.taskStatus === 'submittedAndAwaitingReview') ? [{
         type: 'checkbox',
         name: 'biasReviewCheck',
         label: 'I have properly reviewed the staff\'s task without bias',
         required: true
       }] : []),
-      {
-        type: 'checkbox',
-        name: 'biasReviewCheck',
-        label: 'I have properly reviewed the staff\'s task without bias',
-        required: true
-      }
     ];
   };
 
@@ -298,6 +292,8 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         updateData = {
           ...updateData,
           taskStatus: 'inProgress',
+          startDate: new Date(),
+          completedDate: null, // Reset completed date on approval
           bias_check: biasCheckResponse?.data || {
             reviewedWithoutBias: formData.biasReviewCheck,
             reviewDate: new Date().toISOString(),

@@ -53,7 +53,7 @@ export default function TeamTasks() {
               supervisorComment: task.supervisorComment || '',
               score: task.score || 0,
               startDate: task.startDate,
-              endDate: task.endDate,
+              completedDate: task.completedDate,
               evidence: task.evidence || '',
               biasStatus: getBiasDetectionStatus(task.bias_check),
               originalTask: task // Keep original data for detailed view

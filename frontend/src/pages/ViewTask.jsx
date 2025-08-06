@@ -37,6 +37,8 @@ export default function ViewTask() {
     task = currentTask || tasks.find(t => t._id === id);
   }
 
+  console.log('Current Task:', task);
+
   // Fetch task if not loaded
   useEffect(() => {
     if (!task && !isLoading) {
@@ -121,7 +123,7 @@ export default function ViewTask() {
           `Please fill in the achieved amount for all KPIs: ${missingKpis.join(', ')}`,
           {
             autoClose: true,
-            timeout: 5000
+            timeout: 10000
           }
         );
         return;
@@ -169,8 +171,6 @@ export default function ViewTask() {
           onConfirm: () => {
             navigate('/tasks');
           },
-          autoClose: true,
-          timeout: 3000
         }
       );
     } catch (err) {
@@ -370,6 +370,7 @@ export default function ViewTask() {
       label: 'Evidence',
       defaultValue: task ? task.evidence : '',
       disabled: isSubmissionMode ? false : true,
+      className: isSubmissionMode ? '' : 'justify-start',
       accept: '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xlsx,.xls',
       hint: isSubmissionMode ? 'Upload files as evidence for this task (PDF, DOC, images, etc.)' : ''
     }] : []),

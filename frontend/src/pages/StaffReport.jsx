@@ -9,27 +9,12 @@ export default function StaffReport() {
   const { reportId } = useParams();
   const navigate = useNavigate();
 
-  // 1) initial data from reports
-  const reportData = {
-    r1: { userId: '3210001', name: 'Jane Doe', month: 'May 2025', jobTitle: 'Social Media Trainee', score: '0/100' },
-    r2: { userId: '3210002', name: 'John Smith', month: 'March 2025', jobTitle: 'Marketing Intern', score: '75/100' },
-    r3: { userId: '3210003', name: 'Lisa Ray', month: 'January 2025', jobTitle: 'Design Assistant', score: '85/100' },
-    r4: { userId: '3210004', name: 'Alan Kim', month: 'April 2025', jobTitle: 'Community Intern', score: '60/100' },
-  };
+  // 1) Single dummy report data
+  const report = { userId: '3210001', userName: 'Jane Doe', month: 'May 2025', jobTitle: 'Social Media Trainee', score: '0/100' };
 
-  // 2) Look up the current report; fallback to r1
-  const report = reportData[reportId] || reportData.r1;
-
-  // 3) Editable supervisor review
-  const [supervisorReview, setSupervisorReview] = useState('');
-  useEffect(() => {
-    setSupervisorReview('');  // reset when reportId changes
-  }, [reportId]);
-
-  // 4) Dummy tasks keyed by reportId
-  const allTasks = [
+  // 2) Single dummy task
+  const tasks = [
     {
-      reportId: 'r1',
       taskId: '32100010001',
       title: 'Review Social Media Post',
       taskStatus: 'Awaiting Review',
@@ -38,51 +23,10 @@ export default function StaffReport() {
       endDate: '07/10/2025',
       evidence: [{ name: 'report-may.pdf', url: '/assets/report-may.pdf' }],
     },
-    {
-      reportId: 'r2',
-      taskId: '32100020001',
-      title: 'Write blog post',
-      taskStatus: 'Completed',
-      score: '75/100',
-      startDate: '10/03/2025',
-      endDate: '15/10/2025',
-      evidence: [{ name: 'blog-draft.docx', url: '/assets/blog-draft.docx' }],
-    },
-    {
-      reportId: 'r3',
-      taskId: '32100030001',
-      title: 'Create flyer',
-      taskStatus: 'Completed',
-      score: '85/100',
-      startDate: '05/01/2025',
-      endDate: '20/01/2025',
-      evidence: [],
-    },
-    {
-      reportId: 'r4',
-      taskId: '32100040001',
-      title: 'Host webinar',
-      taskStatus: 'Awaiting Review',
-      score: '60/100',
-      startDate: '15/04/2025',
-      endDate: '30/04/2025',
-      evidence: [],
-    },
   ];
 
-  // 5) Filter tasks for this report
-  const tasks = allTasks.filter(t => t.reportId === reportId);
+  const selectedTask = tasks[0];
 
-  // 6) Which task is selected?
-  const [selectedTaskId, setSelectedTaskId] = useState(tasks[0]?.taskId);
-  const selectedTask = tasks.find(t => t.taskId === selectedTaskId) || tasks[0];
-
-  // reset selectedTask when reportId changes
-  useEffect(() => {
-    setSelectedTaskId(tasks[0]?.taskId);
-  }, [reportId]);
-
-  // 8) Columns for the tasks table
   const taskColumns = [
     { header: 'Task ID', accessor: 'taskId' },
     { header: 'Task Title', accessor: 'title' },
@@ -116,7 +60,7 @@ export default function StaffReport() {
             <span className="text-gray-400 text-2xl">👤</span>
           </div>
           <div>
-            <h1 className=" text-lg font-semibold">{report.name}</h1>
+            <h1 className=" text-lg font-semibold">{report.userName}</h1>
             <p className="text-gray-600">{report.userId}</p>
             <p className="text-gray-600">{report.jobTitle}</p>
             <p className="text-gray-500">{report.month}</p>
@@ -137,33 +81,26 @@ export default function StaffReport() {
               label: 'Supervisor Review',
               name: 'supervisorReview',
               type: 'textarea',
-              value: supervisorReview,
-              onChange: e => setSupervisorReview(e.target.value),
               placeholder: "Enter your review ...",
-              disabled: false,
             },
             {
               label: 'I have properly reviewed the staff\'s report',
               name: 'reviewed',
               type: 'checkbox',
-              disabled: false,
             },
           ]}
-          submitButton={{
-            label: 'Send Review',
-            className: 'bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700',
-          }}
+          submitButtonText="Send Review"
         />
       </div>
 
       {/* Tasks Table */}
       <DataTable
-        title={`Monthly Tasks for ${report.name}`}
+        title={`Monthly Tasks for ${report.userName}`}
         columns={taskColumns}
         data={tasks}
         rowKey="taskId"
         containerClass="bg-white rounded mb-4"
-        onRowClick={({ taskId }) => setSelectedTaskId(taskId)}
+        // Only one task, so no row click needed
         variant='gradient'
       />
 

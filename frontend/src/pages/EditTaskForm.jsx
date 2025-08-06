@@ -185,7 +185,7 @@ export default function EditTaskForm() {
   };
 
   return (
-    <div className="bg-[#EEEBDD] min-h-screen px-4 py-6 text-[#1B1717]">
+    <div className="bg-background min-h-screen px-4 py-6 text-[#1B1717]">
       <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md border border-[#CE1212] p-6">
         {isLoading && !task ? (
           <div className="text-center py-8">

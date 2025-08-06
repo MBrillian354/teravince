@@ -11,7 +11,7 @@ export default function DataTable({
     return (
       <div className="bg-surface rounded-lg shadow-md border border-primary overflow-hidden flex flex-col mb-4">
         {title && (
-          <div className="bg-gradient-to-r from-danger to-secondary px-5 py-3">
+          <div className="bg-gradient-to-r from-primary to-secondary px-5 py-3">
             <h2 className="text-lg font-semibold text-background">{title}</h2>
           </div>
         )}

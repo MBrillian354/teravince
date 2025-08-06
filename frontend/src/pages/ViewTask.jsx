@@ -392,7 +392,7 @@ export default function ViewTask() {
   }
 
   return (
-    <div className="bg-[#EEEBDD] min-h-screen px-4 py-6 text-[#1B1717]">
+    <div className="bg-background min-h-screen px-4 py-6 text-[#1B1717]">
       <div className="max-w-4xl mx-auto p-6 bg-surface rounded-lg shadow-md border border-primary">
         {/* Announcement for Submission Mode */}
         {isSubmissionMode && canSubmitTask() && (

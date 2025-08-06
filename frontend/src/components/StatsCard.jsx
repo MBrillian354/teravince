@@ -10,7 +10,7 @@ export default function StatsCard({ label, value, delta }) {
       </div>
 
       <div className="space-y-0.5 z-10">
-        <p className="text-[#EEEBDD] text-sm font-medium">{label}</p>
+        <p className="text-background text-sm font-medium">{label}</p>
         <p className="font-bold text-lg md:text-2xl text-white">{value}</p>
       </div>
 

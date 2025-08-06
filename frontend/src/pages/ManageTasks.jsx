@@ -161,7 +161,7 @@ export default function ManageTasks() {
       render: (task) => (
         <div className="text-xs">
           {task.submitted ? (
-            <span className="bg-[#5A0000]/[0.7] text-white px-3 py-1 rounded-full text-xs">Submitted</span>
+            <span className="bg-primary text-white px-3 py-1 rounded-full text-xs">Submitted</span>
           ) : (
             <button
               onClick={() => handleSubmit(task.taskId)}
@@ -187,7 +187,7 @@ export default function ManageTasks() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#EEEBDD] text-[#1B1717] flex flex-col">
+    <div className="min-h-screen bg-background text-[#1B1717] flex flex-col">
       <main className="flex-1 w-full mx-auto px-4 py-4">
         {/* Loading State */}
         {isLoading && tasks.length === 0 && (
@@ -247,7 +247,7 @@ export default function ManageTasks() {
             </div>
 
             {/* Note Section */}
-            <div className="bg-[#EEEBDD] my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717]">
+            <div className="bg-background my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717]">
               <p><span className="font-semibold">Note:</span> Scores will be available once tasks are marked as Completed.</p>
             </div>
 
@@ -293,7 +293,7 @@ export default function ManageTasks() {
             </div>
 
             {/* No tasks message */}
-            <div className="bg-[#EEEBDD] my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717] text-center">
+            <div className="bg-background my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717] text-center">
               <p>No tasks found. Start by creating your first task!</p>
             </div>
           </>

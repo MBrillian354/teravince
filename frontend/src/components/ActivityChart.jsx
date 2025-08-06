@@ -27,24 +27,24 @@ const data = [
 
 const ActivityChart = () => {
   return (
-    <div className="bg-[#F8F8F8] p-4 rounded-lg shadow">
-      <div className="text-lg font-semibold mb-4 text-[#1B1717]">Activity Recap</div>
+    <div className="bg-accent p-4 rounded-lg shadow">
+      <div className="text-lg font-semibold mb-4 text-primary">Activity Recap</div>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-          <XAxis dataKey="month" tick={{ fill: '#1B1717', fontSize: 12 }} />
-          <YAxis tick={{ fill: '#1B1717', fontSize: 12 }} />
+          <XAxis dataKey="month" tick={{ fill: 'primary', fontSize: 12 }} />
+          <YAxis tick={{ fill: 'primary', fontSize: 12 }} />
           <Tooltip
             contentStyle={{ backgroundColor: '#ffffff', borderColor: '#eee' }}
-            labelStyle={{ color: '#1B1717', fontWeight: '500' }}
-            cursor={{ stroke: '#CE1212', strokeWidth: 1 }}
+            labelStyle={{ color: 'primary', fontWeight: '500' }}
+            cursor={{ stroke: 'primary', strokeWidth: 1 }}
           />
           <Legend />
           <Line
             type="monotone"
             dataKey="current"
             name="Current Year"
-            stroke="#CE1212"
+            stroke="#008161"
             strokeWidth={2}
             dot={{ r: 4 }}
             activeDot={{ r: 6 }}
@@ -53,7 +53,7 @@ const ActivityChart = () => {
             type="monotone"
             dataKey="past"
             name="Past Year"
-            stroke="#810000"
+            stroke="#12CE12"
             strokeWidth={2}
             strokeDasharray="5 5"
             dot={{ r: 3 }}

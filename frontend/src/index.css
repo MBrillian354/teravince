@@ -7,7 +7,7 @@
   --color-primary: #008161;
   --color-danger: #810000;
   --color-secondary: #1B1717;
-  --color-accent: #EEEBDD;
+  --color-accent: #DBDBDB;
   
   /* Semantic colors based on theme palette */
   --color-surface: #ffffff;
@@ -101,7 +101,7 @@ h1 {
 
 /* SIGN IN */
 .sign-in-page {
-  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
+  @apply bg-background min-h-screen flex justify-center items-center p-5;
 }
 
 .sign-in-container {
@@ -130,7 +130,7 @@ h1 {
 
 /* SIGN UP */
 .sign-up-page {
-  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
+  @apply bg-background min-h-screen flex justify-center items-center p-5;
 }
 
 .sign-up-container {

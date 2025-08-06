@@ -11,7 +11,7 @@ export default function Footer() {
 
   return (
     <footer
-      className={`bg-black/20 backdrop-blur-md text-[#EEEBDD] w-full shadow-md transition-all duration-700 ease-out transform ${
+      className={`bg-black/20 backdrop-blur-md text-background w-full shadow-md transition-all duration-700 ease-out transform ${
         showFooter ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
       }`}
     >

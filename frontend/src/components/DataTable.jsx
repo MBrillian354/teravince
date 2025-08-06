@@ -63,7 +63,7 @@ export default function DataTable({
               {data.map((row) => (
                 <tr
                   key={row[rowKey]}
-                  className="hover:bg-surface-hover transition"
+                  className={`${onRowClick ? 'hover:bg-gray-100 transition cursor-pointer' : ''}`}
                   onClick={() => onRowClick && onRowClick(row)}
                 >
                   {columns.map((col, index) => (

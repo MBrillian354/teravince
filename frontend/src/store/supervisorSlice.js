@@ -19,6 +19,61 @@ export const fetchReports = createAsyncThunk(
   }
 );
 
+// Async thunk for fetching a single report by ID
+export const fetchReportById = createAsyncThunk(
+  'supervisor/fetchReportById',
+  async (reportId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`/api/reports/${reportId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch report');
+    }
+  }
+);
+
+// Async thunk for fetching tasks for a specific report
+export const fetchReportTasks = createAsyncThunk(
+  'supervisor/fetchReportTasks',
+  async (reportId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`/api/reports/${reportId}/tasks`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch report tasks');
+    }
+  }
+);
+
+// Async thunk for updating a report (supervisor review)
+export const updateReport = createAsyncThunk(
+  'supervisor/updateReport',
+  async ({ reportId, updateData }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.patch(`/api/reports/${reportId}`, updateData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data.report;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update report');
+    }
+  }
+);
+
 // Async thunk for fetching supervisor dashboard data
 export const fetchSupervisorDashboard = createAsyncThunk(
     'supervisor/fetchDashboard',
@@ -105,6 +160,11 @@ const initialState = {
     reports: [],
     reportsLoading: false,
     reportsError: null,
+    // Single report state
+    currentReport: null,
+    currentReportTasks: [],
+    currentReportLoading: false,
+    currentReportError: null,
 };
 
 const supervisorSlice = createSlice({
@@ -122,6 +182,11 @@ const supervisorSlice = createSlice({
         },
         clearBiasCheckResult: (state) => {
             state.biasCheckResult = null;
+        },
+        clearCurrentReport: (state) => {
+            state.currentReport = null;
+            state.currentReportTasks = [];
+            state.currentReportError = null;
         }
     },
     extraReducers: (builder) => {
@@ -215,10 +280,54 @@ const supervisorSlice = createSlice({
             .addCase(checkTaskReviewBias.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
+            })
+            // Fetch report by ID
+            .addCase(fetchReportById.pending, (state) => {
+                state.currentReportLoading = true;
+                state.currentReportError = null;
+            })
+            .addCase(fetchReportById.fulfilled, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReport = action.payload;
+            })
+            .addCase(fetchReportById.rejected, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReportError = action.payload;
+            })
+            // Fetch report tasks
+            .addCase(fetchReportTasks.pending, (state) => {
+                state.currentReportLoading = true;
+                state.currentReportError = null;
+            })
+            .addCase(fetchReportTasks.fulfilled, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReport = action.payload.report;
+                state.currentReportTasks = action.payload.tasks;
+            })
+            .addCase(fetchReportTasks.rejected, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReportError = action.payload;
+            })
+            // Update report
+            .addCase(updateReport.pending, (state) => {
+                state.currentReportLoading = true;
+                state.currentReportError = null;
+            })
+            .addCase(updateReport.fulfilled, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReport = action.payload;
+                // Update in reports list as well
+                state.reports = state.reports.map(report =>
+                    report._id === action.payload._id ? action.payload : report
+                );
+            })
+            .addCase(updateReport.rejected, (state, action) => {
+                state.currentReportLoading = false;
+                state.currentReportError = action.payload;
             });
     }
 });
 
-export const { clearSupervisorError, resetSupervisorData, clearCurrentTaskForReview, clearBiasCheckResult } = supervisorSlice.actions;
+export const { clearSupervisorError, resetSupervisorData, clearCurrentTaskForReview, clearBiasCheckResult, clearCurrentReport } = supervisorSlice.actions;
 
 export default supervisorSlice.reducer;

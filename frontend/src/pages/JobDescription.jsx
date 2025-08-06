@@ -13,7 +13,7 @@ export default function JobDescription() {
 
   // Get data from Redux store
   const { jobsData, isLoading, error } = useSelector((state) => state.admin);
-  console.log('Jobs Data:', jobsData);
+  // console.log('Jobs Data:', jobsData);
 
   // Selected job state
   const [selectedJobId, setSelectedJobId] = useState(null);

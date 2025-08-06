@@ -10,6 +10,7 @@ export default function TeamReports() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { reports, reportsLoading, reportsError } = useSelector(state => state.supervisor);
+  console.log('Reports:', reports);
 
   useEffect(() => {
     dispatch(fetchReports());
@@ -43,14 +44,14 @@ export default function TeamReports() {
     {
       header: 'Month',
       render: row => {
-        const date = new Date(`${row.period}-01`);
+        const date = new Date(row.period);
         return date.toLocaleString('en-US', { month: 'long' });
       },
       align: 'center',
     },
     {
       header: 'Job Title',
-      render: row => row.userId?.jobTitle || 'N/A',
+      render: row => row.userId?.jobId?.title || 'N/A',
     },
     {
       header: 'Staff Score',

@@ -26,7 +26,7 @@ const StatusBadgeDemo = () => {
       <h1 className="text-3xl font-bold mb-6">Status Badge Demo</h1>
       
       {/* Task Status Badges */}
-      <section className="bg-white rounded-lg shadow p-6">
+      <section className="bg-surface rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Task Status Badges</h2>
         <div className="space-y-4">
           {variants.map(variant => (
@@ -49,7 +49,7 @@ const StatusBadgeDemo = () => {
       </section>
 
       {/* Approval Status Badges */}
-      <section className="bg-white rounded-lg shadow p-6">
+      <section className="bg-surface rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Approval Status Badges</h2>
         <div className="space-y-4">
           {variants.map(variant => (
@@ -72,7 +72,7 @@ const StatusBadgeDemo = () => {
       </section>
 
       {/* Review Status Badges */}
-      <section className="bg-white rounded-lg shadow p-6">
+      <section className="bg-surface rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Review Status Badges</h2>
         <div className="space-y-4">
           {variants.map(variant => (
@@ -95,7 +95,7 @@ const StatusBadgeDemo = () => {
       </section>
 
       {/* Size Variations */}
-      <section className="bg-white rounded-lg shadow p-6">
+      <section className="bg-surface rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Size Variations</h2>
         <div className="space-y-4">
           {sizes.map(size => (
@@ -127,7 +127,7 @@ const StatusBadgeDemo = () => {
       </section>
 
       {/* Real-world Usage Examples */}
-      <section className="bg-white rounded-lg shadow p-6">
+      <section className="bg-surface rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Real-world Usage Examples</h2>
         
         {/* Task Management Table Row Example */}
@@ -135,7 +135,7 @@ const StatusBadgeDemo = () => {
           <h3 className="text-lg font-medium">Task Management Table</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full border border-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-muted">
                 <tr>
                   <th className="px-4 py-2 text-left">Task Title</th>
                   <th className="px-4 py-2 text-left">Employee</th>
@@ -209,24 +209,24 @@ const StatusBadgeDemo = () => {
       </section>
 
       {/* Usage Guide */}
-      <section className="bg-gray-50 rounded-lg p-6">
+      <section className="bg-subtle rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Usage Guide</h2>
         <div className="space-y-4">
           <div>
             <h3 className="font-medium">Basic Usage:</h3>
-            <code className="bg-gray-200 p-2 rounded text-sm block mt-1">
+            <code className="bg-muted p-2 rounded text-sm block mt-1">
               {`<StatusBadge status="submitted" type="task" />`}
             </code>
           </div>
           <div>
             <h3 className="font-medium">With Icon and Custom Size:</h3>
-            <code className="bg-gray-200 p-2 rounded text-sm block mt-1">
+            <code className="bg-muted p-2 rounded text-sm block mt-1">
               {`<StatusBadge status="approved" type="approval" size="md" showIcon={false} />`}
             </code>
           </div>
           <div>
             <h3 className="font-medium">Different Variants:</h3>
-            <code className="bg-gray-200 p-2 rounded text-sm block mt-1">
+            <code className="bg-muted p-2 rounded text-sm block mt-1">
               {`<StatusBadge status="pending" type="approval" variant="solid" />`}
             </code>
           </div>

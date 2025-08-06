@@ -191,7 +191,8 @@ export default function Reports() {
           rowKey="reportId"
           containerClass="bg-white rounded mb-4"
           onRowClick={({ reportId }) => navigate(`/report/${reportId}`)}
-        />
+          variant='gradient'
+      />
       )}
 
       <Pagination

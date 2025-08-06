@@ -7,7 +7,7 @@ import StatusBadge from "../components/StatusBadge";
 import { tasksAPI } from "../utils/api";
 import authService from "../utils/authService";
 import { fetchTasksByUserId, clearError } from '../store/staffSlice';
-import { getDisplayTaskStatus, getDisplayApprovalStatus } from '../utils/statusStyles';
+import { getDisplayTaskStatus } from '../utils/statusStyles';
 
 export default function ManageTasks() {
   const dispatch = useDispatch();
@@ -37,10 +37,9 @@ export default function ManageTasks() {
     taskId: task._id,
     taskTitle: task.title,
     taskDescription: task.description,
-    deadline: task.deadline ? new Date(task.deadline).toLocaleDateString() : "Waiting Approval",
+    deadline: task.deadline ? new Date(task.deadline).toLocaleDateString() : "To be determined",
     taskStatus: getDisplayTaskStatus(task.taskStatus),
-    approvalStatus: getDisplayApprovalStatus(task.approvalStatus),
-    submitted: task.taskStatus === 'submitted' || task.taskStatus === 'completed',
+    submitted: task.taskStatus === 'submittedAndAwaitingReview' || task.taskStatus === 'submittedAndAwaitingApproval' || task.taskStatus === 'completed',
     score: task.score || "N/A"
   })) : [];
 
@@ -108,20 +107,9 @@ export default function ManageTasks() {
       header: "Status",
       accessor: "taskStatus",
       render: (task) => (
-        <StatusBadge 
-          status={task.taskStatus} 
-          type="task" 
-          size="xs"
-          showIcon={false}
-        />
-      )
-    }, {
-      header: "Approval Status",
-      accessor: "approvalStatus",
-      render: (task) => (
-        <StatusBadge 
-          status={task.approvalStatus} 
-          type="approval" 
+        <StatusBadge
+          status={task.taskStatus}
+          type="task"
           size="xs"
           showIcon={false}
         />
@@ -132,31 +120,38 @@ export default function ManageTasks() {
       accessor: "manage",
       render: (task) => (
         <div className="flex gap-2">
-          {(task.status === "Draft" || task.status === "Rejected") && !task.submitted && (
-            <>
+          {(task.taskStatus === "Draft" ||
+            task.taskStatus === "Approval Rejected" &&
+            task.taskStatus !== "Submission Rejected" ||
+            task.taskStatus === "Revision In Progress") && !task.submitted && (
+              <>
+                <button
+                  onClick={() => handleEdit(task.taskId)}
+                  className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
+                >
+                  <Edit2 className="w-3 h-3" /> Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(task.taskId)}
+                  className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
+                >
+                  <Trash2 className="w-3 h-3" /> Delete
+                </button>
+              </>
+            )}
+          {(task.taskStatus === "In Progress" ||
+            task.taskStatus === "Awaiting Review" ||
+            task.taskStatus === "Awaiting Approval" ||
+            task.taskStatus === "Submission Rejected" ||
+            task.taskStatus === "Completed") && (
               <button
-                onClick={() => handleEdit(task.taskId)}
-                className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
+                onClick={() => handleView(task.taskId)}
+                className="btn-outline text-xs flex items-center gap-1"
               >
-                <Edit2 className="w-3 h-3" /> Edit
+                <Eye className="w-3 h-3" />
+                View
               </button>
-              <button
-                onClick={() => handleDelete(task.taskId)}
-                className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
-              >
-                <Trash2 className="w-3 h-3" /> Delete
-              </button>
-            </>
-          )}
-          {(task.taskStatus === "Ongoing" || task.taskStatus === "Under Review") && (
-            <button
-              onClick={() => handleView(task.taskId)}
-              className="btn-outline text-xs flex items-center gap-1"
-            >
-              <Eye className="w-3 h-3" />
-              View
-            </button>
-          )}
+            )}
         </div>
       )
     },
@@ -166,7 +161,7 @@ export default function ManageTasks() {
       render: (task) => (
         <div className="text-xs">
           {task.submitted ? (
-            <span className="bg-[#5A0000]/[0.7] text-white px-3 py-1 rounded-full text-xs">Submitted</span>
+            <span className="bg-primary text-white px-3 py-1 rounded-full text-xs">Submitted</span>
           ) : (
             <button
               onClick={() => handleSubmit(task.taskId)}
@@ -192,7 +187,7 @@ export default function ManageTasks() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#EEEBDD] text-[#1B1717] flex flex-col">
+    <div className="min-h-screen bg-background text-[#1B1717] flex flex-col">
       <main className="flex-1 w-full mx-auto px-4 py-4">
         {/* Loading State */}
         {isLoading && tasks.length === 0 && (
@@ -252,7 +247,7 @@ export default function ManageTasks() {
             </div>
 
             {/* Note Section */}
-            <div className="bg-[#EEEBDD] my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717]">
+            <div className="bg-background my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717]">
               <p><span className="font-semibold">Note:</span> Scores will be available once tasks are marked as Completed.</p>
             </div>
 
@@ -298,7 +293,7 @@ export default function ManageTasks() {
             </div>
 
             {/* No tasks message */}
-            <div className="bg-[#EEEBDD] my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717] text-center">
+            <div className="bg-background my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717] text-center">
               <p>No tasks found. Start by creating your first task!</p>
             </div>
           </>

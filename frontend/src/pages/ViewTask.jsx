@@ -17,6 +17,7 @@ export default function ViewTask() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evidenceFile, setEvidenceFile] = useState(null);
   const [isUploadingEvidence, setIsUploadingEvidence] = useState(false);
+  const [kpiAchievedAmounts, setKpiAchievedAmounts] = useState({});
 
   const user = authService.getStoredUser();
   const { currentTask, tasks, isLoading } = useSelector(state => state.staff);
@@ -36,12 +37,25 @@ export default function ViewTask() {
     task = currentTask || tasks.find(t => t._id === id);
   }
 
+  console.log('Current Task:', task);
+
   // Fetch task if not loaded
   useEffect(() => {
     if (!task && !isLoading) {
       taskId ? dispatch(fetchTaskById(taskId)) : dispatch(fetchTasks(id));
     }
   }, [dispatch, task, isLoading, id, taskId]);
+
+  // Initialize KPI achieved amounts when task is loaded
+  useEffect(() => {
+    if (task && task.kpis && task.kpis.length > 0) {
+      const initialKpiAmounts = {};
+      task.kpis.forEach((kpi, index) => {
+        initialKpiAmounts[index] = kpi.achievedAmount || '';
+      });
+      setKpiAchievedAmounts(initialKpiAmounts);
+    }
+  }, [task]);
 
   // Fetch all tasks if tasks array is empty and no current task
   useEffect(() => {
@@ -66,34 +80,27 @@ export default function ViewTask() {
     }
   }, [task, isLoading, showError, navigate]);
 
-  // Helper function to get display status
+  // Helper function to get display status using new enum
   const getDisplayTaskStatus = (taskStatus) => {
     switch (taskStatus) {
       case 'inProgress':
-        return 'Ongoing';
-      case 'submitted':
-        return 'Under Review';
+        return 'In Progress';
+      case 'submittedAndAwaitingReview':
+        return 'Awaiting Review';
+      case 'submittedAndAwaitingApproval':
+        return 'Awaiting Approval';
+      case 'revisionInProgress':
+        return 'Revision In Progress';
+      case 'submissionRejected':
+        return 'Submission Rejected';
+      case 'approvalRejected':
+        return 'Approval Rejected';
       case 'completed':
         return 'Completed';
-      case 'rejected':
-        return 'Rejected';
-      case 'cancelled':
-        return 'Cancelled';
-      default:
+      case 'draft':
         return 'Draft';
-    }
-  };
-
-  const getDisplayApprovalStatus = (approvalStatus) => {
-    switch (approvalStatus) {
-      case 'pending':
-        return 'Under Review';
-      case 'approved':
-        return 'Approved';
-      case 'rejected':
-        return 'Rejected';
       default:
-        return 'Pending';
+        return taskStatus;
     }
   };
 
@@ -101,12 +108,54 @@ export default function ViewTask() {
   const handleSubmitTask = async () => {
     if (!task) return;
 
+    // Validate KPI achieved amounts in submission mode for tasks in progress
+    if (isSubmissionMode && task.taskStatus === 'inProgress' && task.kpis && task.kpis.length > 0) {
+      const missingKpis = [];
+      task.kpis.forEach((kpi, index) => {
+        if (!kpiAchievedAmounts[index] || kpiAchievedAmounts[index].toString().trim() === '') {
+          missingKpis.push(kpi.kpiTitle);
+        }
+      });
+
+      if (missingKpis.length > 0) {
+        showError(
+          'Missing KPI Data',
+          `Please fill in the achieved amount for all KPIs: ${missingKpis.join(', ')}`,
+          {
+            autoClose: true,
+            timeout: 10000
+          }
+        );
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
-      // Update task status to 'submitted'
-      const updateData = { taskStatus: 'submitted', submittedDate: new Date() };
-      if (task?.approvalStatus === 'draft') {
-        updateData.approvalStatus = 'pending';
+      // Determine the appropriate status based on current state
+      let newTaskStatus = 'submittedAndAwaitingApproval'; // Default for new tasks
+
+      // If task was previously rejected, determine the appropriate submitted status
+      if (task.taskStatus === 'approvalRejected') {
+        newTaskStatus = 'submittedAndAwaitingApproval';
+      } else if (task.taskStatus === 'submissionRejected' || task.taskStatus === 'revisionInProgress' || task.taskStatus === 'inProgress') {
+        newTaskStatus = 'submittedAndAwaitingReview';
+      }
+
+      const updateData = {
+        taskStatus: newTaskStatus,
+        submittedDate: new Date(),
+        ...(newTaskStatus === 'submittedAndAwaitingReview' ? { completedDate: new Date() } : {}),
+        bias_check: null
+      };
+
+      // Include updated KPI data if in submission mode for tasks in progress
+      if (isSubmissionMode && task.taskStatus === 'inProgress' && task.kpis && task.kpis.length > 0) {
+        const updatedKpis = task.kpis.map((kpi, index) => ({
+          ...kpi,
+          achievedAmount: parseFloat(kpiAchievedAmounts[index]) || 0
+        }));
+        updateData.kpis = updatedKpis;
       }
 
       await tasksAPI.update(task._id, updateData);
@@ -118,13 +167,11 @@ export default function ViewTask() {
 
       showSuccess(
         'Task Submitted Successfully',
-        'Your task has been submitted for review.',
+        `Your task has been submitted and is ${getDisplayTaskStatus(newTaskStatus)}.`,
         {
           onConfirm: () => {
             navigate('/tasks');
           },
-          autoClose: true,
-          timeout: 3000
         }
       );
     } catch (err) {
@@ -143,10 +190,15 @@ export default function ViewTask() {
     }
   };
 
+
   // Check if task can be submitted
   const canSubmitTask = () => {
     if (!task) return false;
-    return task.taskStatus === 'inProgress' || task.taskStatus === 'draft' || task.taskStatus === 'rejected';
+    return task.taskStatus === 'inProgress' ||
+      task.taskStatus === 'draft' ||
+      task.taskStatus === 'approvalRejected' ||
+      task.taskStatus === 'submissionRejected' ||
+      task.taskStatus === 'revisionInProgress';
   };
 
   // Handle evidence file upload
@@ -190,6 +242,14 @@ export default function ViewTask() {
     }
   };
 
+  // Handle KPI achieved amount changes
+  const handleKpiAchievedAmountChange = (index, value) => {
+    setKpiAchievedAmounts(prev => ({
+      ...prev,
+      [index]: value
+    }));
+  };
+
   // Handle form submission (for evidence file upload)
   const handleFormSubmit = (formData) => {
     if (formData.evidence && formData.evidence instanceof File) {
@@ -213,16 +273,7 @@ export default function ViewTask() {
       defaultValue: task ? task.description : '',
       disabled: true
     },
-    {
-      type: 'textarea',
-      name: 'kpis',
-      label: 'Key Performance Indicators (KPIs)',
-      rows: 3,
-      defaultValue: task && task.kpis ? task.kpis.map(kpi =>
-        `${kpi.kpiTitle}: ${kpi.amount}`
-      ).join('\n') : '',
-      disabled: true
-    },
+
 
     {
       type: 'text',
@@ -240,9 +291,9 @@ export default function ViewTask() {
     },
     {
       type: 'text',
-      name: 'endDate',
-      label: 'End Date',
-      defaultValue: task && task.endDate ? new Date(task.endDate).toISOString().split('T')[0] : 'Not Finished',
+      name: 'completedDate',
+      label: 'Completed Date',
+      defaultValue: task && task.completedDate ? new Date(task.completedDate).toISOString().split('T')[0] : 'Not Finished',
       disabled: true
     },
     {
@@ -259,22 +310,15 @@ export default function ViewTask() {
       defaultValue: task ? getDisplayTaskStatus(task.taskStatus) : '',
       disabled: true
     },
-    {
-      type: 'text',
-      name: 'approvalStatus',
-      label: 'Approval Status',
-      defaultValue: task ? getDisplayApprovalStatus(task.approvalStatus) : '',
-      disabled: true
-    },
-    {
+    ...(task?.taskStatus !== 'draft' ? [{
       type: 'textarea',
       name: 'supervisorComment',
       label: 'Supervisor Comment',
       rows: 2,
       defaultValue: task ? task.supervisorComment : 'Waiting for review',
       disabled: true
-    },
-    {
+    }] : []),
+    ...(task?.taskStatus !== 'draft' ? [{
       type: 'number',
       name: 'score',
       label: 'Score',
@@ -282,16 +326,56 @@ export default function ViewTask() {
       max: 100,
       defaultValue: task ? task.score : '',
       disabled: true
-    },
-    {
-      type: 'link',
+    }] : []),
+    // KPI fields - show individual inputs in submission mode for tasks in progress, otherwise show as readonly
+    ...(isSubmissionMode && task?.taskStatus === 'inProgress' && task?.kpis && task.kpis.length > 0
+      ? task.kpis.map((kpi, index) => ([
+        {
+          type: 'text',
+          name: `kpi_title_${index}`,
+          label: `KPI ${index + 1}: ${kpi.kpiTitle}`,
+          defaultValue: `Target: ${kpi.targetAmount} (${kpi.operator})`,
+          disabled: true,
+          group: 'kpis',
+          isDynamic: false,
+          position: 'top'
+        },
+        {
+          type: 'number',
+          name: `kpi_achieved_${index}`,
+          label: 'Achieved Amount',
+          defaultValue: kpiAchievedAmounts[index] || '',
+          disabled: false,
+          required: true,
+          placeholder: 'Enter achieved amount',
+          group: 'kpis',
+          isDynamic: false,
+          position: 'bottom',
+          min: 0,
+          onChange: (value) => handleKpiAchievedAmountChange(index, value)
+        }
+      ])).flat()
+      : [{
+        type: 'textarea',
+        name: 'kpis',
+        label: 'Key Performance Indicators (KPIs)',
+        rows: 3,
+        defaultValue: task && task.kpis ? task.kpis.map(kpi =>
+          `${kpi.kpiTitle}: Target ${kpi.targetAmount}, Achieved ${kpi.achievedAmount || 0} (${kpi.operator})`
+        ).join('\n') : '',
+        disabled: true
+      }]
+    ),
+    ...((task?.taskStatus === 'submissionRejected' || task?.taskStatus === 'inProgress') && task?.taskStatus !== 'draft' ? [{
+      type: isSubmissionMode ? 'file' : 'link',
       name: 'evidence',
       label: 'Evidence',
       defaultValue: task ? task.evidence : '',
       disabled: isSubmissionMode ? false : true,
+      className: isSubmissionMode ? '' : 'justify-start',
       accept: '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.txt,.xlsx,.xls',
       hint: isSubmissionMode ? 'Upload files as evidence for this task (PDF, DOC, images, etc.)' : ''
-    },
+    }] : []),
   ];
 
   if (isLoading) {
@@ -311,8 +395,8 @@ export default function ViewTask() {
   }
 
   return (
-    <div className="bg-[#EEEBDD] min-h-screen px-4 py-6 text-[#1B1717]">
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md border border-[#CE1212]">
+    <div className="bg-background min-h-screen px-4 py-6 text-[#1B1717]">
+      <div className="max-w-4xl mx-auto p-6 bg-surface rounded-lg shadow-md border border-primary">
         {/* Announcement for Submission Mode */}
         {isSubmissionMode && canSubmitTask() && (
           <StatusNotification
@@ -323,7 +407,7 @@ export default function ViewTask() {
         )}
 
         {/* Announcement for Already Submitted Tasks */}
-        {isSubmissionMode && !canSubmitTask() && task?.taskStatus === "submitted" && (
+        {isSubmissionMode && !canSubmitTask() && (task?.taskStatus === "submittedAndAwaitingReview" || task?.taskStatus === "submittedAndAwaitingApproval") && (
           <StatusNotification
             type="info"
             message="This task has already been submitted and is under review."
@@ -343,7 +427,7 @@ export default function ViewTask() {
           subtitle={isSubmissionMode ? "Review task details before submission" : "Task details (read-only)"}
           fields={formFields}
           onSubmit={isSubmissionMode ? handleFormSubmit : undefined}
-          showSubmitButton={isSubmissionMode && !task?.evidence && !isUploadingEvidence}
+          showSubmitButton={isSubmissionMode && !task?.evidence && !isUploadingEvidence && task?.taskStatus !== 'draft' && task?.taskStatus !== 'approvalRejected'}
           submitButtonText={isUploadingEvidence ? 'Uploading...' : 'Upload Evidence'}
           footer={
             <div className="flex justify-between items-center mt-6">
@@ -354,9 +438,9 @@ export default function ViewTask() {
                 Back to Tasks
               </button>
 
-              {isSubmissionMode && canSubmitTask() && (
+              {isSubmissionMode && canSubmitTask() && !(task?.taskStatus === 'draft' && !isSubmissionMode) && (
                 <div className="flex gap-3">
-                  {task?.approvalStatus !== 'approved' && (
+                  {(task?.taskStatus === 'draft' || task?.taskStatus === 'approvalRejected') && (
                     <button
                       onClick={() => navigate(`/tasks/${task._id}/edit`)}
                       className="btn-outline"
@@ -364,19 +448,25 @@ export default function ViewTask() {
                       Edit Task
                     </button>
                   )}
-                  {task?.evidence ? (
+                  {(task?.taskStatus === 'submissionRejected' || task?.taskStatus === 'inProgress') && task?.evidence ? (
                     <span className="text-green-600 font-medium">
                       ✓ Evidence uploaded - Task ready for submission
                     </span>
-                  ) : (
+                  ) : (task?.taskStatus === 'submissionRejected' || task?.taskStatus === 'inProgress') && (
                     <span className="text-orange-600 font-medium">
                       ⚠ Please upload evidence before submitting
                     </span>
                   )}
+                  {/* KPI completion status */}
+                  {/* {task?.taskStatus === 'inProgress' && task?.kpis && task.kpis.length > 0 && !areKpisComplete() && (
+                    <span className="text-orange-600 font-medium">
+                      ⚠ Please fill in achieved amounts for all KPIs
+                    </span>
+                  )} */}
                   <button
                     onClick={handleSubmitTask}
-                    disabled={isSubmitting || !task?.evidence}
-                    className={`btn-primary ${!task?.evidence ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={isSubmitting || (!task?.evidence && task?.taskStatus !== 'draft' && task?.taskStatus !== 'approvalRejected')}
+                    className={`btn-primary ${(!task?.evidence && task?.taskStatus !== 'draft' && task?.taskStatus !== 'approvalRejected') ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit Task'}
                   </button>

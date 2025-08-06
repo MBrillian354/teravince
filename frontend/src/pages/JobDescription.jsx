@@ -118,6 +118,7 @@ export default function JobDescription() {
         rowKey="id"
         onRowClick={({ id }) => setSelectedJobId(id)}
         containerClass="bg-white rounded mb-4"
+        variant='gradient'
       />
     </div>
   )

@@ -4,13 +4,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import DataTable from '../components/DataTable';
 import StatusBadge from '../components/StatusBadge';
 import { fetchJobDetails, clearCurrentJob } from '../store/adminSlice';
-import { 
-  getDisplayTaskStatus, 
-  getDisplayApprovalStatus,
-  getReviewStatus 
-} from '../utils/statusStyles';
-
-export default function JobDetails() {
+import {
+    getDisplayTaskStatus,
+} from '../utils/statusStyles'; export default function JobDetails() {
     const { jobId } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -40,20 +36,9 @@ export default function JobDetails() {
         {
             header: 'Submission Status',
             render: (r) => (
-                <StatusBadge 
-                    status={getDisplayTaskStatus(r.taskStatus)} 
-                    type="task" 
-                    size="xs"
-                    showIcon={false}
-                />
-            ),
-        },
-        {
-            header: 'Approval Status',
-            render: (r) => (
-                <StatusBadge 
-                    status={getDisplayApprovalStatus(r.approvalStatus)} 
-                    type="approval" 
+                <StatusBadge
+                    status={getDisplayTaskStatus(r.taskStatus)}
+                    type="task"
                     size="xs"
                     showIcon={false}
                 />
@@ -62,9 +47,9 @@ export default function JobDetails() {
         {
             header: 'Task Status',
             render: (r) => (
-                <StatusBadge 
-                    status={getReviewStatus(r.taskStatus, r.approvalStatus)} 
-                    type="review" 
+                <StatusBadge
+                    status={getDisplayTaskStatus(r.taskStatus)}
+                    type="task"
                     size="xs"
                     showIcon={false}
                 />
@@ -156,9 +141,9 @@ export default function JobDetails() {
                     <div>
                         <p className="font-medium text-gray-600">Status</p>
                         <div className="mt-1">
-                            <StatusBadge 
-                                status={currentJob.status} 
-                                type="task" 
+                            <StatusBadge
+                                status={currentJob.status}
+                                type="task"
                                 size="sm"
                                 showIcon={false}
                             />
@@ -177,6 +162,7 @@ export default function JobDetails() {
                     data={currentJobTasks}
                     rowKey="id"
                     containerClass="bg-white rounded"
+                    variant='gradient'
                 />
             </div>
         </div>

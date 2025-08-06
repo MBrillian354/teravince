@@ -3,10 +3,26 @@
 
 /* Tailwind v4 Configuration */
 @theme {
-  --color-background: #EEEBDD;
-  --color-primary: #CE1212;
+  --color-background: #F3F0E8;
+  --color-primary: #008161;
   --color-danger: #810000;
   --color-secondary: #1B1717;
+  --color-accent: #DBDBDB;
+  
+  /* Semantic colors based on theme palette */
+  --color-surface: #ffffff;
+  --color-surface-hover: #f9fafb;
+  --color-muted: #f3f4f6;
+  --color-muted-hover: #e5e7eb;
+  --color-subtle: #f9f9f9;
+  
+  /* Status colors using theme-appropriate shades */
+  --color-success: #059669;
+  --color-success-light: #d1fae5;
+  --color-warning: #d97706;
+  --color-warning-light: #fef3c7;
+  --color-info: #2563eb;
+  --color-info-light: #dbeafe;
 
   --font-display: "Inter", "sans-serif";
   --font-inter: "Inter", sans-serif;
@@ -38,14 +54,6 @@ h1 {
   @apply font-montserrat
 }
 
-:root {
-  --light-cream: #EEEBDD;
-  --bright-red: #CE1212;
-  --dark-red: #810000;
-  --black: #1B1717;
-}
-
-
 @utility card-static {
   @apply bg-white p-8 rounded-lg shadow-md;
 }
@@ -60,7 +68,7 @@ h1 {
 
 /* Utility classes for forms */
 @utility form-title {
-  @apply text-[var(--dark-red)] text-4xl font-bold text-center mb-3;
+  @apply text-primary text-4xl font-bold text-center mb-3;
 }
 
 @utility form-subtitle {
@@ -68,7 +76,7 @@ h1 {
 }
 
 @utility form-submit-button {
-  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
+  @apply w-full p-3 bg-primary text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-primary/80;
 }
 
 @utility form-group {
@@ -88,12 +96,12 @@ h1 {
 }
 
 @utility clickable-link {
-  @apply text-[var(--bright-red)] no-underline;
+  @apply text-primary/80 no-underline;
 }
 
 /* SIGN IN */
 .sign-in-page {
-  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
+  @apply bg-background min-h-screen flex justify-center items-center p-5;
 }
 
 .sign-in-container {
@@ -105,11 +113,11 @@ h1 {
 }
 
 .sign-in-button {
-  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
+  @apply w-full p-3 bg-primary text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-primary/80;
 }
 
 .google-sign-in-button {
-  @apply w-full p-3 text-black border-2 border-[var(--bright-red)] rounded text-base font-medium cursor-pointer flex items-center justify-center gap-2 hover:bg-[var(--bright-red)] hover:text-white;
+  @apply w-full p-3 text-black border-2 border-primary rounded text-base font-medium cursor-pointer flex items-center justify-center gap-2 hover:bg-primary/80 hover:text-white;
 }
 
 .google-logo {
@@ -117,12 +125,12 @@ h1 {
 }
 
 .sign-in-link {
-  @apply text-[var(--bright-red)] no-underline font-medium;
+  @apply text-primary no-underline font-medium;
 }
 
 /* SIGN UP */
 .sign-up-page {
-  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
+  @apply bg-background min-h-screen flex justify-center items-center p-5;
 }
 
 .sign-up-container {
@@ -130,11 +138,11 @@ h1 {
 }
 
 .signup-button {
-  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
+  @apply w-full p-3 bg-primary text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-primary/80;
 }
 
 .google-signup-button {
-  @apply w-full p-3 text-black border-2 border-[var(--bright-red)] rounded text-base font-medium cursor-pointer flex items-center justify-center gap-2 hover:bg-[var(--bright-red)] hover:text-white;
+  @apply w-full p-3 text-black border-2 border-primary rounded text-base font-medium cursor-pointer flex items-center justify-center gap-2 hover:bg-primary/80 hover:text-white;
 }
 
 .sign-up-footer {
@@ -142,12 +150,12 @@ h1 {
 }
 
 .sign-up-link {
-  @apply text-[var(--bright-red)] no-underline font-medium;
+  @apply text-primary no-underline font-medium;
 }
 
 /* FORGOT PASSWORD */
 .forgot-password-page {
-  @apply bg-[var(--light-cream)] min-h-screen flex justify-center items-center p-5;
+  @apply bg-primary min-h-screen flex justify-center items-center p-5;
 }
 
 .forgot-password-container {
@@ -159,7 +167,7 @@ h1 {
 }
 
 .forgot-password-button {
-  @apply w-full p-3 bg-[var(--dark-red)] text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-[var(--bright-red)];
+  @apply w-full p-3 bg-primary text-white border-none rounded text-base font-medium cursor-pointer mb-3 hover:bg-primary/80;
 }
 
 /* RESET SUCCESS MESSAGE */
@@ -168,7 +176,7 @@ h1 {
 }
 
 .reset-success-message h2 {
-  @apply text-[var(--dark-red)] text-2xl font-bold mb-4;
+  @apply text-primary text-2xl font-bold mb-4;
 }
 
 .reset-success-message p {
@@ -182,27 +190,27 @@ h1 {
 }
 
 @utility btn-success {
-  @apply px-4 py-2 bg-green-500 text-white rounded hover:bg-green-500/50 hover:cursor-pointer transition-colors duration-150;
+  @apply px-4 py-2 bg-green-500 text-white rounded hover:bg-green-500/50 hover:cursor-pointer transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-primary {
-  @apply px-4 py-2 bg-primary text-white rounded hover:bg-primary/50 hover:cursor-pointer transition-colors duration-150;
+  @apply px-4 py-2 bg-primary text-white rounded hover:bg-primary/50 hover:cursor-pointer transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-secondary {
-  @apply px-4 py-2 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700 hover:cursor-pointer transition-colors duration-150;
+  @apply px-4 py-2 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700 hover:cursor-pointer transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-outline {
-  @apply px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-100 hover:cursor-pointer transition-colors duration-150;
+  @apply px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-100 hover:cursor-pointer transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-danger {
-  @apply px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-100 hover:cursor-pointer transition-colors duration-150;
+  @apply px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-100 hover:cursor-pointer transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-icon {
-  @apply p-2 rounded-full hover:bg-gray-100 transition-colors duration-150 hover:cursor-pointer;
+  @apply p-2 rounded-full hover:bg-gray-100 transition-colors duration-150 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 /* Modal Animations */

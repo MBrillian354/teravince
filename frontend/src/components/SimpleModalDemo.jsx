@@ -66,42 +66,42 @@ const SimpleModalDemo = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <button
             onClick={handleSuccessDemo}
-            className="p-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="p-4 bg-success text-white rounded-lg hover:bg-success/90 transition-colors"
           >
             Show Success Notification
           </button>
 
           <button
             onClick={handleErrorDemo}
-            className="p-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="p-4 bg-danger text-white rounded-lg hover:bg-danger/90 transition-colors"
           >
             Show Error Notification
           </button>
 
           <button
             onClick={handleConfirmDemo}
-            className="p-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="p-4 bg-danger text-white rounded-lg hover:bg-danger/90 transition-colors"
           >
             Show Danger Confirmation
           </button>
 
           <button
             onClick={handleSigninDemo}
-            className="p-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="p-4 bg-info text-white rounded-lg hover:bg-info/90 transition-colors"
           >
             Demo: Successful Signin
           </button>
 
           <button
             onClick={handleFailedSigninDemo}
-            className="p-4 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+            className="p-4 bg-warning text-white rounded-lg hover:bg-warning/90 transition-colors"
           >
             Demo: Failed Signin
           </button>
         </div>
       </div>
 
-      <div className="mt-8 p-4 bg-gray-100 rounded-lg">
+      <div className="mt-8 p-4 bg-subtle rounded-lg">
         <h3 className="font-semibold mb-2">Available Modal Types:</h3>
         <ul className="space-y-1 text-sm">
           <li><strong>Success Notification:</strong> Green checkmark icon for successful operations</li>
@@ -110,7 +110,7 @@ const SimpleModalDemo = () => {
         </ul>
       </div>
 
-      <div className="mt-6 p-4 bg-gray-800 text-green-400 rounded-lg text-sm">
+      <div className="mt-6 p-4 bg-secondary text-green-400 rounded-lg text-sm">
         <h3 className="font-semibold mb-2 text-white">Usage Examples:</h3>
         <pre className="whitespace-pre-wrap">{`import { useModal } from '../hooks/useModal';
 

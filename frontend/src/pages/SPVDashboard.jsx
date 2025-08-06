@@ -7,13 +7,13 @@ import { fetchSupervisorDashboard } from '../store/supervisorSlice';
 
 export default function SPVDashboard() {
   const dispatch = useDispatch();
-  const { 
-    totalTasks, 
-    numberOfStaffs, 
-    avgTasksPerPerson, 
+  const {
+    totalTasks,
+    numberOfStaffs,
+    avgTasksPerPerson,
     taskStatus,
     isLoading,
-    error 
+    error
   } = useSelector((state) => state.supervisor);
 
   // state for the month picker
@@ -29,10 +29,10 @@ export default function SPVDashboard() {
 
   // Prepare chart data from backend response
   const statusData = [
-    { label: 'Achieved', value: taskStatus.achieved, color: '#374151' },
-    { label: 'On Process', value: taskStatus.onProcess, color: '#6B7280' },
-    { label: 'Awaiting Review', value: taskStatus.awaitingReview, color: '#9CA3AF' },
-    { label: 'Not Yet Started', value: taskStatus.notYetStarted, color: '#D1D5DB' },
+    { label: 'Achieved', value: taskStatus.achieved, color: '#059669' },
+    { label: 'On Process', value: taskStatus.onProcess, color: '#2563eb' },
+    { label: 'Awaiting Review', value: taskStatus.awaitingReview, color: '#d97706' },
+    { label: 'Not Yet Started', value: taskStatus.notYetStarted, color: '#DBDBDB' },
   ];
 
   if (isLoading) {
@@ -68,10 +68,9 @@ export default function SPVDashboard() {
           to="/dashboard"
           end
           className={({ isActive }) =>
-            `pb-2 ${
-              isActive
-                ? 'text-indigo-600 border-b-2 border-indigo-600'
-                : 'text-gray-600 hover:text-gray-800'
+            `pb-2 ${isActive
+              ? 'text-indigo-600 border-b-2 border-indigo-600'
+              : 'text-gray-600 hover:text-gray-800'
             }`
           }
         >
@@ -80,10 +79,9 @@ export default function SPVDashboard() {
         <NavLink
           to="/dashboard/staffs"
           className={({ isActive }) =>
-            `pb-2 ${
-              isActive
-                ? 'text-indigo-600 border-b-2 border-indigo-600'
-                : 'text-gray-600 hover:text-gray-800'
+            `pb-2 ${isActive
+              ? 'text-indigo-600 border-b-2 border-indigo-600'
+              : 'text-gray-600 hover:text-gray-800'
             }`
           }
         >
@@ -92,31 +90,31 @@ export default function SPVDashboard() {
       </nav>
 
       {/* Task Overview + Month Picker (with label above input) */}
-<div className="flex justify-between items-end mb-4">
-  {/* Left label */}
-  <div className="text-lg font-medium text-gray-700">
-    Task Overview
-  </div>
+      <div className="flex justify-between items-end mb-4">
+        {/* Left label */}
+        <div className="text-lg font-medium text-gray-700">
+          Task Overview
+        </div>
 
-  {/* Right: explanatory text + month input with its own label */}
-  <div className="flex items-center space-x-3">
-    <div className="flex flex-col">
-      <label
-        htmlFor="month-selector"
-        className="text-sm text-gray-600 mb-1"
-      >
-        Filter by Month
-      </label>
-      <input
-        id="month-selector"
-        type="month"
-        value={selectedMonth}
-        onChange={e => setSelectedMonth(e.target.value)}
-        className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-      />
-    </div>
-  </div>
-</div>
+        {/* Right: explanatory text + month input with its own label */}
+        <div className="flex items-center space-x-3">
+          <div className="flex flex-col">
+            <label
+              htmlFor="month-selector"
+              className="text-sm text-gray-600 mb-1"
+            >
+              Filter by Month
+            </label>
+            <input
+              id="month-selector"
+              type="month"
+              value={selectedMonth}
+              onChange={e => setSelectedMonth(e.target.value)}
+              className="w-36 px-2 py-1 text-sm bg-surface border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        </div>
+      </div>
 
 
       {/* Centered Donut + Legend Card */}

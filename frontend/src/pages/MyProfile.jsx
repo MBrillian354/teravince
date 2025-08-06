@@ -202,13 +202,13 @@ export default function MyProfile() {
 
       {/* Error/Success Messages */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-100 border border-red-400 text-danger px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <div className="bg-success-light border border-green-400 text-success px-4 py-3 rounded mb-4">
           {success}
         </div>
       )}
@@ -217,12 +217,12 @@ export default function MyProfile() {
 
 
 
-        <div className="bg-white rounded p-6 mb-6 space-y-6">
+        <div className="bg-surface rounded p-6 mb-6 space-y-6">
           {/* Profile Photo + Requirements */}
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-12">
             {/* Avatar + Upload/Remove */}
             <div className="flex-shrink-0 flex items-center space-x-6">
-              <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+              <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                 {profilePicture
                   ? <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
                   : <span className="text-gray-300 text-4xl">👤</span>}

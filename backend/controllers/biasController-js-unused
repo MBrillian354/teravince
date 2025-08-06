@@ -2,116 +2,165 @@ require('dotenv').config();
 const Task = require('../models/Task');
 const Report = require('../models/Report');
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
-// Enhanced metadata analysis for evidence files
-const analyzeEvidenceMetadata = (evidenceFiles, taskDescription = '', taskTitle = '') => {
+// Option 2: Text extraction from documents (alternative approach)
+const extractTextFromFile = async (filePath, mimetype) => {
+  try {
+    if (mimetype === 'text/plain') {
+      return fs.readFileSync(filePath, 'utf8');
+    }
+    
+    // For PDFs, you would need a library like pdf-parse
+    // if (mimetype === 'application/pdf') {
+    //   const pdfParse = require('pdf-parse');
+    //   const dataBuffer = fs.readFileSync(filePath);
+    //   const data = await pdfParse(dataBuffer);
+    //   return data.text;
+    // }
+    
+    // For Word documents, you would need mammoth or similar
+    // if (mimetype.includes('msword') || mimetype.includes('wordprocessingml')) {
+    //   const mammoth = require('mammoth');
+    //   const result = await mammoth.extractRawText({path: filePath});
+    //   return result.value;
+    // }
+    
+    return null;
+  } catch (error) {
+    console.error('Text extraction error:', error);
+    return null;
+  }
+};
+
+// Option 3: Enhanced metadata analysis (works with current setup)
+const analyzeEvidenceMetadata = (evidenceFiles, taskDescription) => {
   if (!evidenceFiles || evidenceFiles.length === 0) {
-    return "No evidence files provided for this task.";
+    return "No evidence files provided.";
   }
 
   const fileAnalysis = evidenceFiles.map(file => {
     const isImage = file.mimetype.startsWith('image/');
-    const isDocument = ['application/pdf', 'application/msword', 'text/plain'].some(type => 
-      file.mimetype.includes(type) || file.mimetype.includes('wordprocessingml')
-    );
+    const isDocument = ['application/pdf', 'application/msword', 'text/plain'].includes(file.mimetype);
     
     let relevanceScore = 0;
     let analysisNotes = [];
 
-    // Analyze filename relevance to task
-    const filename = file.filename.toLowerCase();
-    const combinedTaskText = `${taskTitle} ${taskDescription}`.toLowerCase();
-    
-    // Score relevance based on filename content
-    const relevantKeywords = ['complete', 'finish', 'done', 'result', 'output', 'proof', 'evidence', 'work', 'task', 'project'];
-    relevantKeywords.forEach(keyword => {
-      if (filename.includes(keyword)) relevanceScore += 2;
-    });
-
-    // Score based on task-specific words
-    if (combinedTaskText) {
-      const taskWords = combinedTaskText.split(' ').filter(word => word.length > 3);
+    // Basic relevance scoring based on filename and task
+    if (taskDescription) {
+      const taskWords = taskDescription.toLowerCase().split(' ');
+      const filename = file.filename.toLowerCase();
+      
       taskWords.forEach(word => {
-        if (filename.includes(word)) relevanceScore += 1;
+        if (word.length > 3 && filename.includes(word)) {
+          relevanceScore += 1;
+        }
       });
     }
 
-    // Analyze file type appropriateness
     if (isImage) {
-      analysisNotes.push("Visual evidence - may demonstrate completed work, progress screenshots, or results");
-      if (filename.includes('screenshot') || filename.includes('screen')) {
-        analysisNotes.push("Screenshot evidence provided");
-        relevanceScore += 1;
-      }
+      analysisNotes.push("Visual evidence provided - may show completed work, progress, or results");
     }
     
     if (isDocument) {
-      analysisNotes.push("Document evidence - likely contains detailed reports, analysis, or documentation");
-      relevanceScore += 1;
-    }
-
-    // Detect potential evidence quality indicators from filename
-    const qualityIndicators = {
-      high: ['final', 'complete', 'finished', 'result', 'deliverable'],
-      medium: ['draft', 'progress', 'update', 'partial'],
-      low: ['test', 'temp', 'backup', 'old']
-    };
-
-    let qualityLevel = 'standard';
-    if (qualityIndicators.high.some(indicator => filename.includes(indicator))) {
-      qualityLevel = 'high';
-      relevanceScore += 1;
-    } else if (qualityIndicators.medium.some(indicator => filename.includes(indicator))) {
-      qualityLevel = 'medium';
-    } else if (qualityIndicators.low.some(indicator => filename.includes(indicator))) {
-      qualityLevel = 'low';
-      relevanceScore -= 1;
+      analysisNotes.push("Document evidence provided - likely contains detailed information or reports");
     }
 
     return {
       filename: file.filename,
       type: isImage ? 'Image' : isDocument ? 'Document' : 'Other',
-      relevance_score: Math.max(0, relevanceScore),
-      quality_level: qualityLevel,
+      relevance_score: relevanceScore,
       notes: analysisNotes.join('. ')
     };
   });
 
-  // Generate overall evidence assessment
-  const totalFiles = evidenceFiles.length;
-  const imageCount = fileAnalysis.filter(f => f.type === 'Image').length;
-  const docCount = fileAnalysis.filter(f => f.type === 'Document').length;
-  const avgRelevance = fileAnalysis.reduce((sum, f) => sum + f.relevance_score, 0) / totalFiles;
-  const highQualityCount = fileAnalysis.filter(f => f.quality_level === 'high').length;
+  return `Evidence Analysis Summary:
+${fileAnalysis.map(f => `- ${f.filename} (${f.type}): ${f.notes} [Relevance: ${f.relevance_score}]`).join('\n')}
 
-  let evidenceQuality = 'Basic';
-  if (avgRelevance >= 3 && highQualityCount > 0) {
-    evidenceQuality = 'Comprehensive';
-  } else if (avgRelevance >= 2 || totalFiles >= 3) {
-    evidenceQuality = 'Good';
-  } else if (avgRelevance >= 1) {
-    evidenceQuality = 'Adequate';
-  }
-
-  return `EVIDENCE ANALYSIS SUMMARY:
-Total Files: ${totalFiles} (${imageCount} images, ${docCount} documents)
-Evidence Quality Assessment: ${evidenceQuality}
-Average Relevance Score: ${avgRelevance.toFixed(1)}/5
-
-File Details:
-${fileAnalysis.map(f => 
-  `• ${f.filename} (${f.type}) - Relevance: ${f.relevance_score}, Quality: ${f.quality_level}
-    ${f.notes || 'Standard file type'}`
-).join('\n')}
-
-Assessment Notes:
-- Evidence quantity: ${totalFiles >= 3 ? 'Multiple files suggest thorough documentation' : totalFiles === 2 ? 'Dual evidence provided' : 'Single evidence file'}
-- File diversity: ${imageCount > 0 && docCount > 0 ? 'Mixed visual and document evidence' : imageCount > 0 ? 'Visual evidence focus' : 'Document-based evidence'}
-- Quality indicators: ${highQualityCount > 0 ? `${highQualityCount} files suggest final/completed work` : 'Standard evidence quality indicators'}`;
+Total files: ${evidenceFiles.length}
+Types: ${[...new Set(fileAnalysis.map(f => f.type))].join(', ')}`;
 };
 
-// kirim ke AI - Using Helpy-V API with JSON output support
-const sendToBiasAI = async ({ prompt, evidence_files = [], evidence_metadata_analysis = null }) => {
+// Analyze evidence files using OpenAI Vision (alternative to DeepSeek for multimodal)
+const analyzeEvidenceWithVision = async (evidenceFiles) => {
+  if (!evidenceFiles || evidenceFiles.length === 0) {
+    return null;
+  }
+
+  try {
+    const analysisResults = [];
+
+    for (const file of evidenceFiles) {
+      const filePath = path.join(__dirname, '..', 'uploads', file.filename);
+      
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        console.warn(`Evidence file not found: ${filePath}`);
+        continue;
+      }
+
+      // Only analyze image files with vision
+      if (file.mimetype.startsWith('image/')) {
+        // Convert image to base64
+        const imageBuffer = fs.readFileSync(filePath);
+        const base64Image = imageBuffer.toString('base64');
+
+        // Use OpenAI Vision API (you would need OpenAI API key)
+        const response = await axios.post(
+          'https://api.openai.com/v1/chat/completions',
+          {
+            model: 'gpt-4-vision-preview',
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  {
+                    type: 'text',
+                    text: 'Analyze this evidence image for task completion. Describe what you see and assess if it demonstrates completed work, quality of work, and any relevant details for performance evaluation.'
+                  },
+                  {
+                    type: 'image_url',
+                    image_url: {
+                      url: `data:${file.mimetype};base64,${base64Image}`
+                    }
+                  }
+                ]
+              }
+            ],
+            max_tokens: 300
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        analysisResults.push({
+          filename: file.filename,
+          analysis: response.data.choices[0].message.content
+        });
+      } else if (file.mimetype === 'text/plain') {
+        // For text files, read content directly
+        const textContent = fs.readFileSync(filePath, 'utf8');
+        analysisResults.push({
+          filename: file.filename,
+          analysis: `Text document content: ${textContent.substring(0, 500)}...`
+        });
+      }
+    }
+
+    return analysisResults;
+  } catch (error) {
+    console.error('Evidence analysis error:', error);
+    return null;
+  }
+};
+
+// kirim ke AI - Using DeepSeek API with JSON output support
+const sendToBiasAI = async ({ prompt, evidence_files = [], evidence_analysis = null, metadata_analysis = null }) => {
   try {
     // Prepare messages array with system prompt for consistent JSON output
     const messages = [
@@ -150,18 +199,30 @@ If no bias is detected, use:
       });
     }
 
-    // Add enhanced evidence metadata analysis if available
-    if (evidence_metadata_analysis) {
+    // Add evidence analysis if available
+    if (evidence_analysis && evidence_analysis.length > 0) {
+      const analysisInfo = evidence_analysis.map(item => 
+        `File: ${item.filename}\nAnalysis: ${item.analysis}`
+      ).join('\n\n');
+      
       messages.push({
         role: 'user',
-        content: `ENHANCED EVIDENCE ANALYSIS:\n${evidence_metadata_analysis}\n\nUse this analysis to evaluate whether the supervisor's review is proportionate to the evidence quality and quantity. Consider if the review fairly acknowledges the effort and documentation provided by the employee.`
+        content: `EVIDENCE ANALYSIS RESULTS:\n${analysisInfo}\n\nConsider this evidence analysis when evaluating if the supervisor's review is fair and proportionate to the actual work completed and quality demonstrated.`
+      });
+    }
+
+    // Add metadata analysis as additional context
+    if (metadata_analysis) {
+      messages.push({
+        role: 'user',
+        content: `EVIDENCE METADATA ANALYSIS:\n${metadata_analysis}\n\nThis provides context about the type and relevance of evidence submitted by the employee.`
       });
     }
 
     const response = await axios.post(
-      'https://mlapi.run/9331793d-efda-4839-8f97-ff66f7eaf605/v1/chat/completions',
+      'https://api.deepseek.com/chat/completions',
       {
-        model: 'helpy-v-reasoning', // Using Helpy-V Reasoning model
+        model: 'deepseek-chat', // Using chat model for consistent JSON output
         messages: messages,
         max_tokens: 512, // Reduced for focused JSON responses
         temperature: 0.1, // Very low temperature for consistent bias detection
@@ -170,7 +231,7 @@ If no bias is detected, use:
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.HELPY_API_KEY}`,
+          Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
           'Content-Type': 'application/json',
           Accept: 'application/json'
         },
@@ -203,7 +264,7 @@ If no bias is detected, use:
     }
 
   } catch (error) {
-    console.error('Helpy-V API Error:', error.response?.data || error.message);
+    console.error('DeepSeek API Error:', error.response?.data || error.message);
     throw new Error(`Bias detection service error: ${error.message}`);
   }
 };
@@ -251,7 +312,6 @@ TASK DETAILS:
 - Title: ${task.title || 'N/A'}
 - Description: ${task.description || 'N/A'}  
 - Employee Score: ${task.score || 'N/A'}
-- Task Deadline: ${task.deadline || 'N/A'}
 - Time the staff took to complete the Task: ${task.startDate || 'N/A'} to ${task.completedDate || 'N/A'}
 - Evidence Provided: ${evidence_files.length > 0 ? 'Yes' : 'No'}
 
@@ -271,10 +331,23 @@ Focus on whether the supervisor's comments are:
 - Free from personal bias or discriminatory language
 - Proportionate to the evidence and work submitted`;
 
-    // Generate enhanced evidence metadata analysis
-    const evidence_metadata_analysis = analyzeEvidenceMetadata(evidence_files, task.description, task.title);
+    // Analyze evidence files if they exist
+    let evidence_analysis = null;
+    
+    // Try advanced analysis first (requires additional API keys)
+    if (process.env.OPENAI_API_KEY && evidence_files.length > 0) {
+      evidence_analysis = await analyzeEvidenceWithVision(evidence_files);
+    }
+    
+    // Fallback to metadata analysis (always available)
+    const metadata_analysis = analyzeEvidenceMetadata(evidence_files, task.description);
 
-    const result = await sendToBiasAI({ prompt, evidence_files, evidence_metadata_analysis });
+    const result = await sendToBiasAI({ 
+      prompt, 
+      evidence_files, 
+      evidence_analysis,
+      metadata_analysis 
+    });
 
     task.supervisorComment = review;
     task.bias_check = result;
@@ -285,7 +358,7 @@ Focus on whether the supervisor's comments are:
       msg: 'Task review submitted and bias checked',
       data: result,
       evidence_files_analyzed: evidence_files.length,
-      evidence_quality_assessment: evidence_files.length > 0 ? evidence_metadata_analysis.split('\n')[1] : 'No evidence provided'
+      evidence_analysis_available: evidence_analysis ? evidence_analysis.length : 0
     });
   } catch (err) {
     console.error('Bias check error (task):', err);
@@ -353,10 +426,7 @@ Focus on whether the supervisor's comments are:
 - Fair considering the reporting period and documented performance
 - Relevant to job responsibilities and performance metrics`;
 
-    // Generate enhanced evidence metadata analysis for reports
-    const evidence_metadata_analysis = analyzeEvidenceMetadata(evidence_files, `Monthly report for ${report.period}`, 'Monthly Performance Report');
-
-    const result = await sendToBiasAI({ prompt, evidence_files, evidence_metadata_analysis });
+    const result = await sendToBiasAI({ prompt, evidence_files });
 
     report.review = review;
     report.bias_check = result;
@@ -367,8 +437,7 @@ Focus on whether the supervisor's comments are:
       success: true,
       msg: 'Report review submitted and bias checked',
       data: result,
-      evidence_files_analyzed: evidence_files.length,
-      evidence_quality_assessment: evidence_files.length > 0 ? evidence_metadata_analysis.split('\n')[1] : 'No evidence provided'
+      evidence_files_analyzed: evidence_files.length
     });
   } catch (err) {
     console.error('Bias check error (report):', err.message);

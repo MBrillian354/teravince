@@ -145,7 +145,7 @@ export default function MyStaffs() {
 
       {/* Error message */}
       {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-danger rounded">
           {error}
         </div>
       )}
@@ -192,7 +192,7 @@ export default function MyStaffs() {
         </div>
       </div>
 
-      
+
 
       {/* Loading state */}
       {loading ? (
@@ -208,6 +208,7 @@ export default function MyStaffs() {
             data={filteredStaffList}
             rowKey="_id"
             onRowClick={({ _id }) => setSelectedId(_id)}
+            variant='gradient'
           />
 
           {/* No staff message */}

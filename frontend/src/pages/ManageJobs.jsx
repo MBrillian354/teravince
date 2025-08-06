@@ -197,6 +197,7 @@ const ManageJobs = () => {
           data={jobsData}
           rowKey="id"
           onRowClick={(row) => console.log('Row clicked:', row)}
+          variant='gradient'
         />
       </div>
     </>

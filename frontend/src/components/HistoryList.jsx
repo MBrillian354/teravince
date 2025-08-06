@@ -8,13 +8,13 @@ const HistoryList = () => {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md">
-      <h2 className="text-lg font-semibold text-[#1B1717] mb-4">History</h2>
+    <div className="">
+      <h2 className="text-lg font-semibold mb-4">History</h2>
       <ul className="space-y-3">
         {history.map((item, idx) => (
           <li
             key={idx}
-            className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3 bg-[#F8F8F8] hover:shadow-sm transition"
+            className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3 bg-accent hover:shadow-sm transition"
           >
             <div className="text-[#1B1717] font-medium">{item.task}</div>
             <div className="text-sm text-gray-700 flex items-center gap-2">

@@ -5,10 +5,10 @@ const StatusNotification = ({ type, message, className = '' }) => {
     switch (type) {
       case 'success':
         return {
-          bgColor: 'bg-green-50',
-          borderColor: 'border-green-500',
-          iconColor: 'text-green-500',
-          textColor: 'text-green-800',
+          bgColor: 'bg-success-light',
+          borderColor: 'border-success',
+          iconColor: 'text-success',
+          textColor: 'text-success',
           icon: (
             <path 
               fillRule="evenodd" 
@@ -20,9 +20,9 @@ const StatusNotification = ({ type, message, className = '' }) => {
       case 'error':
         return {
           bgColor: 'bg-red-50',
-          borderColor: 'border-red-500',
-          iconColor: 'text-red-500',
-          textColor: 'text-red-800',
+          borderColor: 'border-danger',
+          iconColor: 'text-danger',
+          textColor: 'text-danger',
           icon: (
             <path 
               fillRule="evenodd" 
@@ -33,10 +33,10 @@ const StatusNotification = ({ type, message, className = '' }) => {
         };
       case 'info':
         return {
-          bgColor: 'bg-blue-50',
-          borderColor: 'border-blue-500',
-          iconColor: 'text-blue-500',
-          textColor: 'text-blue-800',
+          bgColor: 'bg-info-light',
+          borderColor: 'border-info',
+          iconColor: 'text-info',
+          textColor: 'text-info',
           icon: (
             <path 
               fillRule="evenodd" 
@@ -47,10 +47,10 @@ const StatusNotification = ({ type, message, className = '' }) => {
         };
       case 'warning':
         return {
-          bgColor: 'bg-yellow-50',
-          borderColor: 'border-yellow-500',
-          iconColor: 'text-yellow-500',
-          textColor: 'text-yellow-800',
+          bgColor: 'bg-warning-light',
+          borderColor: 'border-warning',
+          iconColor: 'text-warning',
+          textColor: 'text-warning',
           icon: (
             <path 
               fillRule="evenodd" 
@@ -61,7 +61,7 @@ const StatusNotification = ({ type, message, className = '' }) => {
         };
       default:
         return {
-          bgColor: 'bg-gray-50',
+          bgColor: 'bg-subtle',
           borderColor: 'border-gray-500',
           iconColor: 'text-gray-500',
           textColor: 'text-gray-800',

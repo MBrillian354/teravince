@@ -80,7 +80,8 @@ exports.supervisorDashboard = async (req, res) => {
     const taskStatusCounts = {
       achieved: tasks.filter(t => t.taskStatus === 'completed').length,
       onProcess: tasks.filter(t => t.taskStatus === 'inProgress').length,
-      awaitingReview: tasks.filter(t => t.taskStatus === 'submitted').length,
+      awaitingReview: tasks.filter(t => t.taskStatus === 'submittedAndAwaitingReview').length,
+      awaitingApproval: tasks.filter(t => t.taskStatus === 'submittedAndAwaitingApproval').length,
       notYetStarted: tasks.filter(t => !t.taskStatus || t.taskStatus === 'draft').length,
     };
 

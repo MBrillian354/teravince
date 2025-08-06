@@ -381,9 +381,8 @@ const adminSlice = createSlice({
                     title: task.title,
                     description: task.description,
                     startDate: task.startDate ? new Date(task.startDate).toLocaleDateString('en-GB') : '',
-                    endDate: task.endDate ? new Date(task.endDate).toLocaleDateString('en-GB') : '',
-                    taskStatus: task.taskStatus,
-                    approvalStatus: task.approvalStatus
+                    completedDate: task.completedDate ? new Date(task.completedDate).toLocaleDateString('en-GB') : '',
+                    taskStatus: task.taskStatus
                 }));
             })
             .addCase(fetchJobDetails.rejected, (state, action) => {

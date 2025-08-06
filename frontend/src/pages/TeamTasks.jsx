@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TasksReportsTabs from '../components/TasksReportsTabs';
 import StatsCard from '../components/StatsCard';
@@ -6,11 +6,24 @@ import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
 import StatusBadge from '../components/StatusBadge';
 import { tasksAPI } from '../utils/api';
-import { 
-  getDisplayTaskStatus, 
-  getDisplayApprovalStatus, 
-  getReviewStatus 
-} from '../utils/statusStyles';
+import {
+  getDisplayTaskStatus,
+} from '../utils/statusStyles';// Helper function to get bias detection status
+const getBiasDetectionStatus = (biasCheck) => {
+  if (!biasCheck) return { status: 'not-checked', label: 'Not Checked' };
+
+  // Check if the task has been reviewed
+  if (biasCheck.action === 'reviewed') {
+    if (biasCheck.reviewedWithoutBias === true) {
+      return { status: 'no-bias', label: 'No Bias' };
+    } else if (biasCheck.reviewedWithoutBias === false) {
+      return { status: 'bias-detected', label: 'Bias Detected' };
+    }
+  }
+
+  // If bias check exists but no action taken yet, it's pending
+  return { status: 'pending', label: 'Pending' };
+};
 
 export default function TeamTasks() {
   const navigate = useNavigate();
@@ -34,22 +47,21 @@ export default function TeamTasks() {
         if (response.data.success) {
           // Transform backend data to match component's expected format
           const transformedTasks = response.data.data
-            .filter(task => task.taskStatus !== 'draft' && task.approvalStatus !== 'draft') // Exclude draft and cancelled tasks
+            .filter(task => task.taskStatus !== 'draft') // Exclude draft tasks
             .map(task => ({
               id: task._id,
               title: task.title,
               status: getDisplayTaskStatus(task.taskStatus),
-              approval: getDisplayApprovalStatus(task.approvalStatus),
-              review: getReviewStatus(task.taskStatus, task.approvalStatus),
               employeeName: task.userId ? `${task.userId.firstName} ${task.userId.lastName}` : 'Unknown',
               description: task.description,
               supervisorComment: task.supervisorComment || '',
               score: task.score || 0,
               startDate: task.startDate,
-              endDate: task.endDate,
+              completedDate: task.completedDate,
               evidence: task.evidence || '',
+              biasStatus: getBiasDetectionStatus(task.bias_check),
               originalTask: task // Keep original data for detailed view
-            })); // Exclude cancelled tasks
+            }));
 
           setTasks(transformedTasks);
         } else {
@@ -69,7 +81,7 @@ export default function TeamTasks() {
   // 4) Calculate summary statistics based on real data
   const calculateSummary = () => {
     const tasksToApprove = tasks.filter(task =>
-      task.originalTask.approvalStatus === 'pending'
+      task.originalTask.taskStatus === 'submittedAndAwaitingApproval'
     ).length;
 
     const taskOngoing = tasks.filter(task =>
@@ -77,11 +89,15 @@ export default function TeamTasks() {
     ).length;
 
     const tasksToReview = tasks.filter(task =>
-      task.originalTask.taskStatus === 'submitted'
+      task.originalTask.taskStatus === 'submittedAndAwaitingReview'
     ).length;
 
     const taskCompleted = tasks.filter(task =>
       task.originalTask.taskStatus === 'completed'
+    ).length;
+
+    const tasksWithBias = tasks.filter(task =>
+      task.originalTask.bias_check?.reviewedWithoutBias === false
     ).length;
 
     return [
@@ -89,6 +105,7 @@ export default function TeamTasks() {
       { label: 'Tasks to Approve', value: tasksToApprove },
       { label: 'Task to Review', value: tasksToReview },
       { label: 'Task Completed', value: taskCompleted },
+      { label: 'Bias Detected', value: tasksWithBias },
     ];
   };
 
@@ -127,61 +144,117 @@ export default function TeamTasks() {
     {
       header: 'Submission Status',
       render: (r) => (
-        <StatusBadge 
-          status={r.status} 
-          type="task" 
+        <StatusBadge
+          status={r.status}
+          type="task"
           size="xs"
           showIcon={false}
         />
       ),
     },
+    // {
+    //   header: 'Approval Status',
+    //   render: (r) => (
+    //     <StatusBadge
+    //       status={r.approval}
+    //       type="approval"
+    //       size="xs"
+    //       showIcon={false}
+    //     />
+    //   ),
+    // },
+    // {
+    //   header: 'Task Status',
+    //   render: (r) => (
+    //     <StatusBadge
+    //       status={r.review}
+    //       type="review"
+    //       size="xs"
+    //       showIcon={false}
+    //     />
+    //   ),
+    // },
     {
-      header: 'Approval Status',
-      render: (r) => (
-        <StatusBadge 
-          status={r.approval} 
-          type="approval" 
-          size="xs"
-          showIcon={false}
-        />
-      ),
-    },
-    {
-      header: 'Task Status',
-      render: (r) => (
-        <StatusBadge 
-          status={r.review} 
-          type="review" 
-          size="xs"
-          showIcon={false}
-        />
-      ),
+      header: 'Bias Status',
+      render: (r) => {
+        const biasStatus = r.biasStatus;
+        let statusColor = 'bg-muted text-gray-800';
+
+        if (biasStatus.status === 'bias-detected') {
+          statusColor = 'bg-red-100 text-danger';
+        } else if (biasStatus.status === 'no-bias') {
+          statusColor = 'bg-success-light text-success';
+        } else if (biasStatus.status === 'pending') {
+          statusColor = 'bg-warning-light text-warning';
+        }
+
+        return (
+          <span className={`px-2 py-1 text-xs rounded-full ${statusColor}`}>
+            {biasStatus.label}
+          </span>
+        );
+      },
     },
     {
       header: 'Actions',
-      render: (row) => (
-        row.originalTask.taskStatus === 'submitted' ? (
-          <div className="flex space-x-2">
-            <button
-              onClick={() => handleViewTask(row.id)}
-              className="btn-secondary text-xs"
-            >
-              Review
-            </button>
-          </div>
-        ) : row.originalTask.taskStatus === 'inProgress' ? (
-          <div className="flex space-x-2">
-            <button
-              onClick={() => handleViewTask(row.id)}
-              className="btn-secondary text-xs"
-            >
-              View
-            </button>
-          </div>
-        ) : null
-      ),
+      render: (row) => {
+        const task = row.originalTask;
+        const biasStatus = row.biasStatus;
+
+        // For completed tasks with bias detected, show Review button
+        if (task.taskStatus === 'completed' && biasStatus.status === 'bias-detected') {
+          return (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleViewTask(row.id)}
+                className="btn-secondary text-xs bg-danger hover:bg-primary"
+              >
+                Review Bias
+              </button>
+            </div>
+          );
+        }
+
+        // For submitted tasks (awaiting supervisor review)
+        if (task.taskStatus === 'submittedAndAwaitingApproval' || task.taskStatus === 'submittedAndAwaitingReview') {
+          return (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleViewTask(row.id)}
+                className="btn-secondary text-xs"
+              >
+                Review
+              </button>
+            </div>
+          );
+        }
+
+        // For in-progress tasks
+        if (task.taskStatus !== 'submittedAndAwaitingReview' && task.taskStatus !== 'submittedAndAwaitingApproval') {
+          return (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleViewTask(row.id)}
+                className="btn-secondary text-xs"
+              >
+                View
+              </button>
+            </div>
+          );
+        }
+
+        return null;
+      },
       align: 'center'
     },
+    {
+      header: 'Score',
+      accessor: 'score',
+      align: 'center',
+      render: (r) => (
+        <span className="text-xs">{r.score || 'N/A'}</span>
+      ),
+    }
   ];
 
   // Loading state
@@ -217,7 +290,7 @@ export default function TeamTasks() {
       <TasksReportsTabs active={activeTab} onChange={setActiveTab} />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         {summary.map((c) => (
           <StatsCard key={c.label} label={c.label} value={c.value} />
         ))}
@@ -230,7 +303,7 @@ export default function TeamTasks() {
         data={paginatedTasks}
         rowKey="id"
         onRowClick={({ id }) => setSelectedTaskId(id)}
-        containerClass="bg-white rounded mb-4"
+        containerClass="bg-surface rounded mb-4"
         variant='gradient'
       />
 
@@ -245,7 +318,7 @@ export default function TeamTasks() {
 
       {/* Show message if no tasks */}
       {tasks.length === 0 && !loading && (
-        <div className="bg-white rounded shadow p-6 text-center">
+        <div className="bg-surface rounded shadow p-6 text-center">
           <p className="text-gray-600">No tasks found.</p>
         </div>
       )}

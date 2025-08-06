@@ -183,7 +183,9 @@ const DynamicForm = ({
       className: fieldClassName = '',
       disabled = false,
       rows = 3,
-      href = ''
+      href = '',
+      min,
+      max
     } = field;
 
     const getValue = () => {
@@ -196,6 +198,11 @@ const DynamicForm = ({
     const handleChange = (e) => {
       const { value, type, checked, files } = e.target;
       const finalValue = type === 'checkbox' ? checked : type === 'file' ? files[0] : value;
+
+      // Call field-specific onChange if it exists
+      if (field.onChange) {
+        field.onChange(finalValue);
+      }
 
       if (isDynamic && groupIndex !== null) {
         handleDynamicInputChange(field.group, groupIndex, name, finalValue);
@@ -353,6 +360,8 @@ const DynamicForm = ({
               {...inputProps}
               type={type}
               placeholder={placeholder}
+              min={min}
+              max={max}
               className={`form-input ${fieldClassName} ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`}
               value={getValue()}
               onChange={handleChange}
@@ -592,7 +601,10 @@ DynamicForm.propTypes = {
       isDynamic: PropTypes.bool,
       position: PropTypes.oneOf(['top', 'center', 'bottom']),
       href: PropTypes.string,
-      accept: PropTypes.string
+      accept: PropTypes.string,
+      onChange: PropTypes.func,
+      min: PropTypes.number,
+      max: PropTypes.number
     })
   ).isRequired,
   onSubmit: PropTypes.func,

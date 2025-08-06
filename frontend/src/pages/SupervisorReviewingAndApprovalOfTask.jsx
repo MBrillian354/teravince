@@ -39,8 +39,16 @@ export default function SupervisorReviewingAndApprovalOfTask() {
   useEffect(() => {
     if (task) {
       setSupervisorComment(task.supervisorComment || '');
+
+      // If task has bias check results, set them in the store for display
+      if (task.bias_check) {
+        dispatch({
+          type: 'supervisor/checkTaskReviewBias/fulfilled',
+          payload: { data: task.bias_check }
+        });
+      }
     }
-  }, [task]);
+  }, [task, dispatch]);
 
   // Handle errors
   useEffect(() => {
@@ -58,34 +66,27 @@ export default function SupervisorReviewingAndApprovalOfTask() {
     }
   }, [error, showError, dispatch, navigate]);
 
-  // Helper functions to format display values
+  // Helper functions to format display values using new enum
   const getDisplayTaskStatus = (taskStatus) => {
     switch (taskStatus) {
       case 'inProgress':
-        return 'Ongoing';
-      case 'submitted':
-        return 'Under Review';
+        return 'In Progress';
+      case 'submittedAndAwaitingReview':
+        return 'Awaiting Review';
+      case 'submittedAndAwaitingApproval':
+        return 'Awaiting Approval';
+      case 'revisionInProgress':
+        return 'Revision In Progress';
+      case 'submissionRejected':
+        return 'Submission Rejected';
+      case 'approvalRejected':
+        return 'Approval Rejected';
       case 'completed':
         return 'Completed';
-      case 'rejected':
-        return 'Rejected';
-      case 'cancelled':
-        return 'Cancelled';
-      default:
+      case 'draft':
         return 'Draft';
-    }
-  };
-
-  const getDisplayApprovalStatus = (approvalStatus) => {
-    switch (approvalStatus) {
-      case 'pending':
-        return 'Under Review';
-      case 'approved':
-        return 'Approved';
-      case 'rejected':
-        return 'Rejected';
       default:
-        return 'Pending';
+        return taskStatus;
     }
   };
 
@@ -142,7 +143,7 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         name: 'kpis',
         label: 'Key Performance Indicators (KPIs)',
         defaultValue: selectedTask.kpis && selectedTask.kpis.length > 0
-          ? selectedTask.kpis.map(kpi => `${kpi.kpiTitle}: ${kpi.amount} (${kpi.operator})`).join('\n')
+          ? selectedTask.kpis.map(kpi => `${kpi.kpiTitle}: Target ${kpi.targetAmount}, Achieved ${kpi.achievedAmount || 0} (${kpi.operator})`).join('\n')
           : 'No KPIs defined',
         disabled: true,
         rows: 3
@@ -165,15 +166,15 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         group: 'dates'
       },
       {
-        type: selectedTask.approvalStats !== 'approved' ? 'text' : 'date',
+        type: selectedTask.taskStatus !== 'submittedAndAwaitingApproval' ? 'text' : 'date',
         name: 'deadline',
         label: 'Deadline',
         defaultValue: formatDate(selectedTask.deadline),
         required: true,
         group: 'dates',
-        disabled: selectedTask.approvalStats !== 'approved'
+        disabled: selectedTask.taskStatus !== 'submittedAndAwaitingApproval'
       },
-      ...(selectedTask.evidence ? [{
+      ...(selectedTask.taskStatus !== 'submittedAndAwaitingApproval' && selectedTask.evidence ? [{
         type: 'link',
         name: 'evidence',
         label: 'Evidence',
@@ -188,15 +189,15 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         defaultValue: selectedTask.supervisorComment || supervisorComment,
         rows: 3,
         placeholder: 'Enter your review comments here...',
-        disabled: selectedTask.taskStatus === 'inProgress' || selectedTask.taskStatus === 'completed'
+        disabled: selectedTask.taskStatus === 'inProgress' || (selectedTask.taskStatus === 'completed' && !selectedTask.bias_check?.is_bias),
       },
 
-      ...(selectedTask.evidence && selectedTask.taskStatus === 'submitted' ? [{
+      ...((selectedTask.evidence && selectedTask.taskStatus === 'completed') || (selectedTask.taskStatus === 'submittedAndAwaitingReview') ? [{
         type: 'checkbox',
         name: 'biasReviewCheck',
         label: 'I have properly reviewed the staff\'s task without bias',
         required: true
-      }] : [])
+      }] : []),
     ];
   };
 
@@ -238,26 +239,45 @@ export default function SupervisorReviewingAndApprovalOfTask() {
     try {
       let biasCheckResponse = null;
 
-      // Only check for bias if reviewing a task that has already been approved and is submitted
-      if (task.approvalStatus === 'approved' && task.taskStatus === 'submitted') {
-        biasCheckResponse = await dispatch(checkTaskReviewBias({
+      // For review actions, start bias checking in background and proceed immediately
+      if (action === 'review') {
+        // Start bias checking in the background without waiting
+        // Fire and forget - the bias check will update the task record when it completes
+        dispatch(checkTaskReviewBias({
           taskId: task._id,
           review: formData.supervisorComment.trim()
-        })).unwrap();
+        })).then((result) => {
+          // Background update completed - bias check results will be saved to the task
+          console.log('Background bias check completed:', result);
+        }).catch((error) => {
+          // Log error but don't interrupt the user flow
+          console.error('Background bias check failed:', error);
+        });
 
-        console.log('Bias check result:', biasCheckResponse);
+        // Proceed immediately without waiting for bias check result
+        biasCheckResponse = null;
+      } else {
+        // For approve/revise actions, check for bias only if needed
+        if ((task.taskStatus === 'submittedAndAwaitingReview' || task.taskStatus === 'submittedAndAwaitingApproval') && task.bias_check?.is_bias) {
+          biasCheckResponse = await dispatch(checkTaskReviewBias({
+            taskId: task._id,
+            review: formData.supervisorComment.trim()
+          })).unwrap();
 
-        // If bias is detected, show warning but still allow submission
-        if (biasCheckResponse.data && biasCheckResponse.data.is_bias) {
-          const proceedWithBias = window.confirm(
-            `Potential bias detected: ${biasCheckResponse.data.bias_label}\n\n` +
-            `Reason: ${biasCheckResponse.data.bias_reason}\n\n` +
-            `Do you want to proceed anyway? Consider revising your review to be more objective.`
-          );
+          console.log('Bias check result:', biasCheckResponse);
 
-          if (!proceedWithBias) {
-            setIsSubmitting(false);
-            return;
+          // If bias is detected, show warning but still allow submission
+          if (biasCheckResponse.data && biasCheckResponse.data.is_bias) {
+            const proceedWithBias = window.confirm(
+              `Potential bias detected: ${biasCheckResponse.data.bias_label}\n\n` +
+              `Reason: ${biasCheckResponse.data.bias_reason}\n\n` +
+              `Do you want to proceed anyway? Consider revising your review to be more objective.`
+            );
+
+            if (!proceedWithBias) {
+              setIsSubmitting(false);
+              return;
+            }
           }
         }
       }
@@ -268,10 +288,12 @@ export default function SupervisorReviewingAndApprovalOfTask() {
       };
 
       if (action === 'approve') {
+        // Approve task - change status to inProgress so staff can work on it
         updateData = {
           ...updateData,
-          approvalStatus: 'approved',
           taskStatus: 'inProgress',
+          startDate: new Date(),
+          completedDate: null, // Reset completed date on approval
           bias_check: biasCheckResponse?.data || {
             reviewedWithoutBias: formData.biasReviewCheck,
             reviewDate: new Date().toISOString(),
@@ -279,24 +301,52 @@ export default function SupervisorReviewingAndApprovalOfTask() {
           }
         };
       } else if (action === 'revise') {
-        updateData = {
-          ...updateData,
-          approvalStatus: 'rejected',
-          taskStatus: 'inProgress',
-          bias_check: biasCheckResponse?.data || {
-            reviewedWithoutBias: formData.biasReviewCheck || false,
-            reviewDate: new Date().toISOString(),
-            action: 'rejected'
-          }
-        };
+        // Differentiate between revising different task states
+        if (task.taskStatus === 'completed') {
+          // For completed tasks, request revision - change to revisionInProgress
+          updateData = {
+            ...updateData,
+            taskStatus: 'submissionRejected',
+            bias_check: biasCheckResponse?.data || {
+              reviewedWithoutBias: formData.biasReviewCheck || false,
+              reviewDate: new Date().toISOString(),
+              action: 'revision_requested_on_completed'
+            }
+          };
+        } else if (task.taskStatus === 'submittedAndAwaitingApproval') {
+          // For tasks awaiting approval, reject the approval
+          updateData = {
+            ...updateData,
+            taskStatus: 'approvalRejected',
+            bias_check: biasCheckResponse?.data || {
+              reviewedWithoutBias: formData.biasReviewCheck || false,
+              reviewDate: new Date().toISOString(),
+              action: 'approval_rejected'
+            }
+          };
+        } else if (task.taskStatus === 'submittedAndAwaitingReview') {
+          // For tasks awaiting review, reject the submission
+          updateData = {
+            ...updateData,
+            taskStatus: 'submissionRejected',
+            bias_check: biasCheckResponse?.data || {
+              reviewedWithoutBias: formData.biasReviewCheck || false,
+              reviewDate: new Date().toISOString(),
+              action: 'submission_rejected'
+            }
+          };
+        }
       } else if (action === 'review') {
-        // For reviewing already approved tasks
+        // For reviewing completed tasks or submitted tasks - mark as completed
         updateData = {
           ...updateData,
-          bias_check: biasCheckResponse?.data || {
+          taskStatus: 'completed',
+          completedDate: new Date(),
+          bias_check: {
             reviewedWithoutBias: true,
             reviewDate: new Date().toISOString(),
-            action: 'reviewed'
+            action: 'reviewed',
+            backgroundCheck: true // Flag to indicate bias check is running in background
           }
         };
       }
@@ -306,8 +356,24 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         updateData
       })).unwrap();
 
-      // Show success message
-      const actionText = action === 'approve' ? 'approved' : 'sent for revision';
+      // For completed task reviews (when bias checking is done), redirect immediately to TeamTasks
+      if (action === 'review') {
+        navigate('/reports/tasks');
+        return;
+      }
+
+      // Show success message for approve/revise actions
+      let actionText;
+      if (action === 'approve') {
+        actionText = 'approved';
+      } else if (action === 'revise') {
+        if (task.taskStatus === 'completed') {
+          actionText = 'sent back for revision';
+        } else {
+          actionText = 'sent for revision';
+        }
+      }
+
       showSuccess(
         'Task Updated Successfully',
         `The task has been ${actionText} successfully.`,
@@ -401,42 +467,49 @@ export default function SupervisorReviewingAndApprovalOfTask() {
       </div>
 
       {/* Task Status Alert */}
-      {task.approvalStatus === 'approved' && task.taskStatus === 'inProgress' && (
+      {task.bias_check && task.bias_check.is_bias && (
+        <StatusNotification
+          type="error"
+          message={`⚠️ BIAS DETECTED: ${task.bias_check.bias_label} - ${task.bias_check.bias_reason}`}
+        />
+      )}
+
+      {task.taskStatus === 'inProgress' && (
         <StatusNotification
           type="info"
           message="Staff is currently working on this task."
         />
       )}
 
-      {task.approvalStatus === 'approved' && task.taskStatus === 'completed' && (
+      {task.taskStatus === 'completed' && !task.bias_check?.is_bias && (
         <StatusNotification
           type="success"
-          message="This task has been approved and completed."
+          message="This task has been completed."
         />
       )}
 
-      {task.approvalStatus === 'rejected' && task.taskStatus === 'inProgress' && (
+      {(task.taskStatus === 'approvalRejected' || task.taskStatus === 'submissionRejected') && (
         <StatusNotification
           type="info"
-          message="This task has been rejected and is currently being revised."
+          message="This task has been rejected and is awaiting revision."
         />
       )}
 
-      {task.approvalStatus === 'rejected' && task.taskStatus === 'submitted' && (
+      {task.taskStatus === 'revisionInProgress' && (
         <StatusNotification
           type="info"
-          message="Staff has revised their task and is awaiting your approval."
+          message="Staff is currently revising this task."
         />
       )}
 
-      {task.taskStatus === 'submitted' && task.approvalStatus === 'pending' && (
+      {task.taskStatus === 'submittedAndAwaitingApproval' && (
         <StatusNotification
           type="info"
           message="This is a new task, awaiting your review and approval."
         />
       )}
 
-      {task.taskStatus === 'submitted' && task.approvalStatus === 'approved' && (
+      {task.taskStatus === 'submittedAndAwaitingReview' && !task.bias_check && (
         <StatusNotification
           type="info"
           message="Staff has completed their task and is waiting for your review."
@@ -444,15 +517,55 @@ export default function SupervisorReviewingAndApprovalOfTask() {
       )}
 
       {/* Task Detail Form */}
-      <div className="bg-white rounded shadow p-6">
+      <div className="bg-surface rounded shadow p-6">
         <DynamicForm
           fields={getFormFields(task)}
           showSubmitButton={false}
           className="space-y-6"
           footer={
             <div className="space-y-4">
-              {/* Bias Check Result Display */}
-              {biasCheckResult && biasCheckResult.data && (
+              {/* Existing Bias Check Result Display - Show for completed tasks with bias detected */}
+              {task.bias_check && task.taskStatus === 'completed' && (
+                <div className={`p-4 rounded-lg border-l-4 ${task.bias_check.is_bias
+                  ? 'bg-red-50 border-red-500'
+                  : 'bg-green-50 border-green-500'
+                  }`}>
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0">
+                      {task.bias_check.is_bias ? (
+                        <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                    <div className="ml-3">
+                      <h4 className={`text-sm font-medium ${task.bias_check.is_bias ? 'text-red-800' : 'text-green-800'
+                        }`}>
+                        Previous Bias Check Result: {task.bias_check.is_bias ? 'Bias Detected' : 'No Bias Detected'}
+                      </h4>
+                      {task.bias_check.is_bias && (
+                        <div className="mt-2 text-sm text-red-700">
+                          <p><strong>Type:</strong> {task.bias_check.bias_label}</p>
+                          <p><strong>Reason:</strong> {task.bias_check.bias_reason}</p>
+                          <p className="mt-2 text-orange-700"><strong>Action Required:</strong> Please review your comments and consider providing a more objective evaluation.</p>
+                        </div>
+                      )}
+                      {!task.bias_check.is_bias && (
+                        <p className="mt-1 text-sm text-green-700">
+                          Your previous review was objective and unbiased.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Current Bias Check Result Display - Show during live bias checking */}
+              {biasCheckResult && biasCheckResult.data && task.taskStatus === 'submitted' && (
                 <div className={`p-4 rounded-lg border-l-4 ${biasCheckResult.data.is_bias
                   ? 'bg-red-50 border-red-500'
                   : 'bg-green-50 border-green-500'
@@ -472,7 +585,7 @@ export default function SupervisorReviewingAndApprovalOfTask() {
                     <div className="ml-3">
                       <h4 className={`text-sm font-medium ${biasCheckResult.data.is_bias ? 'text-red-800' : 'text-green-800'
                         }`}>
-                        Bias Check Result: {biasCheckResult.data.is_bias ? 'Bias Detected' : 'No Bias Detected'}
+                        Current Bias Check Result: {biasCheckResult.data.is_bias ? 'Bias Detected' : 'No Bias Detected'}
                       </h4>
                       {biasCheckResult.data.is_bias && (
                         <div className="mt-2 text-sm text-red-700">
@@ -491,7 +604,8 @@ export default function SupervisorReviewingAndApprovalOfTask() {
               )}
 
               <div className="flex justify-end space-x-2">
-                {task.approvalStatus !== 'approved' && task.taskStatus === 'submitted' && (
+                {/* For new tasks awaiting approval */}
+                {task.taskStatus === 'submittedAndAwaitingApproval' && (
                   <>
                     <button
                       type="button"
@@ -511,8 +625,40 @@ export default function SupervisorReviewingAndApprovalOfTask() {
                     </button>
                   </>
                 )}
-                {task.approvalStatus === 'approved' && task.taskStatus === 'submitted' && (
+
+                {/* For completed tasks with bias detected - allow re-review and revision */}
+                {task.taskStatus === 'completed' && task.bias_check?.is_bias && (
                   <>
+                    <button
+                      type="button"
+                      onClick={() => handleButtonAction('revise')}
+                      className="btn-outline"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Processing...' : 'Request Revision'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleButtonAction('review')}
+                      className="btn-secondary bg-orange-600 hover:bg-orange-700"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Processing...' : 'Re-Review Task'}
+                    </button>
+                  </>
+                )}
+
+                {/* For tasks awaiting review */}
+                {task.taskStatus === 'submittedAndAwaitingReview' && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleButtonAction('revise')}
+                      className="btn-outline"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Processing...' : 'Request Revision'}
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleButtonAction('review')}
@@ -522,11 +668,6 @@ export default function SupervisorReviewingAndApprovalOfTask() {
                       {isSubmitting ? 'Processing...' : 'Submit Review'}
                     </button>
                   </>
-                )}
-                {task.approvalStatus !== 'pending' && task.taskStatus === 'completed' && (
-                  <div className="text-sm text-gray-500">
-                    This task has already been {task.approvalStatus === 'approved' ? 'approved' : 'rejected'}.
-                  </div>
                 )}
               </div>
             </div>

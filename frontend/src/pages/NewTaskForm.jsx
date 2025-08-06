@@ -53,12 +53,21 @@ export default function NewTaskForm() {
     },
     {
       type: 'number',
-      name: 'amount',
-      label: 'Amount',
-      placeholder: 'Enter amount',
+      name: 'targetAmount',
+      label: 'Target Amount',
+      placeholder: 'Enter target amount',
       group: 'amounts', // low level field in the group
       isDynamic: true, // Enable dynamic add/remove functionality
       position: 'center', // Position at the bottom of the group
+    },
+    {
+      type: 'number',
+      name: 'achievedAmount',
+      label: 'Achieved Amount',
+      placeholder: 'Enter achieved amount (optional)',
+      group: 'amounts', // low level field in the group
+      isDynamic: true, // Enable dynamic add/remove functionality
+      position: 'bottom', // Position at the bottom of the group
     }
   ];
 
@@ -78,13 +87,13 @@ export default function NewTaskForm() {
         description: formData.taskDescription,
         kpis: formData.amounts.map(activity => ({
           kpiTitle: Array.isArray(activity.kpiTitle) ? activity.kpiTitle[0] : activity.kpiTitle,
-          amount: Array.isArray(activity.amount) ? activity.amount[0] : activity.amount,
+          targetAmount: Array.isArray(activity.targetAmount) ? activity.targetAmount[0] : activity.targetAmount,
+          achievedAmount: Array.isArray(activity.achievedAmount) ? activity.achievedAmount[0] : (activity.achievedAmount || 0),
           operator: Array.isArray(activity.operator) ? activity.operator[0] : activity.operator
         })),
         score: 0, // Default score
         evidence: '', // Default empty evidence
-        taskStatus: 'draft',
-        approvalStatus: 'draft'
+        taskStatus: 'draft'
       };
 
       console.log('Task Data:', taskData);
@@ -123,8 +132,8 @@ export default function NewTaskForm() {
 
 
   return (
-    <div className="bg-[#EEEBDD] min-h-screen px-4 py-6 text-[#1B1717]">
-      <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md border border-[#CE1212] p-6">
+    <div className="bg-background min-h-screen px-4 py-6 text-[#1B1717]">
+      <div className="max-w-xl mx-auto bg-surface rounded-lg shadow-md border border-primary p-6">
         <DynamicForm
           title="Create New Task"
           subtitle="Fill in the details below to create a new task"

@@ -33,9 +33,9 @@ export default function Navbar() {
     const navigationItems = roleNavItems[userRole] || [];
 
     return (
-        <header className="bg-white shadow mb-8">
+        <header className="bg-primary text-white shadow mb-8">
             <div className="container mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h1 className="text-xl font-bold text-indigo-700">TeraVince</h1>
+                <h1 className="text-xl font-bold text-white-700">TeraVince</h1>
                 <nav className="flex max-lg:flex-col justify-center sm:justify-end gap-2 text-sm max-w-full overflow-x-auto">
                     {navigationItems.map(item => (
                         <NavLink
@@ -43,8 +43,8 @@ export default function Navbar() {
                             to={item.path}
                             className={({ isActive }) =>
                                 `px-2 py-1 whitespace-nowrap ${isActive
-                                    ? 'text-indigo-700 font-semibold'
-                                    : 'text-gray-600 hover:text-indigo-500'
+                                    ? 'text-white-700 font-semibold'
+                                    : 'text-gray-200 hover:text-white-500'
                                 }`
                             }
                         >

@@ -310,7 +310,7 @@ export default function ViewTask() {
       defaultValue: task ? getDisplayTaskStatus(task.taskStatus) : '',
       disabled: true
     },
-    ...(task?.taskStatus !== 'draft' ? [{
+    ...(task?.taskStatus === 'completed' ? [{
       type: 'textarea',
       name: 'supervisorComment',
       label: 'Supervisor Comment',
@@ -318,7 +318,7 @@ export default function ViewTask() {
       defaultValue: task ? task.supervisorComment : 'Waiting for review',
       disabled: true
     }] : []),
-    ...(task?.taskStatus !== 'draft' ? [{
+    ...(task?.taskStatus === 'completed' ? [{
       type: 'number',
       name: 'score',
       label: 'Score',

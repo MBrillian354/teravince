@@ -26,6 +26,33 @@ router.post('/reset-password/:token', authController.resetPassword);
 // User profile routes (requires authentication)
 router.get('/me', verifyToken, authController.getUserData);
 
+// OAuth user data endpoint (for post-OAuth user data retrieval)
+router.get('/oauth/user', verifyToken, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id).select('-password').populate('jobId', 'title');
+    
+    const userData = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      jobTitle: user.jobId ? user.jobId.title : 'Unassigned',
+      jobId: user.jobId ? user.jobId.toString() : null,
+      address: user.address,
+      contactInfo: user.contactInfo,
+      profilePicture: user.profilePicture,
+      isVerified: user.isVerified
+    };
+    
+    res.json({ user: userData });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Failed to retrieve user data' });
+  }
+});
+
 // ==========================================
 // Google OAuth Routes (if configured)
 // ==========================================
@@ -44,7 +71,26 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
-      res.redirect(`${process.env.CLIENT_URL}/oauth-callback?token=${token}`);
+      
+      // Prepare user data similar to login response
+      const userData = {
+        id: req.user._id,
+        email: req.user.email,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        role: req.user.role,
+        jobTitle: req.user.jobId ? req.user.jobId.title : 'Unassigned',
+        jobId: req.user.jobId ? req.user.jobId.toString() : null,
+        address: req.user.address,
+        contactInfo: req.user.contactInfo,
+        profilePicture: req.user.profilePicture,
+        isVerified: req.user.isVerified
+      };
+      
+      // Encode user data as base64 to include in URL
+      const encodedUserData = Buffer.from(JSON.stringify(userData)).toString('base64');
+      
+      res.redirect(`${process.env.CLIENT_URL}/oauth-callback?token=${token}&user=${encodedUserData}`);
     }
   );
 } else {

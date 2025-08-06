@@ -15,6 +15,7 @@ export default function Reports() {
   const [sortBy, setSortBy] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
   const totalPages = 11;
+  const [selectedMonth, setSelectedMonth] = useState('All');
 
   // ─── Fetch Data from Backend ─────────────────────────────
   useEffect(() => {
@@ -41,8 +42,11 @@ export default function Reports() {
   const upcomingCount = reports.filter(r => r.status === 'awaitingReview').length;
   const finishedCount = reports.filter(r => r.status === 'completed').length;
 
-  // Ambil tanggal hari ini sebagai deadline bulan ini
-  const formattedDeadline = new Date().toLocaleDateString('en-US', {
+  // Ambil tanggal terakhir di bulan ini sebagai deadline
+  const today = new Date();
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+  const formattedDeadline = endOfMonth.toLocaleDateString('en-US', {
     day: '2-digit',
     month: 'long',
     year: 'numeric'
@@ -61,19 +65,21 @@ export default function Reports() {
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  const transformedData = reports.map((r) => {
-    const date = new Date(`${r.period}-01`);
-    const monthName = date.toLocaleString('default', { month: 'long' });
-    return {
-      reportId: r._id,
-      employeeId: r.userId?._id || '',
-      name: `${r.userId?.firstName || ''} ${r.userId?.lastName || ''}`,
-      month: monthName,
-      jobTitle: r.userId?.jobTitle || 'N/A',
-      score: `${r.score}/100`,
-      status: r.status === 'awaitingReview' ? 'Awaiting Review' : 'Completed',
-    };
-  });
+  const transformedData = reports
+    .map((r) => {
+      const date = new Date(`${r.period}-01`);
+      const monthName = date.toLocaleString('default', { month: 'long' });
+      return {
+        reportId: r._id,
+        employeeId: r.userId?._id || '',
+        name: `${r.userId?.firstName || ''} ${r.userId?.lastName || ''}`,
+        month: monthName,
+        jobTitle: r.userId?.jobTitle || 'N/A',
+        score: `${r.score}/100`,
+        status: r.status === 'awaitingReview' ? 'Awaiting Review' : 'Completed',
+      };
+    })
+    .filter((item) => selectedMonth === 'All' || item.month === selectedMonth);
 
   // ─── Sorting Logic ────────────────────────────────────────
   const sortedData = [...transformedData].sort((a, b) => {
@@ -153,6 +159,22 @@ export default function Reports() {
     <div className="container mx-auto px-4">
       <h1 className="text-3xl font-bold mb-4">Reports, Jobs, and Tasks</h1>
       <TasksReportsTabs />
+
+      <div className="mb-4 flex justify-end">
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 text-sm"
+        >
+          <option value="All">All Months</option>
+          {monthOrder.map((month) => (
+            <option key={month} value={month}>
+              {month}
+            </option>
+          ))}
+        </select>
+      </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {cards.map((c) => (

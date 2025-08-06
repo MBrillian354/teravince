@@ -22,7 +22,6 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           name: profile.displayName,
           firstName,
           lastName,
-          role: 'staff',
           isVerified: true,
         });
       }

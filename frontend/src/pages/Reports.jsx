@@ -1,42 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchReports } from '../store/supervisorSlice';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import TasksReportsTabs from '../components/TasksReportsTabs';
 import StatsCard from '../components/StatsCard';
 import DataTable from '../components/DataTable';
 import Pagination from '../components/Pagination';
-import axios from 'axios';
 
 export default function Reports() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [page, setPage] = useState(1);
-  const [reports, setReports] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
   const totalPages = 11;
   const [selectedMonth, setSelectedMonth] = useState('All');
+  const { reports, reportsLoading, reportsError } = useSelector(state => state.supervisor);
 
-  // ─── Fetch Data from Backend ─────────────────────────────
+  // ─── Fetch Data from Backend (Redux) ─────────────────────────────
   useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('/api/reports', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setReports(response.data);
-      } catch (error) {
-        console.error('Failed to fetch reports', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReports();
-  }, []);
+    dispatch(fetchReports());
+  }, [dispatch]);
 
   // Statistik dari laporan
   const upcomingCount = reports.filter(r => r.status === 'awaitingReview').length;
@@ -102,11 +87,6 @@ export default function Reports() {
 
   // ─── Table Columns ───────────────────────────────────────
   const columns = [
-    {
-      header: '',
-      render: () => <input type="checkbox" className="form-checkbox" />,
-      align: 'center',
-    },
     {
       header: 'Employee Name',
       render: row => (
@@ -182,8 +162,10 @@ export default function Reports() {
         ))}
       </div>
 
-      {loading ? (
+      {reportsLoading ? (
         <div className="text-center py-10">Loading reports...</div>
+      ) : reportsError ? (
+        <div className="text-center py-10 text-red-500">{reportsError}</div>
       ) : (
         <DataTable
           columns={columns}
@@ -192,7 +174,7 @@ export default function Reports() {
           containerClass="bg-white rounded mb-4"
           onRowClick={({ reportId }) => navigate(`/report/${reportId}`)}
           variant='gradient'
-      />
+        />
       )}
 
       <Pagination

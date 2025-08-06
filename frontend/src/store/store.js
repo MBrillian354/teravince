@@ -11,6 +11,6 @@ export const store = configureStore({
         staff: staffReducer,
         supervisor: supervisorReducer,
         modal: modalReducer,
-        user: userReducer
+        user: userReducer,
     }
 });

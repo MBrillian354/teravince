@@ -1,5 +1,23 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { dashboardAPI, tasksAPI, biasAPI } from "../utils/api";
+import axios from 'axios';
+// Async thunk for fetching reports
+export const fetchReports = createAsyncThunk(
+  'supervisor/fetchReports',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/reports', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.msg || 'Failed to fetch reports');
+    }
+  }
+);
 
 // Async thunk for fetching supervisor dashboard data
 export const fetchSupervisorDashboard = createAsyncThunk(
@@ -82,7 +100,11 @@ const initialState = {
     currentTaskForReview: null,
     biasCheckResult: null,
     isLoading: false,
-    error: null
+    error: null,
+    // Reports state
+    reports: [],
+    reportsLoading: false,
+    reportsError: null,
 };
 
 const supervisorSlice = createSlice({
@@ -120,6 +142,19 @@ const supervisorSlice = createSlice({
             .addCase(fetchSupervisorDashboard.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
+            })
+            // Fetch reports
+            .addCase(fetchReports.pending, (state) => {
+                state.reportsLoading = true;
+                state.reportsError = null;
+            })
+            .addCase(fetchReports.fulfilled, (state, action) => {
+                state.reportsLoading = false;
+                state.reports = action.payload;
+            })
+            .addCase(fetchReports.rejected, (state, action) => {
+                state.reportsLoading = false;
+                state.reportsError = action.payload;
             })
             // Fetch all tasks
             .addCase(fetchAllTasks.pending, (state) => {

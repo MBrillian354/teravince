@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export const accountsAPI = {
   // Upload user profilePicture
   uploadPhoto: (id, formData) => {
     return axios.create({
-      baseURL: '/api',
+      baseURL: import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : '/api',
       timeout: 10000,
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -117,7 +117,7 @@ export const tasksAPI = {
   // Upload evidence file
   uploadEvidence: (id, formData) => {
     return axios.create({
-      baseURL: '/api',
+      baseURL: import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : '/api',
       timeout: 10000,
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,

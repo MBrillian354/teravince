@@ -1,13 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { dashboardAPI, tasksAPI, biasAPI } from "../utils/api";
 import axios from 'axios';
+
+// Helper function to get the correct API base URL
+const getApiBaseUrl = () => {
+  return import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : '/api';
+};
+
 // Async thunk for fetching reports
 export const fetchReports = createAsyncThunk(
   'supervisor/fetchReports',
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/api/reports', {
+      const response = await axios.get(`${getApiBaseUrl()}/reports`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -25,7 +31,7 @@ export const fetchReportById = createAsyncThunk(
   async (reportId, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`/api/reports/${reportId}`, {
+      const response = await axios.get(`${getApiBaseUrl()}/reports/${reportId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -43,7 +49,7 @@ export const fetchReportTasks = createAsyncThunk(
   async (reportId, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`/api/reports/${reportId}/tasks`, {
+      const response = await axios.get(`${getApiBaseUrl()}/reports/${reportId}/tasks`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -61,7 +67,7 @@ export const generateMonthlyReports = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('/api/reports/generate-monthly', {}, {
+      const response = await axios.post(`${getApiBaseUrl()}/reports/generate-monthly`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -79,7 +85,7 @@ export const updateReport = createAsyncThunk(
   async ({ reportId, updateData }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.patch(`/api/reports/${reportId}`, updateData, {
+      const response = await axios.patch(`${getApiBaseUrl()}/reports/${reportId}`, updateData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',

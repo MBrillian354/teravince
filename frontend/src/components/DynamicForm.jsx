@@ -180,7 +180,7 @@ const DynamicForm = ({
       required = false,
       options = [],
       hint = '',
-      className: fieldClassName = '',
+      className: fieldClassName = 'bg-white',
       disabled = false,
       rows = 3,
       href = '',
@@ -427,7 +427,7 @@ const DynamicForm = ({
 
               return (
                 <div key={`${group}-${groupIndex}`} className="relative">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 pb-8 border-b-2 border-gray-200">
                     <div className="flex-1 space-y-4">
                       {/* Top positioned fields */}
                       {renderFieldsByPosition(topFields, 'order-1')}
@@ -457,7 +457,7 @@ const DynamicForm = ({
             <button
               type="button"
               onClick={() => addDynamicGroup(group)}
-              className="flex items-center justify-center w-full mt-8 p-3 border-2 border-dashed border-gray-400 rounded-lg text-gray-600 hover:text-gray-800 hover:border-gray-500 hover:cursor-pointer transition-colors"
+              className="flex items-center justify-center w-full mt-8 p-3 border border-dashed border-gray-400 rounded-md text-gray-600 hover:text-gray-800 hover:border-gray-500 hover:cursor-pointer transition-colors"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

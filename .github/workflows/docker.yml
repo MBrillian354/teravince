@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Teravince
+    - name: Checkout Repository
       uses: actions/checkout@v3
 
     - name: Log in to Docker Hub
@@ -18,18 +18,20 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and push backend image
+    - name: Build and Push Backend Docker Image
       uses: docker/build-push-action@v4
       with:
         context: ./backend
         file: ./backend/Dockerfile
         push: true
-        tags: MBrillian354/backend:latest
+        pull: true
+        tags: ussoppqq/backend-teravince:latest
 
-    - name: Build and push frontend image
+    - name: Build and Push Frontend Docker Image
       uses: docker/build-push-action@v4
       with:
         context: ./frontend
         file: ./frontend/Dockerfile
         push: true
-        tags: MBrillian354/frontend:latest
+        pull: true
+        tags: ussoppqq/frontend-teravince:latest

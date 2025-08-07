@@ -9,40 +9,49 @@ import NewUserProtectedRoute from './components/NewUserProtectedRoute';
 import { authService } from './utils/authService';
 import Root from './components/Root';
 
-import SignUp from './pages/Signup';
-import ForgotPassword from './pages/ForgotPassword';
+// Auth imports
+import SignUp from './pages/auth/Signup';
+import ForgotPassword from './pages/auth/ForgotPassword';
 
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
-import TasksPage from './pages/TasksPage';
-import ManageJobs from './pages/ManageJobs';
-import NewJobForm from './pages/NewJobForm';
-import EditJobForm from './pages/EditJobForm';
-import ManageAccounts from './pages/ManageAccounts';
-import NewAccountForm from './pages/NewAccountForm';
-import EditAccount from './pages/EditAccount';
-import MyStaffs from './pages/MyStaffs.jsx';
-import TeamReports from './pages/TeamReports.jsx';
-import JobDescription from './pages/JobDescription';
-import StaffReport from './pages/StaffReport.jsx';
-import StaffDetail from './pages/StaffDetail.jsx';
-import NewTaskForm from './pages/NewTaskForm';
-import EditTaskForm from './pages/EditTaskForm';
-import ViewTask from './pages/ViewTask.jsx';
+// Protected imports
+import Dashboard from './pages/protected/Dashboard';
+import Profile from './pages/protected/Profile';
 
-import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
-import TermsAndConditions from './pages/TermsAndConditions.jsx';
-import CookiePolicy from './pages/CookiePolicy.jsx';
+// Admin imports
+import ManageJobs from './pages/admin/ManageJobs';
+import NewJobForm from './pages/admin/NewJobForm';
+import EditJobForm from './pages/admin/EditJobForm';
+import ManageAccounts from './pages/admin/ManageAccounts';
+import NewAccountForm from './pages/admin/NewAccountForm';
+import EditAccount from './pages/admin/EditAccount';
+
+// Supervisor imports
+import MyStaffs from './pages/supervisor/MyStaffs.jsx';
+import TeamReports from './pages/supervisor/TeamReports.jsx';
+import JobDescription from './pages/supervisor/JobDescription';
+import StaffReport from './pages/supervisor/StaffReport.jsx';
+import StaffDetail from './pages/supervisor/StaffDetail.jsx';
+
+// Staff imports
+import TasksPage from './pages/protected/TasksPage';
+import NewTaskForm from './pages/staff/NewTaskForm';
+import EditTaskForm from './pages/staff/EditTaskForm';
+import ViewTask from './pages/staff/ViewTask.jsx';
+
+// Public imports
+import PrivacyPolicy from './pages/public/PrivacyPolicy.jsx';
+import TermsAndConditions from './pages/public/TermsAndConditions.jsx';
+import CookiePolicy from './pages/public/CookiePolicy.jsx';
 import SimpleModalDemo from './components/SimpleModalDemo';
 
-import NewUserRoleConfirmation from './pages/NewUserRoleConfirmation';
-import NewUserJobConfirmation from './pages/NewUserJobConfirmation';
-import ManageTasks from './pages/ManageTasks';
-import SupervisorReviewingAndApprovalOfTask from './pages/SupervisorReviewingAndApprovalOfTask';
-import JobDetails from './pages/JobDetails';
-import TeamTasks from './pages/TeamTasks';
+import NewUserRoleConfirmation from './pages/public/NewUserRoleConfirmation';
+import NewUserJobConfirmation from './pages/public/NewUserJobConfirmation';
+import ManageTasks from './pages/staff/ManageTasks';
+import SupervisorReviewingAndApprovalOfTask from './pages/supervisor/SupervisorReviewingAndApprovalOfTask';
+import JobDetails from './pages/supervisor/JobDetails';
+import TeamTasks from './pages/supervisor/TeamTasks';
 import StatusBadgeDemo from './components/StatusBadgeDemo';
-import OAuthSuccess from './pages/OauthSuccess';
+import OAuthSuccess from './pages/auth/OauthSuccess';
 
 // Auth Routes Component
 function AuthRoutes() {

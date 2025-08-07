@@ -141,13 +141,13 @@ const ManageJobs = () => {
         <div className="flex space-x-2">
           <Link
             to={`/jobs/${row.id}/edit`}
-            className="btn-primary"
+            className="btn-primary text-xs"
             onClick={e => e.stopPropagation()}
           >
             Edit
           </Link>
           <button
-            className="btn-danger"
+            className="btn-danger text-xs"
             onClick={e => {
               e.stopPropagation();
               handleDeleteJob(row.id, row.title);
@@ -158,7 +158,7 @@ const ManageJobs = () => {
           </button>
           {row.status === 'draft' && (
             <button
-              className="btn-success"
+              className="btn-success text-xs"
               onClick={e => {
                 e.stopPropagation();
                 handlePublishJob(row.id, row.title);

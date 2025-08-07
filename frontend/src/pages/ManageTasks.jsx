@@ -123,9 +123,9 @@ export default function ManageTasks() {
   // Helper functions for button visibility
   const canEditTask = (task) => {
     const editableStatuses = ["Draft", "Approval Rejected", "Revision In Progress"];
-    return editableStatuses.includes(task.taskStatus) && 
-           task.taskStatus !== "Submission Rejected" && 
-           !task.submitted;
+    return editableStatuses.includes(task.taskStatus) &&
+      task.taskStatus !== "Submission Rejected" &&
+      !task.submitted;
   };
 
   const canViewTask = (task) => {
@@ -183,13 +183,13 @@ export default function ManageTasks() {
             <>
               <button
                 onClick={() => handleEdit(task.taskId)}
-                className={`flex items-center gap-1 bg-gray-100 hover:bg-gray-200 ${COLORS.TERTIARY} px-2 py-1 rounded text-xs border border-[#1B1717]`}
+                className={`btn-outline flex items-center gap-2 text-xs`}
               >
                 <Edit2 className="w-3 h-3" /> Edit
               </button>
               <button
                 onClick={() => handleDelete(task.taskId)}
-                className={`flex items-center gap-1 bg-gray-100 hover:bg-gray-200 ${COLORS.TERTIARY} px-2 py-1 rounded text-xs border border-[#1B1717]`}
+                className={`btn-outline flex items-center gap-2 text-xs`}
               >
                 <Trash2 className="w-3 h-3" /> Delete
               </button>
@@ -241,7 +241,7 @@ export default function ManageTasks() {
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 w-full mx-auto">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-6">
           <h1 className="page-title">Manage Tasks</h1>
           <AddTaskButton onClick={() => navigate("/tasks/new")} />
         </div>
@@ -298,20 +298,10 @@ export default function ManageTasks() {
 
         {/* Show content with loading overlay when no initial error */}
         {(!error && tasks.length === 0 && !isLoading) && (
-          <>
-            {/* Summary Cards */}
-            <SummaryCards tasks={[]} />
 
-            {/* Add Task Button */}
-            <div className="flex justify-end">
-              <AddTaskButton onClick={() => navigate("/tasks/new")} />
-            </div>
-
-            {/* No tasks message */}
-            <div className="card-outline mb-4 border-red-800 text-center my-4">
-              <p>No tasks found. Start by creating your first task!</p>
-            </div>
-          </>
+          <div className="card-outline mb-4 border-red-800 text-center my-4">
+            <p>No tasks found. Start by creating your first task!</p>
+          </div>
         )}
       </main>
     </div>

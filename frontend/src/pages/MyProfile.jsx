@@ -198,7 +198,7 @@ export default function MyProfile() {
   return (
     <div className="container mx-auto px-4">
       {/* Page title */}
-      <h1 className="page-title">My Profile</h1>
+      <h1 className="page-title mb-6">My Profile</h1>
 
       {/* Error/Success Messages */}
       {error && (

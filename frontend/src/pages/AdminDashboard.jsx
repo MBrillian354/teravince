@@ -21,7 +21,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <div className="flex justify-between items-center my-4">
+      <div className="flex justify-between items-center my-6">
         <h1 className="page-title">
           Welcome back, <span className="underline">Admin</span>.
         </h1>

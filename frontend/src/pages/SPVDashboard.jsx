@@ -58,7 +58,7 @@ export default function SPVDashboard() {
   return (
     <div className="container mx-auto px-4">
       {/* Big header */}
-      <h1 className="page-title">
+      <h1 className="page-title mb-6">
         Welcome back, <span className="underline">Supervisor</span>.
       </h1>
 

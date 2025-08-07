@@ -16,7 +16,7 @@ const StaffDashboard = () => {
 
   return (
     <div className={containerStyle}>
-      <div className="flex justify-between items-center my-4">
+      <div className="flex justify-between items-center my-6">
         <h1 className="page-title">
           Welcome back, <span className="underline">{staff.firstName + ' ' + staff.lastName}</span>.
         </h1>

@@ -102,20 +102,8 @@ export default function EditTaskForm() {
       group: 'amounts', // low level field in the group
       isDynamic: true, // Enable dynamic add/remove functionality
       position: 'center', // Position at the bottom of the group
-      // PERBAIKAN: defaultValue tidak perlu diset di sini untuk field dinamis
       defaultValue: '',
     },
-    {
-      type: 'number',
-      name: 'achievedAmount',
-      label: 'Achieved Amount',
-      placeholder: 'Enter achieved amount (optional)',
-      group: 'amounts', // low level field in the group
-      isDynamic: true, // Enable dynamic add/remove functionality
-      position: 'bottom', // Position at the bottom of the group
-      // PERBAIKAN: defaultValue tidak perlu diset di sini untuk field dinamis
-      defaultValue: '',
-    }
   ];
 
   const handleSubmit = async (formData) => {

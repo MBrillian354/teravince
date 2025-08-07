@@ -186,7 +186,7 @@ h1 {
 
 /* Other utility classes */
 @utility page-title {
-  @apply text-3xl font-bold text-gray-800 mb-6;
+  @apply text-3xl font-bold text-gray-800;
 }
 
 @utility btn-success {

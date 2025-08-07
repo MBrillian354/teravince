@@ -97,13 +97,13 @@ const ManageAccounts = () => {
         <div className="flex space-x-2">
           <Link
             to={`/accounts/${row.id}/edit`}
-            className="btn-primary"
+            className="btn-primary text-xs"
             onClick={e => e.stopPropagation()}
           >
             Edit
           </Link>
           <button
-            className="btn-danger"
+            className="btn-danger text-xs"
             onClick={e => {
               e.stopPropagation();
               handleDeleteAccount(row.id, `${row.firstName} ${row.lastName}`);

@@ -8,14 +8,14 @@
   --color-danger: #810000;
   --color-secondary: #1B1717;
   --color-accent: #DBDBDB;
-  
+
   /* Semantic colors based on theme palette */
   --color-surface: #ffffff;
   --color-surface-hover: #f9fafb;
   --color-muted: #f3f4f6;
   --color-muted-hover: #e5e7eb;
   --color-subtle: #f9f9f9;
-  
+
   /* Status colors using theme-appropriate shades */
   --color-success: #059669;
   --color-success-light: #d1fae5;
@@ -187,6 +187,10 @@ h1 {
 /* Other utility classes */
 @utility page-title {
   @apply text-3xl font-bold text-gray-800;
+}
+
+@utility page-subtitle {
+  @apply text-gray-800 text-xl font-montserrat font-semibold;
 }
 
 @utility btn-success {

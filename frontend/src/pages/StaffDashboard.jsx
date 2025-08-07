@@ -20,7 +20,7 @@ const StaffDashboard = () => {
         <h1 className="page-title">
           Welcome back, <span className="underline">{staff.firstName + ' ' + staff.lastName}</span>.
         </h1>
-        <h2 className='text-black text-xl font-montserrat font-semibold'>{staff.jobId.title}</h2>
+        <h2 className='page-subtitle'>{staff.jobId.title}</h2>
       </div>
 
       {/* Main Dashboard Section */}

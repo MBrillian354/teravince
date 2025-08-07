@@ -6,26 +6,36 @@ const Job = require('../models/Job');
 // Staff Dashboard
 exports.staffDashboard = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { month, year } = req.query;
-
+    const { month, year, userId } = req.query;
+    console.log('User ID:', userId);
     const allReports = await Report.find({ userId });
 
-    const filteredPeriod = month && year ? `${year}-${month.toString().padStart(2, '0')}` : null;
-    const selectedReport = filteredPeriod
-      ? await Report.findOne({ userId, period: filteredPeriod })
-      : allReports[allReports.length - 1];
+    // Handle period filtering - since period is stored as Date in the model
+    let selectedReport = null;
+    if (month && year) {
+      const startDate = new Date(`${year}-${month.toString().padStart(2, '0')}-01`);
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 1);
+
+      selectedReport = await Report.findOne({
+        userId,
+        period: { $gte: startDate, $lt: endDate }
+      });
+    } else {
+      // Get the most recent report
+      selectedReport = allReports[allReports.length - 1];
+    }
 
     const currentYear = new Date().getFullYear();
-    const thisYearReports = allReports.filter(r => parseInt(r.period.slice(0, 4)) === currentYear);
-    const lastYearReports = allReports.filter(r => parseInt(r.period.slice(0, 4)) === currentYear - 1);
+    const thisYearReports = allReports.filter(r => new Date(r.period).getFullYear() === currentYear);
+    const lastYearReports = allReports.filter(r => new Date(r.period).getFullYear() === currentYear - 1);
 
     const thisYearAvg = thisYearReports.reduce((s, r) => s + r.score, 0) / (thisYearReports.length || 1);
     const lastYearAvg = lastYearReports.reduce((s, r) => s + r.score, 0) / (lastYearReports.length || 1);
     const growthRate = ((thisYearAvg - lastYearAvg) / (lastYearAvg || 1)) * 100;
 
     const tasks = await Task.find({ userId }).sort({ createdAt: -1 });
-
+    console.log('Tasks:', tasks);
     const activityRecap = await Task.aggregate([
       { $match: { userId: req.user._id } },
       {

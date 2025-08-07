@@ -161,8 +161,7 @@ export default function MyStaffs() {
 
 
         {/* Right: two date inputs, each with its own label */}
-        <div className="flex space-x-6">
-          {/* Start Date */}
+        {/* <div className="flex space-x-6">
           <div className="flex flex-col">
             <label htmlFor="start-date" className="text-sm text-gray-600 mb-1">
               Contract Start Date
@@ -175,7 +174,6 @@ export default function MyStaffs() {
               className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
-          {/* End Date */}
           <div className="flex flex-col">
             <label htmlFor="end-date" className="text-sm text-gray-600 mb-1">
               Contract End Date
@@ -189,7 +187,10 @@ export default function MyStaffs() {
               className="w-36 px-2 py-1 text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
-        </div>
+        </div> */}
+
+
+        
       </div>
 
 

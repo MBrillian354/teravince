@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api, { tasksAPI } from "../utils/api";
+import api, { tasksAPI, dashboardAPI } from "../utils/api";
 
 // Async thunks for task operations
 export const fetchTasks = createAsyncThunk(
@@ -62,9 +62,30 @@ export const createTask = createAsyncThunk(
   }
 );
 
+// Async thunk for fetching staff dashboard data
+export const fetchStaffDashboard = createAsyncThunk(
+  'staff/fetchDashboard',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      console.log(params)
+      const response = await dashboardAPI.getStaffDashboard(params);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.msg || 'Failed to fetch staff dashboard');
+    }
+  }
+);
+
 const initialState = {
   tasks: [],
   currentTask: null,
+  dashboardData: {
+    performanceScore: 0,
+    performanceFeedback: '',
+    growthRate: 0,
+    activityRecap: [],
+    history: []
+  },
   isLoading: false,
   error: null
 };
@@ -150,6 +171,19 @@ const staffSlice = createSlice({
         state.tasks.push(action.payload);
       })
       .addCase(createTask.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch staff dashboard
+      .addCase(fetchStaffDashboard.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchStaffDashboard.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.dashboardData = action.payload;
+      })
+      .addCase(fetchStaffDashboard.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });

@@ -1,0 +1,20 @@
+version: '3'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    restart: always
+    networks:
+      - fullstack
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    restart: always
+    networks:
+      - fullstack
+
+networks:
+  fullstack:

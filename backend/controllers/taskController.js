@@ -318,7 +318,7 @@ exports.createTask = async (req, res) => {
       score,
       evidence,
       startDate,
-      endDate,
+      completedDate,
       taskStatus,
       supervisorComment
     } = req.body;
@@ -353,7 +353,7 @@ exports.createTask = async (req, res) => {
       score: score || 0,
       evidence: evidence || '',
       startDate,
-      endDate,
+      completedDate,
       taskStatus: taskStatus || 'draft',
       supervisorComment
     });

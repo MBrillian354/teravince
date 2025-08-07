@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Edit2, Trash2, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
@@ -8,6 +8,53 @@ import { tasksAPI } from "../utils/api";
 import authService from "../utils/authService";
 import { fetchTasksByUserId, clearError } from '../store/staffSlice';
 import { getDisplayTaskStatus } from '../utils/statusStyles';
+
+// Constants
+const COLORS = {
+  PRIMARY: 'text-[#810000]',
+  SECONDARY: 'text-[#CE1212]',
+  TERTIARY: 'text-[#1B1717]'
+};
+
+const SUMMARY_CARDS_CONFIG = [
+  { title: "Total Tasks", color: COLORS.PRIMARY },
+  { title: "Ongoing", color: COLORS.SECONDARY, filterFn: (t) => t.taskStatus === "In Progress" },
+  { title: "Under Review", color: COLORS.TERTIARY, filterFn: (t) => t.taskStatus === "Awaiting Review" || t.taskStatus === "Awaiting Approval" },
+  { title: "Completed", color: COLORS.PRIMARY, filterFn: (t) => t.taskStatus === "Completed" },
+];
+
+// Reusable SummaryCards component
+const SummaryCards = ({ tasks }) => {
+  const getSummaryData = () => {
+    return SUMMARY_CARDS_CONFIG.map(config => ({
+      ...config,
+      count: config.filterFn ? tasks.filter(config.filterFn).length : tasks.length
+    }));
+  };
+
+  return (
+    <div className="mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {getSummaryData().map((card, i) => (
+          <div key={i} className="card-outline">
+            <h3 className="text-xs font-medium text-[#1B1717] opacity-75">{card.title}</h3>
+            <p className={`text-xl font-bold mt-1 ${card.color}`}>{card.count}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Reusable AddTaskButton component
+const AddTaskButton = ({ onClick, className = "" }) => (
+  <button
+    onClick={onClick}
+    className={`btn-primary ${className}`}
+  >
+    + Add Task
+  </button>
+);
 
 export default function ManageTasks() {
   const dispatch = useDispatch();
@@ -49,7 +96,6 @@ export default function ManageTasks() {
   };
 
   const handleView = (id) => {
-    const task = transformedTasks.find((t) => t.taskId === id);
     navigate(`/tasks/${id}`);
   };
 
@@ -58,8 +104,8 @@ export default function ManageTasks() {
       try {
         await tasksAPI.delete(id);
         // Refresh tasks after deletion
-        if (user?.id) {
-          dispatch(fetchTasksByUserId(user.id));
+        if (user?._id) {
+          dispatch(fetchTasksByUserId(user._id));
         }
         alert('Task deleted successfully');
       } catch (err) {
@@ -74,12 +120,25 @@ export default function ManageTasks() {
     navigate(`/tasks/${taskId}?mode=submit`);
   };
 
+  // Helper functions for button visibility
+  const canEditTask = (task) => {
+    const editableStatuses = ["Draft", "Approval Rejected", "Revision In Progress"];
+    return editableStatuses.includes(task.taskStatus) && 
+           task.taskStatus !== "Submission Rejected" && 
+           !task.submitted;
+  };
+
+  const canViewTask = (task) => {
+    const viewableStatuses = ["In Progress", "Awaiting Review", "Awaiting Approval", "Submission Rejected", "Completed"];
+    return viewableStatuses.includes(task.taskStatus);
+  };
+
   const columns = [
     {
       header: "Task ID",
       accessor: "taskId",
       render: (task) => (
-        <span className="font-mono text-[#810000] font-semibold whitespace-nowrap">
+        <span className={`font-mono ${COLORS.PRIMARY} font-semibold whitespace-nowrap`}>
           {task.taskId.slice(-8)}
         </span>
       )
@@ -95,13 +154,13 @@ export default function ManageTasks() {
       header: "Description",
       accessor: "taskDescription",
       render: (task) => (
-        <span className="text-[#1B1717]">{task.taskDescription}</span>
+        <span className={COLORS.TERTIARY}>{task.taskDescription}</span>
       )
     },
     {
       header: "Deadline",
       accessor: "deadline",
-      render: (task) => (<span className="text-[#1B1717]">{task.deadline}</span>)
+      render: (task) => (<span className={COLORS.TERTIARY}>{task.deadline}</span>)
     },
     {
       header: "Status",
@@ -120,38 +179,31 @@ export default function ManageTasks() {
       accessor: "manage",
       render: (task) => (
         <div className="flex gap-2">
-          {(task.taskStatus === "Draft" ||
-            task.taskStatus === "Approval Rejected" &&
-            task.taskStatus !== "Submission Rejected" ||
-            task.taskStatus === "Revision In Progress") && !task.submitted && (
-              <>
-                <button
-                  onClick={() => handleEdit(task.taskId)}
-                  className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
-                >
-                  <Edit2 className="w-3 h-3" /> Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(task.taskId)}
-                  className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-[#1B1717] px-2 py-1 rounded text-xs border border-[#1B1717]"
-                >
-                  <Trash2 className="w-3 h-3" /> Delete
-                </button>
-              </>
-            )}
-          {(task.taskStatus === "In Progress" ||
-            task.taskStatus === "Awaiting Review" ||
-            task.taskStatus === "Awaiting Approval" ||
-            task.taskStatus === "Submission Rejected" ||
-            task.taskStatus === "Completed") && (
+          {canEditTask(task) && (
+            <>
               <button
-                onClick={() => handleView(task.taskId)}
-                className="btn-outline text-xs flex items-center gap-1"
+                onClick={() => handleEdit(task.taskId)}
+                className={`flex items-center gap-1 bg-gray-100 hover:bg-gray-200 ${COLORS.TERTIARY} px-2 py-1 rounded text-xs border border-[#1B1717]`}
               >
-                <Eye className="w-3 h-3" />
-                View
+                <Edit2 className="w-3 h-3" /> Edit
               </button>
-            )}
+              <button
+                onClick={() => handleDelete(task.taskId)}
+                className={`flex items-center gap-1 bg-gray-100 hover:bg-gray-200 ${COLORS.TERTIARY} px-2 py-1 rounded text-xs border border-[#1B1717]`}
+              >
+                <Trash2 className="w-3 h-3" /> Delete
+              </button>
+            </>
+          )}
+          {canViewTask(task) && (
+            <button
+              onClick={() => handleView(task.taskId)}
+              className="btn-outline text-xs flex items-center gap-1"
+            >
+              <Eye className="w-3 h-3" />
+              View
+            </button>
+          )}
         </div>
       )
     },
@@ -165,7 +217,7 @@ export default function ManageTasks() {
           ) : (
             <button
               onClick={() => handleSubmit(task.taskId)}
-              className="btn-primary tex-xs"
+              className="btn-primary text-xs"
             >
               Submit
             </button>
@@ -178,7 +230,7 @@ export default function ManageTasks() {
       accessor: "score",
       render: (task) => (
         <div className="text-center">
-          <span className={`font-bold ${task.score !== "N/A" ? "text-[#1B1717]" : "text-gray-400"}`}>
+          <span className={`font-bold ${task.score !== "N/A" ? COLORS.TERTIARY : "text-gray-400"}`}>
             {task.score}
           </span>
         </div>
@@ -191,18 +243,13 @@ export default function ManageTasks() {
       <main className="flex-1 w-full mx-auto">
         <div className="flex justify-between items-center">
           <h1 className="page-title">Manage Tasks</h1>
-          <button
-            onClick={() => navigate("/tasks/new")}
-            className="btn-primary"
-          >
-            + Add Task
-          </button>
+          <AddTaskButton onClick={() => navigate("/tasks/new")} />
         </div>
 
         {/* Loading State */}
         {isLoading && tasks.length === 0 && (
           <div className="flex justify-center items-center py-8">
-            <div className="text-[#810000]">Loading tasks...</div>
+            <div className={COLORS.PRIMARY}>Loading tasks...</div>
           </div>
         )}
 
@@ -211,7 +258,7 @@ export default function ManageTasks() {
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
             <button
-              onClick={() => user?.id && dispatch(fetchTasksByUserId(user.id))}
+              onClick={() => user?._id && dispatch(fetchTasksByUserId(user._id))}
               className="ml-2 underline hover:no-underline"
             >
               Try again
@@ -230,25 +277,11 @@ export default function ManageTasks() {
         {!isLoading && !error && (
           <>
             {/* Summary Cards */}
-            <div className="mb-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { title: "Total Tasks", count: transformedTasks.length, color: "text-[#810000]" },
-                  { title: "Ongoing", count: transformedTasks.filter((t) => t.status === "Ongoing").length, color: "text-[#CE1212]" },
-                  { title: "Under Review", count: transformedTasks.filter((t) => t.status === "Under Review").length, color: "text-[#1B1717]" },
-                  { title: "Completed", count: transformedTasks.filter((t) => t.status === "Completed").length, color: "text-[#810000]" },
-                ].map((card, i) => (
-                  <div key={i} className="card-outline">
-                    <h3 className="text-xs font-medium text-[#1B1717] opacity-75">{card.title}</h3>
-                    <p className={`text-xl font-bold mt-1 ${card.color}`}>{card.count}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <SummaryCards tasks={transformedTasks} />
 
 
             {/* Note Section */}
-            <div className="bg-background my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717]">
+            <div className="card-outline mb-4 border-red-800">
               <p><span className="font-semibold">Note:</span> Scores will be available once tasks are marked as Completed.</p>
             </div>
 
@@ -267,34 +300,15 @@ export default function ManageTasks() {
         {(!error && tasks.length === 0 && !isLoading) && (
           <>
             {/* Summary Cards */}
-            <div className="mb-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { title: "Total Tasks", count: 0, color: "text-[#810000]" },
-                  { title: "Ongoing", count: 0, color: "text-[#CE1212]" },
-                  { title: "Under Review", count: 0, color: "text-[#1B1717]" },
-                  { title: "Completed", count: 0, color: "text-[#810000]" },
-                ].map((card, i) => (
-                  <div key={i} className="card-outline">
-                    <h3 className="text-xs font-medium text-[#1B1717] opacity-75">{card.title}</h3>
-                    <p className={`text-xl font-bold mt-1 ${card.color}`}>{card.count}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <SummaryCards tasks={[]} />
 
             {/* Add Task Button */}
             <div className="flex justify-end">
-              <button
-                onClick={() => navigate("/tasks/new")}
-                className="btn-primary"
-              >
-                + Add Task
-              </button>
+              <AddTaskButton onClick={() => navigate("/tasks/new")} />
             </div>
 
             {/* No tasks message */}
-            <div className="bg-background my-4 p-3 rounded-lg border border-[#CE1212] text-sm text-[#1B1717] text-center">
+            <div className="card-outline mb-4 border-red-800 text-center my-4">
               <p>No tasks found. Start by creating your first task!</p>
             </div>
           </>

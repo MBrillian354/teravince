@@ -1,6 +1,6 @@
-import StatsCard from "@/components/StatsCard"
-import DataTable from "@/components/DataTable"
-import StatusBadge from "@/components/StatusBadge"
+import StatsCard from "@/components/StatsCard";
+import DataTable from "@/components/DataTable";
+import StatusBadge from "@/components/StatusBadge";
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useModal } from '../hooks/useModal';
@@ -61,29 +61,7 @@ const ManageAccounts = () => {
     );
   };
 
-  // Show isLoading state
-  if (isLoading && accountsData.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading accounts...</div>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-red-500">Error: {error}</div>
-        <button
-          onClick={() => dispatch(fetchAccounts())}
-          className="ml-4 btn btn-primary"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
+  // Remove early returns for loading and error, handle in main render
 
   // Compute stats dynamically based on accountData
   const accountStats = [
@@ -143,35 +121,57 @@ const ManageAccounts = () => {
     <>
       <div className="flex justify-between items-center">
         <div className='page-title my-4'>Manage Accounts</div>
-        <Link to="/accounts/new" className="btn btn-primary">Create New Account</Link>
+        {/* Only show Create New Account button if not loading or error */}
+        {!isLoading && !error && (
+          <Link to="/accounts/new" className="btn btn-primary">Create New Account</Link>
+        )}
       </div>
 
-      {isLoading && (
-        <div className="mb-4 text-blue-600">
-          isLoading...
+      {/* Loading State */}
+      {isLoading && accountsData.length === 0 && (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Loading accounts...</div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
-        {accountStats.map((stat, index) => (
-          <StatsCard key={index} label={stat.label} value={stat.value} />
-        ))}
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
-        {assignmentStats.map((stat, index) => (
-          <StatsCard key={index} label={stat.label} value={stat.value} />
-        ))}
-      </div>
-      <DataTable
-        title="Accounts"
-        columns={columns}
-        data={accountsData}
-        rowKey="id"
-        onRowClick={row => console.log('Row clicked:', row)}
-        variant='gradient'
-      />
+      {/* Error State */}
+      {error && (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-red-500">Error: {error}</div>
+          <button
+            onClick={() => dispatch(fetchAccounts())}
+            className="ml-4 btn btn-primary"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Main Content */}
+      {!isLoading && !error && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+            {accountStats.map((stat, index) => (
+              <StatsCard key={index} label={stat.label} value={stat.value} />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+            {assignmentStats.map((stat, index) => (
+              <StatsCard key={index} label={stat.label} value={stat.value} />
+            ))}
+          </div>
+          <DataTable
+            title="Accounts"
+            columns={columns}
+            data={accountsData}
+            rowKey="id"
+            onRowClick={row => console.log('Row clicked:', row)}
+            variant='gradient'
+          />
+        </>
+      )}
     </>
-  )
+  );
 }
 
 export default ManageAccounts

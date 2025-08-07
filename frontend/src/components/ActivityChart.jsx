@@ -27,7 +27,7 @@ const data = [
 
 const ActivityChart = () => {
   return (
-    <div className="bg-accent p-4 rounded-lg shadow">
+    <div className="card-static border">
       <div className="text-lg font-semibold mb-4 text-primary">Activity Recap</div>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>

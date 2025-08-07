@@ -62,7 +62,7 @@ export default function MyStaffs() {
           profilePicture: user.profilePicture || '',
           contractStartDate: user.contractStartDate,
           contractEndDate: user.contractEndDate,
-          status: user.status
+          status: user.status.toUpperCase()
         }));
 
       setStaffList(staffMembers);

@@ -55,7 +55,7 @@ h1 {
 }
 
 @utility card-static {
-  @apply bg-white p-8 rounded-lg shadow-xs;
+  @apply bg-white p-8 rounded-md shadow-xs;
 }
 
 @utility card-interactive {
@@ -63,7 +63,7 @@ h1 {
 }
 
 @utility card-outline {
-  @apply rounded-lg p-4 shadow-xs border border-[#1B1717] transition-transform hover:scale-105 hover:shadow-md;
+  @apply rounded-md p-4 shadow-xs border border-[#1B1717] transition-transform hover:scale-105 hover:shadow-md;
 }
 
 /* Utility classes for forms */

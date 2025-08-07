@@ -2,14 +2,13 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   firstName: { type: String, required: true },
-  lastName: { type: String, required: false },
+  lastName: { type: String, required: false  },
   email: { type: String, required: true, unique: true },
   password: String,
   role: { type: String, enum: ['staff', 'supervisor', 'admin'], required: false },
-  position: { type: String, default: '' },
   isVerified: { type: Boolean, default: false },
   googleId: String,
-  contactInfo: String,
+  contactInfo: Number,
   address: String,
   profilePicture: { type: String, default: '' },
   contractStartDate: Date,

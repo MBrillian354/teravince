@@ -36,7 +36,6 @@ export default function StaffDetail() {
                     contactInfo: staffMember.contactInfo || '',
                     address: staffMember.address || '',
                     jobTitle: staffMember.jobId?.title || 'Unassigned',
-                    position: staffMember.position || '',
                     profilePicture: staffMember.profilePicture || '',
                     contractStartDate: staffMember.contractStartDate,
                     contractEndDate: staffMember.contractEndDate,
@@ -145,13 +144,10 @@ export default function StaffDetail() {
                     <div className="flex-1">
                         <h2 className="text-3xl font-bold text-gray-900 mb-2">{staff.name}</h2>
                         <p className="text-xl text-gray-600 mb-2">{staff.jobTitle}</p>
-                        {staff.position && (
-                            <p className="text-lg text-gray-600 mb-2">{staff.position}</p>
-                        )}
                         <p className="text-lg text-gray-500">{staff.email}</p>
                         {staff.status && (
                             <p className="mt-2 text-sm">
-                                Status: <span className="capitalize font-medium text-indigo-600">{staff.status}</span>
+                                Status: <span className="capitalize font-medium text-indigo-600">{staff.status.toUpperCase()}</span>
                             </p>
                         )}
                     </div>
@@ -206,12 +202,6 @@ export default function StaffDetail() {
                                 <label className="block text-sm font-medium text-gray-600 mb-1">Job Title</label>
                                 <p className="text-gray-900">{staff.jobTitle}</p>
                             </div>
-                            {staff.position && (
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-600 mb-1">Position</label>
-                                    <p className="text-gray-900">{staff.position}</p>
-                                </div>
-                            )}
                             <div>
                                 <label className="block text-sm font-medium text-gray-600 mb-1">Role</label>
                                 <p className="text-gray-900 capitalize">{staff.role}</p>

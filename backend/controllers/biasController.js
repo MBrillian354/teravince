@@ -136,7 +136,7 @@ TASK DETAILS:
 - Title: ${task.title || 'N/A'}
 - Description: ${task.description || 'N/A'}  
 - Employee Score: ${task.score || 'N/A'}
-- Task Period: ${task.startDate || 'N/A'} to ${task.endDate || 'N/A'}
+- Task Period: ${task.startDate || 'N/A'} to ${task.completedDate || 'N/A'}
 - Evidence Provided: ${evidence_files.length > 0 ? 'Yes' : 'No'}
 
 SUPERVISOR REVIEW TO ANALYZE:

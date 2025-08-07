@@ -32,7 +32,7 @@ import {
         { header: 'Task ID', accessor: 'id', render: (row) => row.id?.toString().slice(-8) || 'N/A' },
         { header: 'Task Title', accessor: 'title' },
         { header: 'Start Date', accessor: 'startDate' },
-        { header: 'Finish Date', accessor: 'endDate' },
+        { header: 'Finish Date', accessor: 'completedDate' },
         {
             header: 'Submission Status',
             render: (r) => (

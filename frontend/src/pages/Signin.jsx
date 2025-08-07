@@ -47,13 +47,13 @@ function Signin() {
       navigate('/role-confirm');
       return;
     }
-    
+
     // Check if user needs job confirmation
-    if (!storedUser?.jobId) {
+    if (!storedUser?.jobId && storedUser?.role === 'staff') {
       navigate('/job-confirm');
       return;
     }
-    
+
     // User has both role and jobId, go to dashboard
     navigate('/dashboard');
   };

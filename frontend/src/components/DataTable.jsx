@@ -30,7 +30,7 @@ export default function DataTable({
     return (
       <div className="card-static p-0 border border-primary/50 overflow-hidden flex flex-col mb-4">
         {title && (
-          <div className="bg-gradient-to-r from-primary to-secondary px-6 py-4">
+          <div className="bg-gradient-to-r from-primary to-primary/60 px-6 py-4">
             <h2 className="text-lg font-semibold text-background">{title}</h2>
           </div>
         )}

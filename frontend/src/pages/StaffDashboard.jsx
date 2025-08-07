@@ -16,14 +16,17 @@ const StaffDashboard = () => {
 
   return (
     <div className={containerStyle}>
+      <div className="flex justify-between items-center my-4">
+        <h1 className="page-title">
+          Welcome back, <span className="underline">{staff.firstName + ' ' + staff.lastName}</span>.
+        </h1>
+      </div>
+
       {/* Main Dashboard Section */}
       <div className={cardStyle}>
-        {/* Greeting */}
-        <h1 className={greetingStyle}>Welcome back, {staff.firstName + ' ' + staff.lastName}</h1>
 
         {/* Filters */}
         <div className={filterWrapperStyle}>
-          <h2 className={overviewTitleStyle}>Overview</h2>
           <div className={filterControlsStyle}>
             <input type="date" className={dateInputStyle} />
           </div>
@@ -60,10 +63,8 @@ export default StaffDashboard;
 // ================== Styling Section ==================
 
 const containerStyle = "min-h-screen bg-background text-primary";
-const cardStyle = "card-static m-6";
-const greetingStyle = "text-2xl font-semibold mb-2";
-const filterWrapperStyle = "flex justify-between items-center mb-4";
-const overviewTitleStyle = "text-lg font-medium border-b-2 border-primary";
+const cardStyle = "card-static";
+const filterWrapperStyle = "flex justify-end items-center mb-4";
 const filterControlsStyle = "flex gap-4";
 const dateInputStyle =
   "border border-primary rounded-xl p-2 px-4 text-sm font-medium bg-accent shadow-md transition duration-150 ease-in-out hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer";

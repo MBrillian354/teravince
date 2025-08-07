@@ -1,5 +1,4 @@
-import React from 'react';
-import StatusBadge from '../components/StatusBadge';
+import StatusBadge from './StatusBadge';
 
 /**
  * Status Badge Demo Component

@@ -33,7 +33,6 @@ import StaffReport from './pages/supervisor/StaffReport.jsx';
 import StaffDetail from './pages/supervisor/StaffDetail.jsx';
 
 // Staff imports
-import TasksPage from './pages/protected/TasksPage';
 import NewTaskForm from './pages/staff/NewTaskForm';
 import EditTaskForm from './pages/staff/EditTaskForm';
 import ViewTask from './pages/staff/ViewTask.jsx';
@@ -42,7 +41,6 @@ import ViewTask from './pages/staff/ViewTask.jsx';
 import PrivacyPolicy from './pages/public/PrivacyPolicy.jsx';
 import TermsAndConditions from './pages/public/TermsAndConditions.jsx';
 import CookiePolicy from './pages/public/CookiePolicy.jsx';
-import SimpleModalDemo from './components/SimpleModalDemo';
 
 import NewUserRoleConfirmation from './pages/public/NewUserRoleConfirmation';
 import NewUserJobConfirmation from './pages/public/NewUserJobConfirmation';

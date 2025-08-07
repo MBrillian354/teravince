@@ -8,6 +8,7 @@ import { tasksAPI } from "../utils/api";
 import authService from "../utils/authService";
 import { fetchTasksByUserId, clearError } from '../store/staffSlice';
 import { getDisplayTaskStatus } from '../utils/statusStyles';
+import { useModal } from '../hooks/useModal';
 
 // Constants
 const COLORS = {
@@ -60,6 +61,7 @@ export default function ManageTasks() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = authService.getStoredUser();
+  const { showError, showSuccess, showConfirm } = useModal();
 
   // Get data from Redux store
   const { tasks, isLoading, error } = useSelector((state) => state.staff);
@@ -100,19 +102,34 @@ export default function ManageTasks() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(`Are you sure you want to delete this task?`)) {
-      try {
-        await tasksAPI.delete(id);
-        // Refresh tasks after deletion
-        if (user?._id) {
-          dispatch(fetchTasksByUserId(user._id));
-        }
-        alert('Task deleted successfully');
-      } catch (err) {
-        console.error('Error deleting task:', err);
-        alert('Failed to delete task. Please try again.');
+    showConfirm(
+      'Delete Task',
+      'Are you sure you want to delete this task?',
+      {
+        onConfirm: async () => {
+          try {
+            await tasksAPI.delete(id);
+            // Refresh tasks after deletion
+            if (user?._id) {
+              dispatch(fetchTasksByUserId(user._id));
+            }
+            showSuccess(
+              'Task Deleted',
+              'Task deleted successfully.',
+              { autoClose: true, timeout: 3000 }
+            );
+          } catch (err) {
+            console.error('Error deleting task:', err);
+            showError(
+              'Delete Failed',
+              'Failed to delete task. Please try again.',
+              { autoClose: true, timeout: 3000 }
+            );
+          }
+        },
+        onCancel: () => {},
       }
-    }
+    );
   };
 
   const handleSubmit = (taskId) => {

@@ -37,7 +37,11 @@ export default function Navbar() {
     return (
         <header className="bg-primary text-white shadow mb-8">
             <div className="max-md:hidden container max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
-                <h1 className="text-xl font-bold text-white-700">TeraVince</h1>
+                <img
+                    src="/teravince_white.png" 
+                    alt="TeraVince Logo"
+                    className="h-10 w-auto"
+                />
                 <nav className="flex justify-center md:justify-end gap-2 max-w-full overflow-x-auto">
                     {navigationItems.map(item => (
                         <NavLink
@@ -70,10 +74,10 @@ export default function Navbar() {
                     aria-label="Toggle navigation menu"
                     onClick={() => setMenuOpen(!menuOpen)}
                 >
-                    <svg 
-                        width="28" 
-                        height="28" 
-                        fill="none" 
+                    <svg
+                        width="28"
+                        height="28"
+                        fill="none"
                         viewBox="0 0 24 24"
                         className={`transform transition-transform duration-200 ${menuOpen ? 'rotate-90' : ''}`}
                     >
@@ -87,9 +91,8 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Navigation Menu */}
-            <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-                menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-            }`}>
+            <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}>
                 <nav className="px-4 py-4 bg-primary border-t border-white/10">
                     <div className="flex flex-col space-y-3">
                         {navigationItems.map((item, index) => (

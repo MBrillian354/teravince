@@ -4,7 +4,7 @@ import {
   getApprovalStatusStyles, 
   getReviewStatusStyles,
   getStatusIcon 
-} from '../utils/statusStyles';
+} from '../../utils/statusStyles';
 
 /**
  * Reusable Status Badge Component

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import DynamicForm from '../../components/DynamicForm';
-import StatusNotification from '../../components/StatusNotification';
+import DynamicForm from '../../components/ui/DynamicForm';
+import StatusNotification from '../../components/ui/StatusNotification';
 import { fetchTaskByIdForReview, updateTaskReview, checkTaskReviewBias, clearCurrentTaskForReview, clearSupervisorError, clearBiasCheckResult } from '../../store/supervisorSlice';
 import { useModal } from '../../hooks/useModal';
 

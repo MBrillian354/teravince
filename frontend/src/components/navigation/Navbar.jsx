@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { authService } from '../utils/authService';
+import { authService } from '../../utils/authService';
 
 export default function Navbar() {
     const navigate = useNavigate();

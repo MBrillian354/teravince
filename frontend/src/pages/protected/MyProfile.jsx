@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { accountsAPI } from '../../utils/api';
 import { authService } from '../../utils/authService';
-import DynamicForm from '../../components/DynamicForm';
+import DynamicForm from '../../components/ui/DynamicForm';
 
 export default function MyProfile() {
   const [user, setUser] = useState(null);

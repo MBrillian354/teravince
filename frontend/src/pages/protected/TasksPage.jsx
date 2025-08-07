@@ -1,4 +1,4 @@
-import { RoleBasedContent } from '../../components/RoleBasedRoute';
+import { RoleBasedContent } from '../../components/navigation/RoleBasedRoute';
 import Tasks from '../supervisor/TeamTasks';
 import ManageTasks from '../staff/ManageTasks';
 

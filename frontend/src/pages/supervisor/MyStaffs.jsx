@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import DataTable from '../../components/DataTable';
+import DataTable from '../../components/tables/DataTable';
 import { accountsAPI } from '../../utils/api';
 
 export default function MyStaffs() {

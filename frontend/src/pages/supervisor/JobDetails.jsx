@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import DataTable from '../../components/DataTable';
-import StatusBadge from '../../components/StatusBadge';
+import DataTable from '../../components/tables/DataTable';
+import StatusBadge from '../../components/ui/StatusBadge';
 import { fetchJobDetails, clearCurrentJob } from '../../store/adminSlice';
 import {
     getDisplayTaskStatus,

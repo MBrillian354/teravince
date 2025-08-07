@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TasksReportsTabs from '../../components/TasksReportsTabs';
-import StatsCard from '../../components/StatsCard';
-import DataTable from '../../components/DataTable';
-import Pagination from '../../components/Pagination';
-import StatusBadge from '../../components/StatusBadge';
-import SearchInput from '../../components/SearchInput';
-import FilterSelect from '../../components/FilterSelect';
+import TasksReportsTabs from '../../components/navigation/TasksReportsTabs';
+import StatsCard from '../../components/ui/StatsCard';
+import DataTable from '../../components/tables/DataTable';
+import Pagination from '../../components/tables/Pagination';
+import StatusBadge from '../../components/ui/StatusBadge';
+import SearchInput from '../../components/tables/SearchInput';
+import FilterSelect from '../../components/tables/FilterSelect';
 import { tasksAPI } from '../../utils/api';
 import { useServerTable } from '../../hooks/useServerTable';
 import {

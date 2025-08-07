@@ -1,6 +1,6 @@
-import StatsCard from "@/components/StatsCard";
-import DataTable from "@/components/DataTable";
-import StatusBadge from "@/components/StatusBadge";
+import StatsCard from "@/components/ui/StatsCard";
+import DataTable from "@/components/tables/DataTable";
+import StatusBadge from "@/components/ui/StatusBadge";
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useModal } from '../../hooks/useModal';

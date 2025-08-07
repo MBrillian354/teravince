@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { authService } from '../utils/authService';
+import { authService } from '../../utils/authService';
 
 // Component that automatically routes users based on their role
 const RoleBasedRoute = ({ children, allowedRoles = [] }) => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import DynamicForm from "../../components/DynamicForm";
+import DynamicForm from "../../components/ui/DynamicForm";
 import { useModal } from '../../hooks/useModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";

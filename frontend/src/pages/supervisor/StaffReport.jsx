@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import StatsCard from '../../components/StatsCard';
-import DataTable from '../../components/DataTable';
-import DynamicForm from '../../components/DynamicForm';
+import StatsCard from '../../components/ui/StatsCard';
+import DataTable from '../../components/tables/DataTable';
+import DynamicForm from '../../components/ui/DynamicForm';
 import { useModal } from '../../hooks/useModal';
 import { fetchReportTasks, updateReport, clearCurrentReport, checkReportReviewBias } from '../../store/supervisorSlice';
 

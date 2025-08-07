@@ -1,5 +1,5 @@
-import StatsCard from '../../components/StatsCard'
-import DataTable from '../../components/DataTable'
+import StatsCard from '../../components/ui/StatsCard'
+import DataTable from '../../components/tables/DataTable'
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchJobs, deleteJob, updateJob, clearError } from '@/store/adminSlice';

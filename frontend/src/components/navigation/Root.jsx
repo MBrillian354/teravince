@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { authService } from '../utils/authService';
-import SignIn from '../pages/auth/Signin';
+import { authService } from '../../utils/authService';
+import SignIn from '../../pages/auth/Signin';
 
 const Root = () => {
   const isAuthenticated = authService.isAuthenticated();

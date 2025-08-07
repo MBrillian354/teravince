@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DynamicForm from '../../components/DynamicForm';
+import DynamicForm from '../../components/ui/DynamicForm';
 
 function ForgotPassword() {
   const [isSubmitted, setIsSubmitted] = useState(false);

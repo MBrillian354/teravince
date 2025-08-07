@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import GlobalModal from './components/GlobalModal';
-import RoleBasedRoute from './components/RoleBasedRoute';
-import NewUserProtectedRoute from './components/NewUserProtectedRoute';
+import Navbar from './components/navigation/Navbar';
+import Footer from './components/ui/Footer';
+import GlobalModal from './components/modals/GlobalModal';
+import RoleBasedRoute from './components/navigation/RoleBasedRoute';
+import NewUserProtectedRoute from './components/navigation/NewUserProtectedRoute';
 import { authService } from './utils/authService';
-import Root from './components/Root';
+import Root from './components/navigation/Root';
 
 // Auth imports
 import SignUp from './pages/auth/Signup';
@@ -50,7 +50,7 @@ import ManageTasks from './pages/staff/ManageTasks';
 import SupervisorReviewingAndApprovalOfTask from './pages/supervisor/SupervisorReviewingAndApprovalOfTask';
 import JobDetails from './pages/supervisor/JobDetails';
 import TeamTasks from './pages/supervisor/TeamTasks';
-import StatusBadgeDemo from './components/StatusBadgeDemo';
+import StatusBadgeDemo from './components/ui/StatusBadgeDemo';
 import OAuthSuccess from './pages/auth/OauthSuccess';
 
 // Auth Routes Component

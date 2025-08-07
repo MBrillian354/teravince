@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import DynamicForm from '../../components/DynamicForm';
+import DynamicForm from '../../components/ui/DynamicForm';
 import { fetchTaskById, fetchTasks } from '../../store/staffSlice';
 import { useModal } from '../../hooks/useModal';
-import StatusNotification from "@/components/StatusNotification";
+import StatusNotification from "@/components/ui/StatusNotification";
 import {
   getTaskFromParams,
   createBaseFormFields,

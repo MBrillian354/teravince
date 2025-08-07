@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import StatsCard from '../../components/StatsCard';
+import StatsCard from '../../components/ui/StatsCard';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchDashboardData, clearError } from '../../store/adminSlice';
 

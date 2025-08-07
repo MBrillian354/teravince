@@ -1,9 +1,9 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { closeModal, selectModal } from '../store/modalSlice';
-import { MODAL_TYPES } from '../constants/modalTypes';
-import Modal from './Modal';
-import ConfirmModal from './modals/ConfirmModal';
-import NotificationModal from './modals/NotificationModal';
+import { closeModal, selectModal } from '../../store/modalSlice';
+import { MODAL_TYPES } from '../../constants/modalTypes';
+import Modal from '../Modal';
+import ConfirmModal from './ConfirmModal';
+import NotificationModal from './NotificationModal';
 
 const modalComponents = {
   [MODAL_TYPES.CONFIRM]: ConfirmModal,

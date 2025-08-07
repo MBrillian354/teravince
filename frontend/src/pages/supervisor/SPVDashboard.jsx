@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
-import TaskStatusChart from '../../components/TaskStatusChart';
-import StatsCard from '../../components/StatsCard';
+import TaskStatusChart from '../../components/charts/TaskStatusChart';
+import StatsCard from '../../components/ui/StatsCard';
 import { fetchSupervisorDashboard } from '../../store/supervisorSlice';
 
 export default function SPVDashboard() {

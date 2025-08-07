@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import DynamicForm from '../../components/DynamicForm';
+import DynamicForm from '../../components/ui/DynamicForm';
 import { useModal } from '../../hooks/useModal';
 import { selectModal } from '../../store/modalSlice';
 import { authService } from '../../utils/authService';

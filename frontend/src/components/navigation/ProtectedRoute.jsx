@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { authService } from '../utils/authService';
+import { authService } from '../../utils/authService';
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
   const location = useLocation();

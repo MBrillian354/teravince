@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import StatsCard from '../../components/StatsCard';
-import ActivityChart from '../../components/ActivityChart';
-import HistoryList from '../../components/HistoryList';
+import StatsCard from '../../components/ui/StatsCard';
+import ActivityChart from '../../components/charts/ActivityChart';
+import HistoryList from '../../components/ui/HistoryList';
 import { fetchStaffDashboard } from '../../store/staffSlice';
 
 const StaffDashboard = () => {

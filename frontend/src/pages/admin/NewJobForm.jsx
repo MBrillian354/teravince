@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import DynamicForm from '../../components/DynamicForm';
+import DynamicForm from '../../components/ui/DynamicForm';
 import { createJob } from '@/store/adminSlice';
 import { useModal } from '../../hooks/useModal';
 import { useDispatch } from 'react-redux';

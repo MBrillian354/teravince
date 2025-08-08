@@ -218,17 +218,17 @@ export default function StaffReport() {
               type: 'textarea',
               placeholder: "Enter your review ...",
               defaultValue: currentReport.review || '',
-              disabled: currentReport.status === 'done',
+              disabled: currentReport.status === 'done' && currentReport?.bias_check?.is_bias === false,
             },
-            ...(currentReport.status !== 'done' ? [{
+            ...(!(currentReport.status === 'done' && currentReport?.bias_check?.is_bias === false) ? [{
               label: 'I have properly reviewed the staff\'s report',
               name: 'reviewed',
               type: 'checkbox',
               required: true,
             }] : [])
           ]}
-          submitButtonText="Send Review"
-          showSubmitButton={currentReport.status !== 'done'}
+          submitButtonText={"Send Review"}
+          showSubmitButton={!(currentReport.status === 'done' && currentReport?.bias_check?.is_bias === false)}
           onSubmit={handleSubmitReview}
         />
       </div>

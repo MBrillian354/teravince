@@ -50,6 +50,7 @@ import JobDetails from './pages/supervisor/JobDetails';
 import TeamTasks from './pages/supervisor/TeamTasks';
 import StatusBadgeDemo from './components/ui/StatusBadgeDemo';
 import OAuthSuccess from './pages/auth/OauthSuccess';
+import SubmitTask from './pages/staff/SubmitTask';
 
 // Auth Routes Component
 function AuthRoutes() {
@@ -184,6 +185,11 @@ function StaffRoutes() {
       <Route path="/tasks/:id" element={
         <RoleBasedRoute allowedRoles={['staff']}>
           <ViewTask />
+        </RoleBasedRoute>
+      } />
+      <Route path="/tasks/:id/submit" element={
+        <RoleBasedRoute allowedRoles={['staff']}>
+          <SubmitTask />
         </RoleBasedRoute>
       } />
       <Route path="/tasks/:id/edit" element={

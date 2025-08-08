@@ -178,8 +178,8 @@ export default function SupervisorReviewingAndApprovalOfTask() {
         type: 'link',
         name: 'evidence',
         label: 'Evidence',
-        // href: `${process.env.REACT_APP_API_URL}${selectedTask.evidence}`,
-        href: `http://localhost:5000/${selectedTask.evidence}`,
+        href: `${process.env.VITE_API_BASE_URL}${selectedTask.evidence}`,
+        // href: `http://localhost:5000/${selectedTask.evidence}`,
         className: 'justify-start',
       }] : []),
       {

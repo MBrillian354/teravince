@@ -106,15 +106,15 @@ function Signin() {
       label: 'Password',
       placeholder: 'Enter your password',
       required: true,
-      hint: 'Must include letters, numbers, and symbols'
+      // hint: 'Must include letters, numbers, and symbols'
     },
-    {
-      type: 'checkbox',
-      name: 'remember',
-      label: 'Remember me',
-      required: false,
-      group: 'remember-forgot'
-    },
+    // {
+    //   type: 'checkbox',
+    //   name: 'remember',
+    //   label: 'Remember me',
+    //   required: false,
+    //   group: 'remember-forgot'
+    // },
     {
       type: 'link',
       name: 'forgotPassword',

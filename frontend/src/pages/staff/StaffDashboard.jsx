@@ -31,16 +31,17 @@ const StaffDashboard = () => {
   const statsData = [
     {
       label: "Performance Score",
-      value: `${dashboardData.performanceScore || 0} / 100`
+      value: `${(dashboardData.performanceScore || 0).toString().slice(0, 6)} / 100`
     },
     {
       label: "Performance Feedback",
-      value: dashboardData.performanceFeedback || 'No feedback yet'
+      value: (dashboardData.performanceFeedback || 'No feedback yet').toString().slice(0, 10) +
+        ((dashboardData.performanceFeedback || '').length > 30 ? ' ...' : '')
     },
     {
       label: "Growth Rate",
-      value: `${dashboardData.growthRate >= 0 ? '+' : ''}${dashboardData.growthRate || 0}%`,
-      delta: `${dashboardData.growthRate >= 0 ? '+' : ''}${dashboardData.growthRate || 0}%`
+      value: `${dashboardData.growthRate >= 0 ? '+' : ''}${(dashboardData.growthRate || 0).toString().slice(0, 6)}%`,
+      delta: `${dashboardData.growthRate >= 0 ? '+' : ''}${(dashboardData.growthRate || 0).toString().slice(0, 6)}%`
     },
   ];
 

@@ -44,12 +44,12 @@ function Signup() {
       required: true,
       hint: 'Must include letters, numbers, and symbols'
     },
-    {
-      type: 'checkbox',
-      name: 'remember',
-      label: 'Remember me',
-      required: false
-    }
+    // {
+    //   type: 'checkbox',
+    //   name: 'remember',
+    //   label: 'Remember me',
+    //   required: false
+    // }
   ];
 
   const handleSubmit = async (formData) => {

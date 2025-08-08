@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import DynamicForm from '../../components/ui/DynamicForm';
 import { fetchTaskById, fetchTasks, fetchTasksByUserId } from '../../store/staffSlice';
 import { useModal } from '../../hooks/useModal';
-import { tasksAPI } from "../utils/api";
-import authService from "../utils/authService";
+import { tasksAPI } from "../../utils/api";
+import authService from "../../utils/authService";
 import StatusNotification from "@/components/ui/StatusNotification";
 import {
     getTaskFromParams,
@@ -124,7 +124,7 @@ export default function SubmitTask() {
                 }));
                 updateData.kpis = updatedKpis;
             }
-
+            console.log('Submitting task with data:', updateData);
             await tasksAPI.update(task._id, updateData);
 
             // Refresh tasks after submission

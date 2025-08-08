@@ -134,7 +134,7 @@ export default function ManageTasks() {
 
   const handleSubmit = (taskId) => {
     // Navigate to ViewTask with submission mode
-    navigate(`/tasks/${taskId}?mode=submit`);
+    navigate(`/tasks/${taskId}/submit`);
   };
 
   // Helper functions for button visibility

@@ -69,6 +69,14 @@ const EditAccount = () => {
       defaultValue: accountData?.email || '',
     },
     {
+      type: 'text',
+      name: 'password',
+      label: 'New Password',
+      placeholder: 'Enter New password',
+      required: true,
+      defaultValue: accountData?.password || '',
+    },
+    {
       type: 'select',
       name: 'role',
       label: 'User Role',
